@@ -1,0 +1,54 @@
+MWidgetStyle {
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+}
+
+MAbstractLayoutPolicyStyle {
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+}
+
+#SeasideList {
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+}
+
+#SeasideListItem {
+    background-color: white;
+    minimum-size: 100% -1;
+}
+
+#SeasideListItemThumbnail {
+    margin-top: 8;
+    margin-right: 8;
+    margin-bottom: 8;
+    margin-left: 8;
+    border-color: gray;
+    border-top: 2;
+    border-right: 2;
+    border-bottom: 2;
+    border-left: 2;
+}
+
+#SeasideListItemName {
+    color: #667786;
+    pressed-color: black;
+    font: "Droid Sans" 24;
+    font-weight: "bold";
+    text-align: "left";
+    vertical-align: "center";
+    padding-top: 0.5mm;
+    padding-right: 0.5mm;
+    padding-bottom: 0.5mm;
+    padding-left: 0.5mm;
+}
