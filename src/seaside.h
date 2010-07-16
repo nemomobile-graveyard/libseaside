@@ -26,7 +26,8 @@ public:
     };
 
     enum Column {
-        ColumnName,
+        ColumnFirstName,
+        ColumnLastName,
         ColumnCompany,
         ColumnBirthday,
         ColumnAnniversary,
@@ -102,7 +103,8 @@ public:
 /*
   Model data for Seaside::DataRole
   --------------------------------
-  Name                String
+  FirstName           String
+  LastName            String
   Company             String
   Birthday            Date
   Anniversary         Date

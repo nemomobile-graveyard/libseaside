@@ -36,7 +36,7 @@ public:
         SEASIDE_SET_MODEL_AND_ROW(index.model(), index.row())
 
         item->setThumbnail(SEASIDE_FIELD(Avatar, String));
-        item->setName(SEASIDE_FIELD(Name, String));
+        item->setName(SEASIDE_FIELD(FirstName, String) + " " + SEASIDE_FIELD(LastName, String));
     }
 };
 

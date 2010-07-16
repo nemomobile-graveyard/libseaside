@@ -201,7 +201,8 @@ SeasideSyncModel::SeasideSyncModel()
 {
     priv = new SeasideSyncModelPriv;
 
-    priv->headers.append("Name");
+    priv->headers.append("First Name");
+    priv->headers.append("Last Name");
     priv->headers.append("Company");
     priv->headers.append("Birthday");
     priv->headers.append("Anniversary");
@@ -325,13 +326,17 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
     // expect searching on DisplayRole, only return text that makes sense to search
 
     switch (index.column()) {
-    case Seaside::ColumnName:  // name
+    case Seaside::ColumnFirstName:  // first name
         {
-            QContactName name = contact->detail<QContactName>();
-            QString strName(name.firstName());
-            if (!strName.isEmpty() && !name.lastName().isEmpty())
-                strName += " ";  // TODO: i18n
-            strName += name.lastName();
+            QContactName fname = contact->detail<QContactName>();
+            QString strName(fname.firstName());            
+            return QVariant(strName);
+        }
+
+   case Seaside::ColumnLastName:  // last name
+        {
+            QContactName lname = contact->detail<QContactName>();
+            QString strName(lname.lastName());
             return QVariant(strName);
         }
 
@@ -844,7 +849,8 @@ SeasidePersonModel *SeasideSyncModel::createPersonModel(const QModelIndex& index
 
     // handle basic information
     model->setUuid(QUuid(SEASIDE_FIELD(Uuid, String)));
-    model->setName(SEASIDE_FIELD(Name, String));
+    model->setFirstName(SEASIDE_FIELD(FirstName, String));
+    model->setLastName(SEASIDE_FIELD(LastName, String));
     model->setCompany(SEASIDE_FIELD(Company, String));
     model->setThumbnail(SEASIDE_FIELD(Avatar, String));
 
@@ -942,25 +948,26 @@ void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
     }
     SeasidePersonModel *oldModel = createPersonModel(newModel->uuid());
 
-    const QString& newName = newModel->name();
-    if (oldModel->name() != newName) {
+    const QString& newFirstName = newModel->firstname();
+    if (oldModel->firstname() != newFirstName) {
         QContactName name = contact->detail<QContactName>();
-        // TODO: improve name part detection
-        // for now, if there's a space, call prefix 'first name', suffix 'last name'
-        int index = newName.indexOf(' ');
-        if (index == -1) {
-            name.setFirstName(newName);
-            name.setLastName("");
-        }
-        else {
-            name.setFirstName(newName.mid(0, index));
-            name.setLastName(newName.mid(index + 1));
-        }
+        name.setFirstName(newFirstName);
         name.setMiddleName("");
         name.setPrefix("");
         name.setSuffix("");
         if (!contact->saveDetail(&name))
-            qWarning() << "[SyncModel] failed to update name";
+            qWarning() << "[SyncModel] failed to update first name";
+    }
+
+    const QString& newLastName = newModel->lastname();
+    if (oldModel->lastname() != newLastName) {
+        QContactName name = contact->detail<QContactName>();
+        name.setLastName(newLastName);
+        name.setMiddleName("");
+        name.setPrefix("");
+        name.setSuffix("");
+        if (!contact->saveDetail(&name))
+            qWarning() << "[SyncModel] failed to update last name";
     }
 
     const QString& newCompany = newModel->company();

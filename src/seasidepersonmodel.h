@@ -27,7 +27,8 @@ public:
     void setAddress(int index, const SeasideDetail& detail);
 
     M_MODEL_PROPERTY(QUuid, uuid, Uuid, true, QUuid());
-    M_MODEL_PROPERTY(QString, name, Name, true, QString())
+    M_MODEL_PROPERTY(QString, firstname, FirstName, true, QString())
+    M_MODEL_PROPERTY(QString, lastname, LastName, true, QString())
     M_MODEL_PROPERTY(QString, company, Company, true, QString())
     M_MODEL_PROPERTY(QString, thumbnail, Thumbnail, true, QString())
     M_MODEL_PROPERTY(Seaside::Presence, presence, Presence, true, Seaside::PresenceUnknown)

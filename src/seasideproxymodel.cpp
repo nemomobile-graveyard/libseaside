@@ -49,7 +49,7 @@ void SeasideProxyModel::setSortType(SortType sortType)
     if (priv->sortType == SortRecent)
         sort(Seaside::ColumnCommTimestamp, Qt::DescendingOrder);
     else
-        sort(Seaside::ColumnName, Qt::AscendingOrder);
+        sort(Seaside::ColumnFirstName, Qt::AscendingOrder);
 }
 
 bool SeasideProxyModel::filterAcceptsRow(int source_row,

@@ -21,26 +21,27 @@ class SeasidePersonModel;
 /*
   Model data for Seaside::DataRole
   --------------------------------
-  Column 0:     Name                QString
-  Column 1:     Company             QString
-  Column 2:     Birthday            QDate
-  Column 3:     Anniversary         QDate
-  Column 4:     Avatar              QString path/filename
-  Column 5:     Favorite            bool
-  Column 6:     Email Addresses     QStringList
-  Column 7:     Phone Numbers       QStringList
-  Column 8:     Phone Contexts      QStringList of "Home", "Work", or empty
-  Column 9:     Phone Types         QStringList of "Mobile" or empty
-  Column 10:    Addresses           QStringList*
-  Column 11:    Address Contexts    QStringList of "Home", "Work", or empty
-  Column 12:    Presence            int mapping to Seaside::Presence enum
-  Column 13:    Uuid                QString
+  Column 0:     First Name          QString
+  Column 1:     Last Name           QString
+  Column 2:     Company             QString
+  Column 3:     Birthday            QDate
+  Column 4:     Anniversary         QDate
+  Column 5:     Avatar              QString path/filename
+  Column 6:     Favorite            bool
+  Column 7:     Email Addresses     QStringList
+  Column 8:     Phone Numbers       QStringList
+  Column 9:     Phone Contexts      QStringList of "Home", "Work", or empty
+  Column 10:     Phone Types         QStringList of "Mobile" or empty
+  Column 11:    Addresses           QStringList*
+  Column 12:    Address Contexts    QStringList of "Home", "Work", or empty
+  Column 13:    Presence            int mapping to Seaside::Presence enum
+  Column 14:    Uuid                QString
 
   // Second Class Citizens
   // - not clear if this data will really be provided here
-  Column 14:    CommTimestamp       QDateTime
-  Column 15:    CommType            int mapping to Seaside::CommType enum
-  Column 16:    CommLocation        int mapping to Seaside::Location enum
+  Column 15:    CommTimestamp       QDateTime
+  Column 16:    CommType            int mapping to Seaside::CommType enum
+  Column 17:    CommLocation        int mapping to Seaside::Location enum
 
   * Address strings currently consist of five lines separated by \n, containing
     i) street address, ii) city, iii) state (region), iv) postal code, v) country
