@@ -1,8 +1,8 @@
-CONFIG += meegotouch
+CONFIG += meegotouch mobility
 TEMPLATE = app
 MOC_DIR = .moc
 OBJECTS_DIR = .obj
-LIBS += -lseaside
+LIBS += -lseaside -lQtContacts
 HEADERS += \
     chooser.h
 SOURCES = \
