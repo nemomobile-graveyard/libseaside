@@ -12,7 +12,7 @@
 
 bool SeasidePersonModel::isEmpty()
 {
-    if (!firstname().isEmpty() || !firstname().isEmpty() || !company().isEmpty() ||!thumbnail().isEmpty())
+    if (!firstname().isEmpty() || !lastname().isEmpty() || !company().isEmpty() ||!thumbnail().isEmpty())
         return false;
     if (!phones().isEmpty() || !emails().isEmpty() || !addresses().isEmpty())
         return false;
