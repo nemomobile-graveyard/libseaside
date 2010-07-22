@@ -36,7 +36,7 @@ public:
         SEASIDE_SET_MODEL_AND_ROW(index.model(), index.row())
 
         item->setThumbnail(SEASIDE_FIELD(Avatar, String));
-        item->setName(SEASIDE_FIELD(FirstName, String) + " " + SEASIDE_FIELD(LastName, String));
+        item->setName(QObject::tr("%1 %2").arg(SEASIDE_FIELD(FirstName, String)).arg(SEASIDE_FIELD(LastName, String)));
     }
 };
 

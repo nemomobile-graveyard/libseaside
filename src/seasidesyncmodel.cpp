@@ -949,27 +949,18 @@ void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
     SeasidePersonModel *oldModel = createPersonModel(newModel->uuid());
 
     const QString& newFirstName = newModel->firstname();
-    if (oldModel->firstname() != newFirstName) {
+    const QString& newLastName = newModel->lastname();
+    if ((oldModel->firstname() != newFirstName) || (oldModel->lastname() != newLastName)) {
         QContactName name = contact->detail<QContactName>();
         name.setFirstName(newFirstName);
+	name.setLastName(newLastName);
         name.setMiddleName("");
         name.setPrefix("");
         name.setSuffix("");
         if (!contact->saveDetail(&name))
-            qWarning() << "[SyncModel] failed to update first name";
+            qWarning() << "[SyncModel] failed to update name";
     }
-
-    const QString& newLastName = newModel->lastname();
-    if (oldModel->lastname() != newLastName) {
-        QContactName name = contact->detail<QContactName>();
-        name.setLastName(newLastName);
-        name.setMiddleName("");
-        name.setPrefix("");
-        name.setSuffix("");
-        if (!contact->saveDetail(&name))
-            qWarning() << "[SyncModel] failed to update last name";
-    }
-
+ 
     const QString& newCompany = newModel->company();
     if (oldModel->company() != newCompany) {
         QContactOrganization company = contact->detail<QContactOrganization>();
