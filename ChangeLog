@@ -1,1 +1,8 @@
+Changes in 0.0.26
+
+a8bd... Added i18n support for name and removed redundant name detail save Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+1461... Include lastname field in model isEmpty() check Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+785e... Fixing .pro so chooser test app builds Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+5197... Separated First and Last name Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+
 
