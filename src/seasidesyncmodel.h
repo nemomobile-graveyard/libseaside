@@ -78,6 +78,7 @@ public:
 
     void setAvatar(const QUuid& uuid, const QString& path);
     void setFavorite(const QUuid& uuid, bool favorite);
+    void setCompany(const QUuid& uuid, QString company);
 
     // FIXME: temporary
     static void setGenerateSampleData(bool generate);

@@ -343,7 +343,17 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
     case Seaside::ColumnCompany:  // company
         {
             QContactOrganization company = contact->detail<QContactOrganization>();
+            //return QVariant(company.name());
+	    if (role == Qt::DisplayRole)
+                return QVariant(company.name());
+            if (priv->settings) {
+                QContactGuid guid = contact->detail<QContactGuid>();
+                QString key = guid.guid();
+                key += "/company";
+                return priv->settings->value(key, company.name());
+            }
             return QVariant(company.name());
+
         }
 
     case Seaside::ColumnBirthday:  // birthday
@@ -619,11 +629,16 @@ void SeasideSyncModel::createFakeContact(const char *firstName, const char *last
     }
 
     if (qrand() % 2) {
-        QContactOrganization company;
+        /*QContactOrganization company;
         company.setName("Intel Corporation");
         if (!contact.saveDetail(&company))
-            qWarning() << "[SyncModel] failed to save company";
-    }
+	  qWarning() << "[SyncModel] failed to save company";*/
+      if (priv->settings) {
+	  QString key = guid.guid();
+	  key += "/company";
+	  priv->settings->setValue(key, QString("Intel Corp"));
+      }
+    }	
 
     for (int j=qrand()%3; j>0; j--) {
         QContactAddress address;
@@ -920,7 +935,8 @@ SeasidePersonModel *SeasideSyncModel::createPersonModel(const QUuid& uuid)
 void SeasideSyncModel::deletePerson(const QUuid& uuid)
 {
     if (!priv->manager->removeContact(priv->uuidToId[uuid]))
-        qWarning() << "[SyncModel] failed to delete contact";
+      qWarning() << "[SyncModel] failed to delete contact"; 
+    //TODO: Test deleting contacts with only one field entered and Others group
 }
 
 void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
@@ -964,7 +980,7 @@ void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
     const QString& newCompany = newModel->company();
     if (oldModel->company() != newCompany) {
         QContactOrganization company = contact->detail<QContactOrganization>();
-        if (!company.name().isEmpty()) {
+	/* if (!company.name().isEmpty()) {
             if (!contact->removeDetail(&company))
                 qWarning() << "[SyncModel] failed to remove company";
         }
@@ -974,6 +990,13 @@ void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
 
             if (!contact->saveDetail(&company))
                 qWarning() << "[SyncModel] failed to update company";
+		}*/
+	if (priv->settings) {
+            QContactGuid guid = contact->detail<QContactGuid>();
+            QString key = guid.guid();
+            key += "/company";
+            priv->settings->setValue(key, newCompany);
+            priv->settings->sync();
         }
     }
 
@@ -1093,6 +1116,23 @@ void SeasideSyncModel::setFavorite(const QUuid& uuid, bool favorite)
     QString key = uuid.toString();
     key += "/favorite";
     priv->settings->setValue(key, favorite);
+    priv->settings->sync();
+
+    QList<QContactLocalId> list;
+    list.append(priv->uuidToId[uuid]);
+
+    // writing to QSettings doesn't cause a change event, so manually call
+    contactsChanged(list);
+}
+
+void SeasideSyncModel::setCompany(const QUuid& uuid, QString company)
+{
+    if (!priv->settings)
+        return;
+
+    QString key = uuid.toString();
+    key += "/company";
+    priv->settings->setValue(key, company);
     priv->settings->sync();
 
     QList<QContactLocalId> list;
