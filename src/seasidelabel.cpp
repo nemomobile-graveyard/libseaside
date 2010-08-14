@@ -130,10 +130,4 @@ void SeasideLabel::applyStyle()
     priv->label->setFont(font);
 
     priv->label->setAlignment(getAlignment(style()->textAlign(), style()->verticalAlign()));
-
-    // TODO: MStylableWidget should probably do this
-    setContentsMargins(style()->marginLeft() + style()->paddingLeft(),
-        style()->marginTop() + style()->paddingTop(),
-        style()->marginRight() + style()->paddingRight(),
-        style()->marginBottom() + style()->paddingBottom());
 }

@@ -29,6 +29,7 @@ HEADERS += \
     src/seasidelabel.h \
     src/seasidelist.h \
     src/seasidelistitem.h \
+    src/seasidelistmodel.h \
     src/seasideproxymodel.h \
     src/seasidesyncmodel.h
 SOURCES += \
@@ -37,6 +38,7 @@ SOURCES += \
     src/seasidelabel.cpp \
     src/seasidelist.cpp \
     src/seasidelistitem.cpp \
+    src/seasidelistmodel.cpp \
     src/seasidepersonmodel.cpp \
     src/seasideproxymodel.cpp \
     src/seasidesyncmodel.cpp
@@ -60,3 +62,5 @@ INSTALLS += \
 
 OTHER_FILES += \
     README
+
+CONFIG += qt debug

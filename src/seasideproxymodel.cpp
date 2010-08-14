@@ -92,6 +92,7 @@ bool SeasideProxyModel::lessThan(const QModelIndex& left,
     if (priv->sortType == SortName) {
         const QString& lStr = left.data(Seaside::DataRole).toString();
         const QString& rStr = right.data(Seaside::DataRole).toString();
+        qWarning() << "[ProxyModel] lessThan " << lStr << "VS" << rStr;
         return QString::localeAwareCompare(lStr, rStr) < 0;
     }
     else if (priv->sortType == SortRecent) {

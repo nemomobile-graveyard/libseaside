@@ -7,14 +7,13 @@
  * http://www.apache.org/licenses/LICENSE-2.0
  *
  */
-
-#ifndef SEASIDESYNCMODEL_H
-#define SEASIDESYNCMODEL_H
+#ifndef SEASIDELISTMODEL_H
+#define SEASIDELISTMODEL_H
 
 #include <QAbstractTableModel>
 #include <QUuid>
-
 #include <QContactManager>
+#include "seasidelist.h"
 
 class SeasidePersonModel;
 
@@ -27,11 +26,11 @@ class SeasidePersonModel;
   Column 3:     Birthday            QDate
   Column 4:     Anniversary         QDate
   Column 5:     Avatar              QString path/filename
-  Column 6:     Favorite            bool
+  //Column 6:     Favorite            bool
   Column 7:     Email Addresses     QStringList
   Column 8:     Phone Numbers       QStringList
   Column 9:     Phone Contexts      QStringList of "Home", "Work", or empty
-  Column 10:     Phone Types         QStringList of "Mobile" or empty
+  Column 10:    Phone Types         QStringList of "Mobile" or empty
   Column 11:    Addresses           QStringList*
   Column 12:    Address Contexts    QStringList of "Home", "Work", or empty
   Column 13:    Presence            int mapping to Seaside::Presence enum
@@ -46,38 +45,20 @@ class SeasidePersonModel;
 
 using namespace QtMobility;
 
-class SeasideSyncModelPriv;
+class SeasideListModelPriv;
 
-class SeasideSyncModel: public QAbstractTableModel
+class SeasideListModel: public QAbstractTableModel
 {
     Q_OBJECT
 
 public:
-    SeasideSyncModel();
-    virtual ~SeasideSyncModel();
+    SeasideListModel(SeasideList::Detail detail = SeasideList::DetailNone);
+    virtual ~SeasideListModel();
 
     virtual int rowCount(const QModelIndex & parent = QModelIndex()) const;
     virtual int columnCount(const QModelIndex & parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex & index, int role) const;
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-
-    QContact *contact(int row);
-    QContactManager *manager();
-
-    static SeasideSyncModel *instance();
-    static void releaseInstance();
-
-    static SeasidePersonModel *createPersonModel(const QModelIndex& index);
-    SeasidePersonModel *createPersonModel(const QUuid& index);
-
-    void deletePerson(const QUuid& uuid);
-    void updatePerson(const SeasidePersonModel *newModel);
-
-    void setAvatar(const QUuid& uuid, const QString& path);
-    void setFavorite(const QUuid& uuid, bool favorite);
-    void setCompany(const QUuid& uuid, QString company);
-
-public slots:
 
 protected:
     void fixIndexMap();
@@ -90,8 +71,8 @@ protected slots:
     void dataReset();
 
 private:
-    SeasideSyncModelPriv *priv;
-    Q_DISABLE_COPY(SeasideSyncModel);
+    SeasideListModelPriv *priv;
+    Q_DISABLE_COPY(SeasideListModel);
 };
 
-#endif // SEASIDESYNCMODEL_H
+#endif // SEASIDELISTMODEL_H

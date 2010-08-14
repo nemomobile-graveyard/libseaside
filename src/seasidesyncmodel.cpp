@@ -37,10 +37,6 @@ public:
     static SeasideSyncModel *theSyncModel;
     static int theRefCount;
 
-    // FIXME: temporary
-    static bool generateSampleData;
-    static QString theEngine;
-
     QContactManager *manager;
     QContactFilter currentFilter;
     QList<QContactLocalId> contactIds;
@@ -51,27 +47,11 @@ public:
 
     QVector<QStringList> data;
     QStringList headers;
-
     QSettings *settings;
 };
 
-// FIXME: <temporary>
-bool SeasideSyncModelPriv::generateSampleData = false;
-QString SeasideSyncModelPriv::theEngine = "default";
-// FIXME: </temporary>
-
 SeasideSyncModel *SeasideSyncModelPriv::theSyncModel = NULL;
 int SeasideSyncModelPriv::theRefCount = 0;
-
-void SeasideSyncModel::setGenerateSampleData(bool generate)
-{
-    SeasideSyncModelPriv::generateSampleData = generate;
-}
-
-void SeasideSyncModel::setEngine(const QString& engine)
-{
-    SeasideSyncModelPriv::theEngine = engine;
-}
 
 SeasideSyncModel *SeasideSyncModel::instance()
 {
@@ -90,87 +70,6 @@ void SeasideSyncModel::releaseInstance()
         SeasideSyncModelPriv::theSyncModel = NULL;
     }
 }
-
-// FIXME: <temporary>
-typedef struct {
-  const char *first;
-  const char *last;
-} PeopleData;
-
-static PeopleData people_data[] = {
-    { "Aaron",   "Alewife"     },
-    { "Harold",  "Hansen"      },
-    { "Hayat",   "Harwood",    },
-    { "Neal",    "Nagarajan",  },
-    { "Teresa",  "Thyme"       },
-};
-
-static QString oneOf(QList<const char *> strings)
-{
-    int count = strings.count();
-    if (count > 0)
-        return QString(strings.at(qrand() % count));
-    return QString();
-}
-
-static QString generateEmail(const char *firstName)
-{
-    QString str(firstName);
-    int num = qrand() % 20;
-    if (num)
-        str += QString().setNum(num);
-    str += "@example.";
-    str += oneOf(QList<const char *>() << "com" << "net" << "org");
-    return str.toLower();
-}
-
-static QString generateStreet()
-{
-    QString address;
-    address.setNum(qrand() % 1990 + 10);
-
-    QList<const char *> strings;
-    strings << "25th Ave" << "Massachusetts Ave" << "Pennsylvania Ave" << "Downing St";
-    return address + " " + oneOf(strings);
-}
-
-static QString generateCity()
-{
-    QList<const char *> strings;
-    strings << "Hillsboro" << "Cambridge" << "Washington" << "London";
-    return oneOf(strings);
-}
-
-static QString generateState()
-{
-    QList<const char *> strings;
-    strings << "OR" << "MA" << "DC";
-    return oneOf(strings);
-}
-
-static QString generateZip()
-{
-    QString zip;
-    zip = QString("%1").arg(qrand() % 100000, 5, 10, QChar('0'));
-    if (qrand() % 2)
-        zip += QString("-%1").arg(qrand() % 10000, 4, 10, QChar('0'));
-    return zip;
-}
-
-static QString generatePhoneNumber(int areaCode)
-{
-    return QString("(%1) 555-%2").arg(areaCode).arg(qrand() % 9000 + 1000);
-}
-
-static QDateTime generateRecentTimestamp()
-{
-    if (qrand() % 2)
-        return QDateTime();
-    QDateTime time = QDateTime::currentDateTime();
-    time = time.addDays(-(qrand() % 60));
-    return time.addSecs(-(qrand() % (24 * 60 * 60)));
-}
-// FIXME: </temporary>
 
 static void updateDefinitions(QContactManager *manager) {
     QContactDetailDefinition seaside;
@@ -220,43 +119,18 @@ SeasideSyncModel::SeasideSyncModel()
     priv->headers.append("CommType");
     priv->headers.append("CommLocation");
 
-    // dropping for now:
-    //   unread email flag
-    //   unread sms flag
-
     // FIXME: temporary hack to provide images to dialer and sms
     MTheme::addPixmapDirectory(IMAGES_DIR);
 
-    if (SeasideSyncModelPriv::theEngine == "default") {
         if (QContactManager::availableManagers().contains("tracker")) {
             priv->manager = new QContactManager("tracker");
-            if (priv->manager->contactIds().count() == 0)
-                SeasideSyncModelPriv::generateSampleData = true;
-        }
-        else if (QContactManager::availableManagers().contains("memory")) {
-            priv->manager = new QContactManager("memory");
-            SeasideSyncModelPriv::generateSampleData = true;
         }
         else
             priv->manager = new QContactManager("");
-    }
-    else
-        priv->manager = new QContactManager(SeasideSyncModelPriv::theEngine);
 
     priv->settings = new QSettings("MeeGo", "libseaside");
 
     updateDefinitions(priv->manager);
-
-    if (SeasideSyncModelPriv::generateSampleData) {
-        // FIXME: make sure the same contact details get generated every time [DEBUG]
-        qsrand(0);
-
-        int rows = sizeof(people_data) / sizeof(PeopleData);
-        for (int i=0; i<rows; i++)
-            createFakeContact(people_data[i].first, people_data[i].last);
-        if (priv->settings)
-            priv->settings->sync();
-    }
 
     connect(priv->manager, SIGNAL(contactsAdded(QList<QContactLocalId>)),
             this, SLOT(contactsAdded(QList<QContactLocalId>)));
@@ -303,6 +177,14 @@ static QVariant getContextList(const QList<QContactDetail>& details)
                 str = "Work";
                 break;
             }
+ 	   else if (context == "Mobile") {
+                str = "Mobile";
+                break;
+            }
+           else if (context == "Other") {
+                str = "Other";
+                break;
+            }
         }
         list << str;
     }
@@ -324,7 +206,6 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
         return QVariant();
 
     // expect searching on DisplayRole, only return text that makes sense to search
-
     switch (index.column()) {
     case Seaside::ColumnFirstName:  // first name
         {
@@ -352,8 +233,6 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
                 key += "/company";
                 return priv->settings->value(key, company.name());
             }
-            return QVariant(company.name());
-
         }
 
     case Seaside::ColumnBirthday:  // birthday
@@ -376,9 +255,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
 
     case Seaside::ColumnAvatar:  // avatar
         {
-            QContactAvatar avatar = contact->detail<QContactAvatar>();
-            // almost conceivable someone could want to search by the avatar filename,
-            //   so I'll leave this on DisplayRole for the moment
+            QContactAvatar avatar = contact->detail<QContactAvatar>(); //REVISIT search on avatar?
             return QVariant(avatar.imageUrl().toString());
         }
 
@@ -416,7 +293,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
                 // is a temporary fix to make them look nicer, but it means
                 // hard-coding American-style phone numbers
 
-                // TODO: i18n
+                // TODO: i18n //REVISIT
                 QString number = phone.number().replace("[^0-9]", "");
                 int count = number.count();
                 if (count == phone.number().count()) {
@@ -468,7 +345,10 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
                     if (subtype == QContactPhoneNumber::SubTypeMobile) {
                         str = "Mobile";
                         break;
-                    }
+                    }else if (subtype == QContactPhoneNumber::SubTypeLandline) { //REVISIT
+                        str = "Landline";
+                        break;
+		     }
                 }
                 list << str;
             }
@@ -514,14 +394,14 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
                     if (presence != Seaside::PresenceAvailable)
                         presence = Seaside::PresenceAway;
                 }
-                else if (state == QContactPresence::PresenceOffline) {
+                else if (state == QContactPresence::PresenceOffline || //REVISIT
+                         state == QContactPresence::PresenceHidden){
                     if (presence == Seaside::PresenceUnknown)
                         presence = Seaside::PresenceOffline;
-                }
-
-                // TODO: consider different treatment of these two
-                //   QContactOnlineAccount::PresenceBusy:
-                //   QContactOnlineAccount::PresenceHidden:
+                } 
+		else if (state == QContactPresence::PresenceBusy){
+			presence = Seaside::PresenceBusy;
+		}
             }
             return QVariant(presence);
         }
@@ -593,143 +473,6 @@ QContact *SeasideSyncModel::contact(int row)
 QContactManager *SeasideSyncModel::manager()
 {
     return priv->manager;
-}
-
-// FIXME: <temporary>
-void SeasideSyncModel::createFakeContact(const char *firstName, const char *lastName)
-{
-    if (!SeasideSyncModelPriv::generateSampleData)
-        return;
-
-    QContact contact;
-
-    QContactGuid guid;
-    guid.setGuid(QUuid::createUuid().toString());
-    if (!contact.saveDetail(&guid))
-        qWarning() << "[SyncModel] failed to save guid";
-
-    QContactName name;
-    name.setFirstName(firstName);
-    name.setLastName(lastName);
-    if (!contact.saveDetail(&name))
-        qWarning() << "[SyncModel] failed to save name";
-
-    QContactAvatar avatar;
-    avatar.setImageUrl(QUrl("icon-m-content-avatar-placeholder"));
-    if (!contact.saveDetail(&avatar))
-        qWarning() << "[SyncModel] failed to save avatar";
-
-    for (int i=0; i<3; i++) {
-        if (qrand() % 2) {
-            QContactEmailAddress email;
-            email.setEmailAddress(generateEmail(firstName));
-            if (!contact.saveDetail(&email))
-                qWarning() << "[SyncModel] failed to save email";
-        }
-    }
-
-    if (qrand() % 2) {
-        /*QContactOrganization company;
-        company.setName("Intel Corporation");
-        if (!contact.saveDetail(&company))
-	  qWarning() << "[SyncModel] failed to save company";*/
-      if (priv->settings) {
-	  QString key = guid.guid();
-	  key += "/company";
-	  priv->settings->setValue(key, QString("Intel Corp"));
-      }
-    }	
-
-    for (int j=qrand()%3; j>0; j--) {
-        QContactAddress address;
-        address.setStreet(generateStreet());
-        address.setLocality(generateCity());
-        if (qrand() % 4) {
-            address.setRegion(generateState());
-            if (qrand() % 2)
-                address.setCountry("USA");
-            address.setPostcode(generateZip());
-        }
-        else
-            address.setCountry("UK");
-        address.setContexts(qrand() % 2 ?
-                            QContactDetail::ContextHome :
-                            QContactDetail::ContextWork);
-        if (!contact.saveDetail(&address))
-            qWarning() << "[SyncModel] failed to save address";
-    }
-
-    int areaCode = qrand() % 700;
-    if (areaCode < 200)
-        areaCode = 503;
-    for (int j=qrand()%4; j>0; j--) {
-        QContactPhoneNumber phone;
-        phone.setNumber(generatePhoneNumber(areaCode));
-        phone.setContexts(qrand() % 2 ?
-                          QContactDetail::ContextHome :
-                          QContactDetail::ContextWork);
-        if (qrand() % 2)
-            phone.setSubTypes(QContactPhoneNumber::SubTypeLandline);
-        else
-            phone.setSubTypes(QContactPhoneNumber::SubTypeMobile);
-        if (!contact.saveDetail(&phone))
-            qWarning() << "[SyncModel] failed to save phone";
-    }
-
-    for (int j=0; j<2; j++) {
-        if (qrand() % 8 == 0) {
-            QContactPresence presence;
-            int state = qrand() % 3;
-            if (state == 0)
-                presence.setPresenceState(QContactPresence::PresenceAvailable);
-            else if (state == 1)
-                presence.setPresenceState(QContactPresence::PresenceAway);
-            else
-                presence.setPresenceState(QContactPresence::PresenceOffline);
-            if (!contact.saveDetail(&presence))
-                qWarning() << "[SyncModel] failed to save online account";
-        }
-    }
-
-    // percent chance to make contact a Favorite
-    const int percentFavorite = 20;
-    bool favorite = (qrand() % 100 < percentFavorite) ? true : false;
-    if (priv->settings) {
-        QString key = guid.guid();
-        key += "/favorite";
-        priv->settings->setValue(key, favorite);
-    }
-
-    // add the seaside custom detail
-    SeasideCustomDetail sd;
-    sd.setCommTimestamp(generateRecentTimestamp());
-    sd.setCommType(qrand() % Seaside::CommNone);
-    sd.setCommLocation(qrand() % Seaside::LocationNone);
-    if (!contact.saveDetail(&sd))
-        qWarning() << "[SyncModel] failed to save seaside detail";
-
-    if (!priv->manager->saveContact(&contact))
-        qWarning() << "[SyncModel] failed to save contact";
-}
-
-void SeasideSyncModel::addRandom()
-{
-    if (!SeasideSyncModelPriv::generateSampleData)
-        return;
-
-    int rows = sizeof(people_data) / sizeof(PeopleData);
-    createFakeContact(people_data[qrand() % rows].first,
-                      people_data[qrand() % rows].last);
-}
-
-void SeasideSyncModel::removeRandom()
-{
-    if (!SeasideSyncModelPriv::generateSampleData)
-        return;
-
-    int rows = priv->contactIds.size();
-    if (rows > 0)
-        priv->manager->removeContact(priv->contactIds[qrand() % rows]);
 }
 
 void SeasideSyncModel::fixIndexMap()
@@ -889,8 +632,12 @@ SeasidePersonModel *SeasideSyncModel::createPersonModel(const QModelIndex& index
 
     for (int i=0; i<size; i++) {
         Seaside::Location location = Seaside::LocationHome;
-        if (contexts[i] == "Work")
+        if (contexts[i] == "Work") //REVISIT
             location = Seaside::LocationWork;
+	else if (contexts[i] == "Home")
+            location = Seaside::LocationHome;
+	else if (contexts[i] == "Other")
+            location = Seaside::LocationOther;
         if (types[i] == "Mobile")
             location = Seaside::LocationMobile;
         SeasideDetail phone(list[i], location);
@@ -911,10 +658,18 @@ SeasidePersonModel *SeasideSyncModel::createPersonModel(const QModelIndex& index
     list = SEASIDE_FIELD(Addresses, StringList);
     contexts = SEASIDE_FIELD(AddressContexts, StringList);
     size = list.size();
+    Seaside::Location location;
     for (int i=0; i<size; i++) {
         // FIXME: address in person model is stored with HTML line breaks
-        SeasideDetail address(list[i], contexts[i] == "Work" ?
-                              Seaside::LocationWork : Seaside::LocationHome);
+	if (contexts[i] == "Work") //REVISIT
+            location = Seaside::LocationWork;
+	else if (contexts[i] == "Home")
+            location =Seaside::LocationHome;
+	else if (contexts[i] == "Other")
+            location = Seaside::LocationOther;
+	else
+            location = Seaside::LocationHome;
+        SeasideDetail address(list[i], location);
         details.append(address);
     }
     model->setAddresses(details);
@@ -935,8 +690,7 @@ SeasidePersonModel *SeasideSyncModel::createPersonModel(const QUuid& uuid)
 void SeasideSyncModel::deletePerson(const QUuid& uuid)
 {
     if (!priv->manager->removeContact(priv->uuidToId[uuid]))
-      qWarning() << "[SyncModel] failed to delete contact"; 
-    //TODO: Test deleting contacts with only one field entered and Others group
+        qWarning() << "[SyncModel] failed to delete contact";
 }
 
 void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
@@ -980,7 +734,7 @@ void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
     const QString& newCompany = newModel->company();
     if (oldModel->company() != newCompany) {
         QContactOrganization company = contact->detail<QContactOrganization>();
-	/* if (!company.name().isEmpty()) {
+       /* if (!company.name().isEmpty()) {
             if (!contact->removeDetail(&company))
                 qWarning() << "[SyncModel] failed to remove company";
         }
@@ -990,15 +744,16 @@ void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
 
             if (!contact->saveDetail(&company))
                 qWarning() << "[SyncModel] failed to update company";
-		}*/
+        }*/
 	if (priv->settings) {
             QContactGuid guid = contact->detail<QContactGuid>();
             QString key = guid.guid();
             key += "/company";
             priv->settings->setValue(key, newCompany);
             priv->settings->sync();
-        }
-    }
+         }
+     }
+
 
     const QVector<SeasideDetail>& newPhones = newModel->phones();
     if (oldModel->phones() != newPhones) {
@@ -1010,9 +765,14 @@ void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
             if (detail.isValid()) {
                 QContactPhoneNumber phone;
                 phone.setNumber(detail.text());
-                phone.setContexts(detail.location() == Seaside::LocationWork ?
-                                  QContactDetail::ContextWork :
-                                  QContactDetail::ContextHome);
+ 		if(detail.location() == Seaside::LocationWork)
+			phone.setContexts(QContactDetail::ContextWork); //REVISIT
+		else if(detail.location() == Seaside::LocationHome)
+			phone.setContexts(QContactDetail::ContextHome);
+		else if(detail.location() == Seaside::LocationOther)
+			phone.setContexts(QContactDetail::ContextOther);
+		else
+			phone.setContexts(QContactDetail::ContextHome);//default
                 if (detail.location() == Seaside::LocationMobile)
                     phone.setSubTypes(QContactPhoneNumber::SubTypeMobile);
                 else
@@ -1050,9 +810,15 @@ void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
         foreach (const SeasideDetail& detail, newAddresses) {
             if (detail.isValid()) {
                 QContactAddress address;
-                address.setContexts(detail.location() == Seaside::LocationWork ?
-                                    QContactDetail::ContextWork :
-                                    QContactDetail::ContextHome);
+
+		if(detail.location() == Seaside::LocationWork)
+			address.setContexts(QContactDetail::ContextWork); //REVISIT
+		else if(detail.location() == Seaside::LocationHome)
+			address.setContexts(QContactDetail::ContextHome);
+		else if(detail.location() == Seaside::LocationOther)
+			address.setContexts(QContactDetail::ContextOther);
+		else
+			address.setContexts(QContactDetail::ContextHome);//default
 
                 QStringList list = detail.text().split(QChar('\n'));
                 while (list.count() < 5)

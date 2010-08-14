@@ -14,3 +14,5 @@ TARGET = chooser
 
 OTHER_FILES = \
     chooser.css
+
+CONFIG += qt debug

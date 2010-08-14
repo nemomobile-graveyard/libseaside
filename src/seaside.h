@@ -13,8 +13,10 @@
 
 #include <QAbstractItemModel>
 #include <QUuid>
-
 #include <QContact>
+
+class SeasidelListModel;
+class SeasideProxyModel;
 
 using namespace QtMobility;
 
@@ -29,10 +31,12 @@ public:
         ColumnFirstName,
         ColumnLastName,
         ColumnCompany,
+    //  ColumnTitle, //TODO: Add title
         ColumnBirthday,
         ColumnAnniversary,
         ColumnAvatar,
         ColumnFavorite,
+ 	ColumnIMAccounts, //REVISIT
         ColumnEmailAddresses,
         ColumnPhoneNumbers,
         ColumnPhoneContexts,
@@ -51,6 +55,7 @@ public:
         PresenceAvailable,
         PresenceAway,
         PresenceOffline,
+	PresenceBusy, //REVISIT
         PresenceUnknown
     };
 
@@ -62,6 +67,8 @@ public:
         CommSmsReceived,
         CommEmailSent,
         CommEmailReceived,
+	CommIMSent, //REVISIT
+        CommIMReceived, //REVISIT
         CommNone
     };
 
@@ -69,6 +76,7 @@ public:
         LocationMobile,
         LocationHome,
         LocationWork,
+	LocationOther, //REVISIT
         LocationNone
     };
 
@@ -77,27 +85,30 @@ public:
         return model->index(row, column).data(DataRole);
     }
 
-    // [PERHAPS TO BE DEPRECATED]
     // convenience functions for working with QContact
-    //
-    // These work fine but I'm no longer planning to expose QContact to you
-    // directly so you may never need them
-    //
     // items where we support only one detail
-    static QString contactName(QContact *contact);
-    static QString contactAvatarPath(QContact *contact);
-    static QString contactOrganization(QContact *contact);
-    static QDate contactBirthday(QContact *contact);
-    static QDate contactAnniversary(QContact *contact);
+private:
+    static QString contactName(const QContact *contact);
+    static QString contactFirstName(const QContact *contact);
+    static QString contactLastName(const QContact *contact);
+    static QString contactAvatarPath(const QContact *contact);
+    static QString contactOrganization(const QContact *contact);
+    static QDate contactBirthday(const QContact *contact);
+    static QDate contactAnniversary(const QContact *contact);
     static bool contactFavorite(const QContact *contact);
     static Presence contactPresence(const QContact *contact);
-    static QUuid contactUuid(QContact *contact);
-    static QDateTime contactCommTimestamp(QContact *contact);
+    static QUuid contactUuid(const QContact *contact);
+    static QDateTime contactCommTimestamp(const QContact *contact);
     // items where we support multiple details
-    static QStringList contactEmailAddresses(QContact *contact);
-    static QStringList contactAddresses(QContact *contact);
-    static QStringList contactPhoneNumbers(QContact *contact);
-    static QStringList contactNotes(QContact *contact);
+    static QStringList contactEmailAddresses(const QContact *contact);
+    static QStringList contactIMAccounts(QContact *contact); //REVISIT
+    static QStringList contactAddresses(const QContact *contact);
+    static QStringList contactPhoneNumbers(const QContact *contact);
+    static QStringList contactNotes(const QContact *contact);
+
+    friend class SeasideListModel;
+    friend class SeasideProxyModel;
+
 };
 
 /*
@@ -111,6 +122,7 @@ public:
   Avatar              String      path/filename
   Favorite            Bool
   EmailAddresses      StringList
+  IMAccounts          StringList
   PhoneNumbers        StringList
   PhoneContexts       StringList  of "Home", "Work", or empty
   PhoneTypes          StringList  of "Mobile" or empty

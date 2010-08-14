@@ -16,50 +16,75 @@
 #include <QContactAvatar>
 #include <QContactBirthday>
 #include <QContactEmailAddress>
+#include <QContactName>
 #include <QContactNote>
 #include <QContactOrganization>
+#include <QContactOnlineAccount>
 #include <QContactPhoneNumber>
 #include <QContactPresence>
 
 #include "seaside.h"
 #include "seasidedetail.h"
-
 #include <mlibrary.h>
 M_LIBRARY
 
-QString Seaside::contactName(QContact *contact)
+
+QString Seaside::contactName(const QContact *contact)
 {
-    return contact->displayLabel();
+    QContactName name = contact->detail<QContactName>();
+    QString firstName = name.firstName();
+    QString lastName = name.lastName();
+    QString fullName;
+    if (!firstName.isEmpty() && !lastName.isEmpty()) {
+        fullName = QObject::tr("%1 %2","Firstname Lastname").arg(firstName).arg(lastName);
+    }
+    else if (firstName.isEmpty())
+        fullName = lastName;
+    else
+        fullName = firstName;
+    return fullName;
 }
 
-QString Seaside::contactAvatarPath(QContact *contact)
+QString Seaside::contactFirstName(const QContact *contact)
+{
+ 
+    QContactName name = contact->detail<QContactName>();
+    return name.firstName();
+}
+
+
+QString Seaside::contactLastName(const QContact *contact)
+{
+    QContactName name = contact->detail<QContactName>();
+    return name.lastName();
+}
+
+QString Seaside::contactAvatarPath(const QContact *contact)
 {
     QContactAvatar avatar = contact->detail(QContactAvatar::DefinitionName);
     return avatar.imageUrl().toString();
 }
 
-QString Seaside::contactOrganization(QContact *contact)
+QString Seaside::contactOrganization(const QContact *contact)
 {
     QContactOrganization company = contact->detail(QContactOrganization::DefinitionName);
     return company.name();
 }
 
-QDate Seaside::contactBirthday(QContact *contact)
+QDate Seaside::contactBirthday(const QContact *contact)
 {
     QContactBirthday birthday = contact->detail(QContactBirthday::DefinitionName);
     return birthday.date();
 }
 
-QDate Seaside::contactAnniversary(QContact *contact)
+QDate Seaside::contactAnniversary(const QContact *contact)
 {
     QContactAnniversary day = contact->detail(QContactAnniversary::DefinitionName);
     return day.originalDate();
 }
 
-bool Seaside::contactFavorite(const QContact *contact)
+bool Seaside::contactFavorite(const QContact *contact) //REVISIT
 {
-    // TODO: remove this completely
-    qWarning() << "contactFavorite DEPRECATED:" << "contact no longer contains favorite info";
     foreach (const SeasideCustomDetail& detail,
              contact->details(SeasideCustomDetail::DefinitionName))
         return detail.favorite();
@@ -82,25 +107,34 @@ Seaside::Presence Seaside::contactPresence(const QContact *contact)
             if (presence != PresenceAvailable)
                 presence = PresenceAway;
         }
-        else if (state == QContactPresence::PresenceOffline) {
+	else if(state == QContactPresence::PresenceBusy){ //REVISIT
+		presence = PresenceBusy;
+	}
+        else if (state == QContactPresence::PresenceOffline ||
+                 state == QContactPresence::PresenceHidden) { //REVISIT
             if (presence == PresenceUnknown)
                 presence = PresenceOffline;
         }
-
-        // TODO: consider different treatment of these two
-        //   QContactOnlineAccount::PresenceBusy:
-        //   QContactOnlineAccount::PresenceHidden:
     }
     return presence;
 }
 
-QDateTime Seaside::contactCommTimestamp(QContact *contact)
+QDateTime Seaside::contactCommTimestamp(const QContact *contact)
 {
     SeasideCustomDetail detail = contact->detail(SeasideCustomDetail::DefinitionName);
     return detail.commTimestamp();
 }
 
-QStringList Seaside::contactEmailAddresses(QContact *contact)
+QStringList Seaside::contactIMAccounts(QContact *contact)//REVISIT store uri and lookup nick/provider
+{
+    QStringList list;
+    foreach (const QContactOnlineAccount& im,
+             contact->details(QContactOnlineAccount::DefinitionName))
+        list << im.accountUri();
+    return list;
+}
+
+QStringList Seaside::contactEmailAddresses(const QContact *contact)
 {
     QStringList list;
     foreach (const QContactEmailAddress& email,
@@ -109,7 +143,7 @@ QStringList Seaside::contactEmailAddresses(QContact *contact)
     return list;
 }
 
-QStringList Seaside::contactAddresses(QContact *contact)
+QStringList Seaside::contactAddresses(const QContact *contact)
 {
     QStringList list;
     foreach (const QContactAddress& address,
@@ -119,7 +153,7 @@ QStringList Seaside::contactAddresses(QContact *contact)
     return list;
 }
 
-QStringList Seaside::contactPhoneNumbers(QContact *contact)
+QStringList Seaside::contactPhoneNumbers(const QContact *contact)
 {
     QStringList list;
     foreach (const QContactPhoneNumber& phone,
@@ -128,7 +162,7 @@ QStringList Seaside::contactPhoneNumbers(QContact *contact)
     return list;
 }
 
-QStringList Seaside::contactNotes(QContact *contact)
+QStringList Seaside::contactNotes(const QContact *contact)
 {
     QStringList list;
     foreach (const QContactNote& note,
@@ -203,15 +237,16 @@ QString SeasideCommEvent::getFriendlyDateString()
 
     QString date;
     if (m_dateTime.date() == QDate::currentDate())
-        date = "Today";  // TODO: i18n
+        date = QObject::tr("Today", "Communication Time Stamp");
     else if (m_dateTime.date() == QDate::currentDate().addDays(-1))
-        date = "Yesterday";  // TODO: i18n
-    else
+        date = QObject::tr("Yesterday", "Communication Time Stamp");
+    else{
         // format string for month and day, using QDateTime format
-        date = m_dateTime.toString("MMM d");  // TODO: i18n
+        date = QObject::tr(m_dateTime.toString("MMM d").toLatin1(), "Date format for Month Day");
+    }
 
     // format string for time, using QDateTime format
-    QString time = m_dateTime.toString("hh:mm");  // TODO: i18n
+    QString time = QObject::tr(m_dateTime.toString("hh:mm").toLatin1(), "Format for Time");
 
     // format string for merging date and time, %1 = date, %2 = time
     QString format("%1, %2");

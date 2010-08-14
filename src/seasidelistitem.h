@@ -12,7 +12,7 @@
 #define SEASIDELISTITEM_H
 
 #include <MWidgetController>
-
+#include "seaside.h"
 class SeasideListItemPriv;
 
 /*
@@ -20,7 +20,7 @@ class SeasideListItemPriv;
  *
  * The object name is set to SeasideListItem by default; it contains a
  * MImageWidget thumbnail named SeasideListItemThumbnail, and a SeasideLabel
- * named SeasideListItemName
+ * named SeasideListItemName and a SeasideLabel named SeasideListItemData
  *
  * See seasidelabelstyle.h for the special styles that can be set on that
  *
@@ -31,14 +31,22 @@ class SeasideListItem: public MWidgetController
     Q_OBJECT
 
 public:
-    SeasideListItem(MWidget *parent = NULL);
+    SeasideListItem(MWidget *parent = NULL, int mode =0);
     virtual ~SeasideListItem();
 
     void setThumbnail(const QString& thumbnail);
     void setName(const QString& name);
-
+    void setUuid(const QString& id);
+    void setDetails(const QStringList& detail); //REVISIT phone or email or IM
+    void setPresence(const int presence);
+    void setFavorite(const bool& favorite);
+    void setButton(const QString& hasButton);
+    void setStatus(const QString& status);
+    void setCommFlags(const int flags);
+    
 signals:
     void clicked();
+    void buttonClicked();
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
@@ -46,6 +54,7 @@ protected:
 
 private:
     SeasideListItemPriv *priv;
+    QPixmap  getAvatar(QString avatar);
     Q_DISABLE_COPY(SeasideListItem);
 };
 

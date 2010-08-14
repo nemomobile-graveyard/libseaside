@@ -17,4 +17,7 @@ class Target: public QObject
 
 public slots:
     void contactClicked(const QUuid& uuid);
+    void emailsClicked(const QStringList& emails);
+     void phonesClicked(const QStringList& emails);
+     void imsClicked(const QStringList& emails);
 };

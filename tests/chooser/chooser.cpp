@@ -35,12 +35,18 @@ int main(int argc, char *argv[])
     linear->setSpacing(0);
     page.centralWidget()->setLayout(linear);
     
-    SeasideList *list = new SeasideList;
+    SeasideList *list = new SeasideList(SeasideList::DetailPhone);
     linear->addItem(list);
 
     Target *target = new Target;
     QObject::connect(list, SIGNAL(contactSelected(QUuid)),
                      target, SLOT(contactClicked(QUuid)));
+    QObject::connect(list, SIGNAL(emailsSelected(QStringList)),
+                     target, SLOT(emailsClicked(QStringList)));
+    QObject::connect(list, SIGNAL(imsAccountsSelected(QStringList)),
+                     target, SLOT(iimClicked(QStringList)));
+    QObject::connect(list, SIGNAL(phonesSelected(QStringList)),
+                     target, SLOT(phonesClicked(QStringList)));
 
     page.appear();
 
@@ -49,5 +55,21 @@ int main(int argc, char *argv[])
 
 void Target::contactClicked(const QUuid& uuid)
 {
-    qCritical() << "Contact clicked:" << uuid.toString();
+    qWarning() << "Contact clicked:" << uuid.toString();
 }
+
+void Target::emailsClicked(const QStringList & emails)
+{
+   qWarning() << "Contact emails:" << emails;
+}
+
+void Target::phonesClicked(const QStringList & phones)
+{
+   qWarning() << "Contact phones:" << phones;
+}
+
+void Target::imsClicked(const QStringList & ims)
+{
+   qWarning() << "Contact ims:" << ims;
+}
+

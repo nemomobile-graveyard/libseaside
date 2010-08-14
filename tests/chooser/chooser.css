@@ -52,3 +52,29 @@ MAbstractLayoutPolicyStyle {
     padding-bottom: 0.5mm;
     padding-left: 0.5mm;
 }
+
+ #SeasideListItemDetail {
+    color: #667786;
+    pressed-color: black;
+    font: "Droid Sans" 20;
+    font-weight: "bold";
+    text-align: "left";
+    vertical-align: "center";
+    padding-top: 0.5mm;
+    padding-right: 0.5mm;
+    padding-bottom: 0.5mm;
+    padding-left: 0.5mm;
+}
+
+ #SeasideListItemStatus {
+    color: red;
+    pressed-color: red;
+    font: "Droid Sans" 18;
+    font-weight: "bold";
+    text-align: "right";
+    vertical-align: "center";
+    padding-top: 0.5mm;
+    padding-right: 0.5mm;
+    padding-bottom: 0.5mm;
+    padding-left: 0.5mm;
+}

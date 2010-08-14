@@ -14,6 +14,7 @@
 #include <QUuid>
 
 #include <MList>
+#include "seaside.h"
 
 class SeasideListPriv;
 class SeasideSyncModel;
@@ -34,7 +35,14 @@ class SeasideList: public MList
     Q_OBJECT
 
 public:
-    SeasideList(MWidget *parent = NULL);
+  enum Detail {
+        DetailEmail,
+        DetailPhone,
+	DetailIM,
+        DetailNone
+    };
+
+    SeasideList(Detail detail = DetailNone, MWidget *parent = NULL);
     virtual ~SeasideList();
 
     SeasideSyncModel *sourceModel();
@@ -42,6 +50,9 @@ public:
 
 signals:
     void contactSelected(const QUuid& uuid);
+    void imAccountsSelected(const QStringList accounts);
+    void emailsSelected(const QStringList emails);
+    void phonesSelected(const QStringList numbers);
 
 protected slots:
     void handleClick(const QModelIndex& index);
