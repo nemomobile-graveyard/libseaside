@@ -12,8 +12,9 @@ OBJECTS_DIR = .obj
 MGEN_OUTDIR = .gen
 DEPENDPATH += .
 INCLUDEPATH += ./src
-CONFIG += meegotouch mobility
-PKGCONFIG += meegotouch
+CONFIG += meegotouch
+CONFIG += mobility link_pkgconfig
+PKGCONFIG += meegotouch QtContacts
 MOBILITY += contacts
 SUBDIRS += tests
 
@@ -44,7 +45,7 @@ SOURCES += \
     src/seasidesyncmodel.cpp
 M_THEME_DIR = $$PREFIX/share/themes/base/meegotouch
 SEASIDE_THEME_DIR = $$M_THEME_DIR/lib$$TARGET
-DEFINES += IMAGES_DIR=\"\\\"$$SEASIDE_THEME_DIR/images/\\\"\"
+DEFINES += IMAGES_DIR=\"\\\"$$SEASIDE_THEME_DIR/images/\\\"\" 
 
 target.path=$$LIBDIR
 
