@@ -1,3 +1,9 @@
+Changes in 0.0.27
+
+ec9a... Adding pkgconfig changes to .pro files to match qt-beta2 build patches Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+3c77... Extending SeasideListItem and list for IM/SMS/Email/Dialer, localized strings, add "Other" to context list, removed fake data generation, added IM account placeholders Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+6c9a... Reverting Company field to use QSettings until QContactDetails saves to Tracker backend Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+
 Changes in 0.0.26
 
 a8bd... Added i18n support for name and removed redundant name detail save Signed-off-by: Connie Berardi <connie.berardi@intel.com>
