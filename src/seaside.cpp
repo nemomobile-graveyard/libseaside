@@ -25,9 +25,10 @@
 
 #include "seaside.h"
 #include "seasidedetail.h"
+
+//#define M_LIBRARY_NAME "libseaside"
 #include <mlibrary.h>
 M_LIBRARY
-
 
 QString Seaside::contactName(const QContact *contact)
 {
@@ -129,8 +130,10 @@ QStringList Seaside::contactIMAccounts(QContact *contact)//REVISIT store uri and
 {
     QStringList list;
     foreach (const QContactOnlineAccount& im,
-             contact->details(QContactOnlineAccount::DefinitionName))
+             contact->details(QContactOnlineAccount::DefinitionName)){
         list << im.accountUri();
+	qWarning() << "Seaside::contactIMAccounts" << im.accountUri();
+    }
     return list;
 }
 

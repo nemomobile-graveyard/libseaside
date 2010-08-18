@@ -19,6 +19,9 @@
 class SeasideListPriv;
 class SeasideSyncModel;
 class SeasideProxyModel;
+class SeasidePersonModel;
+class QPersistentModelIndex;
+class SeasidePerson;
 
 /*
  * SeasideList: Styling Notes
@@ -54,12 +57,56 @@ signals:
     void emailsSelected(const QStringList emails);
     void phonesSelected(const QStringList numbers);
 
+   void editRequest(const QModelIndex& index);
+   void viewRequest(qreal ypos, qreal height);
+
 protected slots:
     void handleClick(const QModelIndex& index);
+    void handleDetailClick(const QModelIndex &index);
+    void createDetailPage(const QModelIndex &index); 
+    /*void searchClicked();
+    void searchChanged();
+    void searchClear();
+    void searchCancel();
+    void searchCommit();*/
+    void detailBack();
+    //    void commBack();
+    void editCurrent();
+    void createEditPage(const QModelIndex& index = QModelIndex(),
+                        const QString& title = QString());
+    void editModified();
+    void editSave();
+    void editBack();
+    void callNumber(const QString& number);
+    void composeSMS(const QString& number);
+    void composeEmail(const QString& address);
+    //void repositionOverlays();
+    //void scrollTo(qreal pos);
+    void scrollIntoView(qreal ypos, qreal height);
 
 private:
     SeasideListPriv *priv;
+    SeasideList::Detail detailType;
+    QPersistentModelIndex m_currentIndex;
+    MApplicationPage *m_detailPage;
+    MApplicationPage *m_editPage;
+    SeasidePerson *m_currentPerson;
     Q_DISABLE_COPY(SeasideList);
+
+    //SeasideWindow *m_window;
+    //MApplicationPage *m_mainPage;
+   //PersonCommsPage *m_commPage;
+
+    //QGraphicsWidget *m_topSpacer;
+    //QGraphicsWidget *m_bottomSpacer;
+
+    //SeasidePeople *m_people;
+
+    //MWidgetController *m_searchWidget;
+    //MTextEdit *m_searchEdit;
+
+    SeasidePersonModel *m_editModel;
+    bool m_editModelModified;
 };
 
 #endif // SEASIDELIST_H

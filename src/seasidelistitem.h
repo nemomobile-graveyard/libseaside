@@ -48,7 +48,7 @@ signals:
     void clicked();
     void buttonClicked();
 
-protected:
+protected slots:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 

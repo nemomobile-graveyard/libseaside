@@ -1,4 +1,4 @@
-VERSION = 0.0.27
+VERSION = 0.0.26
 
 unix{
     PREFIX=/usr
@@ -21,7 +21,8 @@ SUBDIRS += tests
 MODEL_HEADERS += \
     src/seasidepersonmodel.h
 STYLE_HEADERS += \
-    src/seasidelabelstyle.h
+    src/seasidelabelstyle.h \
+    src/imagelabelstyle.h
 HEADERS += \
     $$MODEL_HEADERS \
     $$STYLE_HEADERS \
@@ -32,7 +33,11 @@ HEADERS += \
     src/seasidelistitem.h \
     src/seasidelistmodel.h \
     src/seasideproxymodel.h \
-    src/seasidesyncmodel.h
+    src/seasidesyncmodel.h  \
+    src/persondetailview.h \
+    src/personeditview.h \
+    src/person.h \
+    src/imagelabel.h
 SOURCES += \
     src/seaside.cpp \
     src/seasidedetail.cpp \
@@ -42,7 +47,11 @@ SOURCES += \
     src/seasidelistmodel.cpp \
     src/seasidepersonmodel.cpp \
     src/seasideproxymodel.cpp \
-    src/seasidesyncmodel.cpp
+    src/seasidesyncmodel.cpp \
+    src/persondetailview.cpp \
+    src/personeditview.cpp \
+    src/person.cpp \
+    src/imagelabel.cpp
 M_THEME_DIR = $$PREFIX/share/themes/base/meegotouch
 SEASIDE_THEME_DIR = $$M_THEME_DIR/lib$$TARGET
 DEFINES += IMAGES_DIR=\"\\\"$$SEASIDE_THEME_DIR/images/\\\"\" 
@@ -62,6 +71,8 @@ INSTALLS += \
     theme
 
 OTHER_FILES += \
+    theme/styles/libseaside.css \
+    theme/libseaside.conf \
     README
 
-CONFIG += qt debug
+

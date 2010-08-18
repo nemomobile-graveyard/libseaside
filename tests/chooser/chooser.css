@@ -26,6 +26,7 @@ MAbstractLayoutPolicyStyle {
 #SeasideListItem {
     background-color: white;
     minimum-size: 100% -1;
+   /* background-image: card-bg 0 0 0 2;*/
 }
 
 #SeasideListItemThumbnail {

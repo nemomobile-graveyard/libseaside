@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     linear->setSpacing(0);
     page.centralWidget()->setLayout(linear);
     
-    SeasideList *list = new SeasideList(SeasideList::DetailPhone);
+    SeasideList *list = new SeasideList(SeasideList::DetailIM);
     linear->addItem(list);
 
     Target *target = new Target;
@@ -43,8 +43,8 @@ int main(int argc, char *argv[])
                      target, SLOT(contactClicked(QUuid)));
     QObject::connect(list, SIGNAL(emailsSelected(QStringList)),
                      target, SLOT(emailsClicked(QStringList)));
-    QObject::connect(list, SIGNAL(imsAccountsSelected(QStringList)),
-                     target, SLOT(iimClicked(QStringList)));
+    QObject::connect(list, SIGNAL(imAccountsSelected(QStringList)),
+                     target, SLOT(imsClicked(QStringList)));
     QObject::connect(list, SIGNAL(phonesSelected(QStringList)),
                      target, SLOT(phonesClicked(QStringList)));
 

@@ -15,17 +15,34 @@
 #include <MAbstractCellCreator>
 
 #include "seasidelist.h"
+#include "person.h"
 #include "seasidelistitem.h"
 #include "seasidesyncmodel.h"
 #include "seasideproxymodel.h"
 #include "seasidelistmodel.h"
 
 #include <MWidgetCreator>
+//#include <QGraphicsLinearLayout>
+#include <QtDBus/QtDBus>
+#include <MAction>
+//#include <QActionGroup>
+#include <MApplicationPage>
+//#include <MTextEdit>
+//#include <MButton>
+//#include <MPannableViewport>
+//#include <MSceneManager>
+
+#include <seasidepersonmodel.h>
+//#include "peopleapp.h"
+//#include "window.h"
+//#include "people.h"
+
 M_REGISTER_WIDGET(SeasideList)
 
 
 class CellCreator: public MAbstractCellCreator<SeasideListItem>
 {
+
 public:
     CellCreator(const QString type)
 	{
@@ -61,6 +78,7 @@ public:
 	else
 		item->setDetails(SEASIDE_FIELD(PhoneNumbers, StringList));	
     }
+
 private:
     QString itemType;
 };
@@ -73,9 +91,29 @@ public:
 };
 
 SeasideList::SeasideList(Detail detail, MWidget *parent):
-        MList(parent)
+        MList(parent), detailType(detail)
 {
-    
+    /* m_window = new SeasideWindow;
+    m_window->show();
+
+    m_mainPage = NULL;*/
+    m_detailPage = NULL;
+    m_editPage = NULL;
+    /*m_commPage = NULL;
+
+    m_topSpacer = NULL;
+      m_bottomSpacer = NULL;
+
+    m_people = NULL;
+    m_sliderH = NULL;
+    m_sliderV = NULL;
+    m_searchWidget = NULL;
+    m_searchEdit = NULL;*/
+
+    m_currentPerson = NULL;
+    m_editModel = NULL;
+    m_editModelModified = NULL; 
+
     priv = new SeasideListPriv;
     priv->sourceModel = SeasideSyncModel::instance();
     priv->proxyModel = new SeasideProxyModel;
@@ -90,19 +128,26 @@ SeasideList::SeasideList(Detail detail, MWidget *parent):
     setViewType("fast");
 
     QString type = "";
-    if(detail == SeasideList::DetailPhone)
+    if(detail == SeasideList::DetailPhone){
             type = "Phone";
-    else if(detail == SeasideList::DetailEmail)
+        } else if(detail == SeasideList::DetailEmail){
            type = "Email";
-    else if(detail == SeasideList::DetailIM)
+       }else if(detail == SeasideList::DetailIM){
             type = "IM";
-    else
+        } else
             type = "Phone";
 
     setCellCreator(new CellCreator(type)); //REVISIT
 
     connect(this, SIGNAL(itemClicked(QModelIndex)),
             this, SLOT(handleClick(QModelIndex)));
+    connect(this, SIGNAL(itemClicked(QModelIndex)),
+            this, SLOT(handleDetailClick(QModelIndex)));
+
+    connect(this, SIGNAL(itemClicked(QModelIndex)),
+         this, SLOT(createDetailPage(QModelIndex)));
+     connect(this, SIGNAL(editRequest(QModelIndex)),
+         this, SLOT(createEditPage(QModelIndex)));
 }
 
 SeasideList::~SeasideList()
@@ -112,16 +157,337 @@ SeasideList::~SeasideList()
     delete priv;
 }
 
+/*void SeasideList::createCommPage(SeasidePersonModel *pm, CommCat type)
+{
+    if (m_commPage)
+        return;
+
+    searchCancel();
+
+    m_commPage = new PersonCommsPage(pm, type);
+
+    connect(m_commPage, SIGNAL(backButtonClicked()),
+            this, SLOT(commBack()));
+
+    switch (type) {
+    case CatCall:
+        connect(m_commPage, SIGNAL(destSelected(QString)),
+                this, SLOT(callNumber(QString)));
+        break;
+
+    case CatSMS:
+        connect(m_commPage, SIGNAL(destSelected(QString)),
+                this, SLOT(composeSMS(QString)));
+        break;
+
+    case CatEmail:
+        connect(m_commPage, SIGNAL(destSelected(QString)),
+                this, SLOT(composeEmail(QString)));
+        break;
+    }
+    connect(m_commPage, SIGNAL(destSelected(QString)),
+            this, SLOT(commBack()));
+
+    m_commPage->appear(MApplicationPage::DestroyWhenDismissed);
+    }
+
+void PeopleApplication::initSearch()
+{
+    m_searchWidget = new MWidgetController;
+    m_searchWidget->setViewType("background");
+    m_searchWidget->setObjectName("PeopleSearch");
+    m_searchWidget->setParentItem(m_mainPage);
+    m_searchWidget->setZValue(1);
+    m_searchWidget->hide();
+
+    QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(Qt::Horizontal, m_searchWidget);
+
+    m_searchEdit = new MTextEdit;
+    m_searchEdit->setObjectName("PeopleSearchEdit");
+    m_searchEdit->setPrompt("Tap to start searching people");  // TODO: i18n
+    layout->addItem(m_searchEdit);
+    layout->setAlignment(m_searchEdit, Qt::AlignVCenter);
+    connect(m_searchEdit, SIGNAL(returnPressed()), this, SLOT(searchCommit()));
+
+    // uncomment this line to enable dynamic search
+//    connect(m_searchEdit, SIGNAL(textChanged()), this, SLOT(searchChanged()));
+
+    MButton *button = new MButton();
+    button->setIconID("icon-m-framework-close-alt");
+    button->setObjectName("PeopleSearchButton");
+    layout->addItem(button);
+    layout->setAlignment(button, Qt::AlignVCenter);
+    connect(button, SIGNAL(clicked()), this, SLOT(searchClear()));
+
+    button = new MButton("<b>Search</b>");  // TODO: i18n
+    button->setObjectName("PeopleSearchButton");
+    layout->addItem(button);
+    layout->setAlignment(button, Qt::AlignVCenter);
+    connect(button, SIGNAL(clicked()), this, SLOT(searchCommit()));
+}
+
+void PeopleApplication::searchClicked()
+{
+    m_searchWidget->show();
+    m_bottomSpacer->setPreferredHeight(m_searchWidget->size().height());
+}
+
+void PeopleApplication::searchClear()
+{
+    if (m_searchEdit) {
+        m_searchEdit->clear();
+        m_searchEdit->setFocus();
+    }
+}
+
+void PeopleApplication::searchChanged()
+{
+    if (m_searchEdit)
+        m_people->filterSearch(m_searchEdit->text());
+}
+
+void PeopleApplication::searchCancel()
+{
+    if (m_searchEdit)
+        m_searchEdit->clearFocus();
+
+    if (m_searchWidget) {
+        m_searchWidget->hide();
+        m_bottomSpacer->setPreferredHeight(0);
+    }
+}
+
+void PeopleApplication::searchCommit()
+{
+    searchChanged();
+    searchCancel();
+    }
+
+void PeopleApplication::commBack()
+{
+    if (m_commPage) {
+        m_commPage->dismiss();
+        m_commPage = NULL;
+    }
+}
+*/
+
 void SeasideList::handleClick(const QModelIndex &index)
 {
     SEASIDE_SHORTCUTS
     SEASIDE_SET_MODEL_AND_ROW(index.model(), index.row())
-
    emit contactSelected(QUuid(SEASIDE_FIELD(Uuid, String)));
-   //REVISIT should only emit signals of detail enabled
-   emit imAccountsSelected(QStringList(SEASIDE_FIELD(IMAccounts, StringList)));
-   emit emailsSelected(QStringList(SEASIDE_FIELD(EmailAddresses, StringList)));
-   emit phonesSelected(QStringList(SEASIDE_FIELD(PhoneNumbers, StringList)));
 }
 
+void SeasideList::handleDetailClick(const QModelIndex &index)
+{
+  SEASIDE_SHORTCUTS
+    SEASIDE_SET_MODEL_AND_ROW(index.model(), index.row())
+  
+  if(detailType == SeasideList::DetailPhone){  
+    emit phonesSelected(QStringList(SEASIDE_FIELD(PhoneNumbers, StringList)));
+  } else if(detailType == SeasideList::DetailEmail){      
+    emit emailsSelected(QStringList(SEASIDE_FIELD(EmailAddresses, StringList)));
+  }else if(detailType == SeasideList::DetailIM){ 
+    emit imAccountsSelected(QStringList(SEASIDE_FIELD(IMAccounts, StringList)));
+  } else{
+    emit phonesSelected(QStringList(SEASIDE_FIELD(PhoneNumbers, StringList))) ;
+  }
+}
 
+void SeasideList::createDetailPage(const QModelIndex &index)
+{
+    if (m_detailPage)
+            return;
+
+        if (!index.isValid())
+            return;
+
+        //searchCancel();
+
+        m_currentIndex = index;
+
+        m_currentPerson = new SeasidePerson(index);
+        m_currentPerson->setObjectName("SeasidePerson");
+        m_currentPerson->setViewType("seasideDetail");
+
+        connect(m_currentPerson, SIGNAL(callNumber(const QString&)),
+                this, SLOT(callNumber(const QString&)));
+        connect(m_currentPerson, SIGNAL(composeSMS(const QString&)),
+                this, SLOT(composeSMS(const QString&)));
+        connect(m_currentPerson, SIGNAL(composeEmail(const QString&)),
+                this, SLOT(composeEmail(const QString&)));
+	/*connect(m_currentPerson, SIGNAL(composeIM(const QString&)),
+	  this, SLOT(composeIM(const QString&)));      */ 
+        connect(m_currentPerson, SIGNAL(viewRequest(qreal,qreal)),
+                this, SLOT(scrollIntoView(qreal,qreal)));
+
+        m_detailPage = new MApplicationPage;
+        m_detailPage->setTitle("Contact Detail");  // TODO: i18n
+        m_detailPage->setCentralWidget(m_currentPerson);
+
+        MAction *action = new MAction("<b>Edit</b>", this);  // TODO: i18n
+        action->setLocation(MAction::ToolBarLocation);
+        m_detailPage->addAction(action);
+        connect(action, SIGNAL(triggered()), this, SLOT(editCurrent()));
+
+        connect(m_detailPage, SIGNAL(backButtonClicked()), this, SLOT(detailBack()));
+
+        m_detailPage->appear(MApplicationPage::DestroyWhenDismissed);
+}
+
+void SeasideList::callNumber(const QString& number)
+{
+    qDebug() << "Attempting call to:" << number;
+
+    // hard-coded details of the MeeGo Dialer application
+    QDBusInterface dialer("com.meego.dialer", "/com/meego/dialer",
+                          "com.meego.dialer");
+    if (!dialer.isValid()) {
+        qWarning() << "Dialing" << number << "- could not find dialer app";
+        return;
+    }
+
+    QDBusReply<void> reply = dialer.call(QDBus::BlockWithGui, "call", number);
+    if (!reply.isValid())
+        qWarning() << "Dialing" << number << "failed:" <<
+                reply.error().message();
+}
+
+void SeasideList::composeSMS(const QString& number)
+{
+    qDebug() << "Attempting to compose SMS to" << number;
+
+    // hard-coded details of the MeeGo SMS application
+    QDBusInterface sms("com.meego.sms", "/", "com.meego.sms");
+    if (!sms.isValid()) {
+        qWarning() << "Composing SMS to" << number << "- could not find SMS app";
+        return;
+    }
+
+    QDBusReply<void> reply = sms.call(QDBus::BlockWithGui, "showdialogpage", number);
+    if (!reply.isValid())
+        qWarning() << "Composing SMS to" << number << "failed:" <<
+                reply.error().message();
+}
+
+void SeasideList::composeEmail(const QString& address)
+{
+    qDebug() << "Composing email to" << address << "- not implemented";
+}
+
+/*void SeasideList::composeIM(const QString& address)
+{
+    qDebug() << "Composing IM to" << address << "- not implemented";
+    }*/
+
+void SeasideList::scrollIntoView(qreal ypos, qreal height)
+{
+    // effects: scrolls the defined vertical area into view, or as much as possible
+
+    /*MApplicationPage *page = activeApplicationWindow()->currentPage();
+    QGraphicsWidget *widget = page->centralWidget();
+    MPannableWidget *viewport = page->pannableViewport();
+    if (!widget || !viewport)
+        return;
+
+    QRectF exposed = page->exposedContentRect();
+    int viewportHeight = exposed.height();
+
+    qreal scrollpos = viewport->physics()->position().y();
+
+    // check to see if it's already fully visible
+    if (scrollpos < ypos && scrollpos + viewportHeight > ypos + height)
+        return;
+
+    // if bottom end is off-screen, scroll up until bottom is visible
+    qreal scrollto = scrollpos;
+    if (scrollpos + viewportHeight < ypos + height)
+        scrollto += ypos + height - scrollpos - viewportHeight;
+
+    // if top end is off-screen, scroll down until top is visible
+    if (scrollto > ypos)
+        scrollto = ypos;
+
+    viewport->physics()->stop();
+    viewport->physics()->setPosition(QPointF(0, scrollto));*/
+}
+
+void SeasideList::detailBack()
+{
+    m_currentIndex = QModelIndex();
+    m_currentPerson = NULL;
+    if (m_detailPage) {
+        m_detailPage->dismiss();
+        m_detailPage = NULL;
+    }
+}
+
+void SeasideList::editCurrent()
+{
+    createEditPage(m_currentIndex);
+}
+
+void SeasideList::createEditPage(const QModelIndex &index, const QString& title)
+{
+    if (m_editPage)
+        return;
+
+    QModelIndex useIndex;
+
+    if (index.isValid())
+        useIndex = index;
+    else
+        useIndex = m_currentIndex;
+
+    if (useIndex.isValid())
+        m_editModel = SeasideSyncModel::createPersonModel(useIndex);
+    else  // create empty edit model to add new contact
+        m_editModel = new SeasidePersonModel;
+    MWidgetController *person = new MWidgetController(m_editModel);
+    person->setViewType("personEdit");
+
+    m_editModelModified = false;
+    connect(m_editModel, SIGNAL(modified(QList<const char*>)),
+            this, SLOT(editModified()));
+
+    m_editPage = new MApplicationPage;
+    if (title.isNull())
+        m_editPage->setTitle("Edit Contact");  // TODO: i18n
+    else
+        m_editPage->setTitle(title);
+    m_editPage->setCentralWidget(person);
+
+    MAction *action = new MAction("<b>Save</b>", this);  // TODO: i18n
+    action->setLocation(MAction::ToolBarLocation);
+    m_editPage->addAction(action);
+    connect(action, SIGNAL(triggered()), this, SLOT(editSave()));
+
+    connect(m_editPage, SIGNAL(backButtonClicked()), this, SLOT(editBack()));
+
+    m_editPage->appear(MApplicationPage::DestroyWhenDismissed);
+}
+
+void SeasideList::editModified()
+{
+    m_editModelModified = true;
+}
+
+void SeasideList::editSave()
+{
+    if (m_editModel && m_editModelModified && !m_editModel->isEmpty()) {
+        priv->sourceModel->updatePerson(m_editModel);
+        if (m_currentPerson)
+            m_currentPerson->setModel(priv->sourceModel->createPersonModel(m_editModel->uuid()));
+        m_editPage->dismiss();
+        m_editPage = NULL;
+    }
+}
+
+void SeasideList::editBack()
+{
+    if (m_editPage) {
+        m_editPage->dismiss();
+        m_editPage = NULL;
+    }
+}
