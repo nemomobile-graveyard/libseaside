@@ -136,7 +136,7 @@ QVariant SeasideListModel::data(const QModelIndex& index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    if (role != Qt::DisplayRole && role != Seaside::DataRole)
+    if (role != Qt::DisplayRole && role != Seaside::SearchRole)
         return QVariant();
 
     QContactLocalId id = priv->contactIds[index.row()];

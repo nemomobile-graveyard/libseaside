@@ -58,19 +58,19 @@ PersonEditView::PersonEditView(MWidgetController *controller): MWidgetView(contr
     m_thumbnail = NULL;
 
     m_firstNameEdit = new MTextEdit;
-    m_firstNameEdit->setPrompt("First name");  // TODO: i18n
+    m_firstNameEdit->setPrompt(QObject::tr("First name", "Edit screen prompt for first name"));
     m_headingGrid->addItem(m_firstNameEdit, 0, 1, 1, 1);
     connect(m_firstNameEdit, SIGNAL(textChanged()),
             this, SLOT(textChanged()));
 
     m_lastNameEdit = new MTextEdit;
-    m_lastNameEdit->setPrompt("Last name");  // TODO: i18n
+    m_lastNameEdit->setPrompt(QObject::tr("Last name", "Edit screen prompt for last name"));
     m_headingGrid->addItem(m_lastNameEdit, 0, 2, 1, 1);
     connect(m_lastNameEdit, SIGNAL(textChanged()),
             this, SLOT(textChanged()));
 
     m_companyEdit = new MTextEdit;
-    m_companyEdit->setPrompt("Company");  // TODO: i18n
+    m_companyEdit->setPrompt(QObject::tr("Company", "Edit screen prompt for company name"));
     m_headingGrid->addItem(m_companyEdit, 1, 1, 1, 2);
     connect(m_companyEdit, SIGNAL(textChanged()),
             this, SLOT(textChanged()));
@@ -84,7 +84,7 @@ PersonEditView::PersonEditView(MWidgetController *controller): MWidgetView(contr
     // row 2: recent section items
 
     // row 3: phone number section heading
-    SeasideLabel *header = createHeader("Telephone numbers");
+    SeasideLabel *header = createHeader(QObject::tr("Telephone numbers", "Edit screen header for phone numbers"));
     m_mainPolicy->addItem(header, 3, 0);
 
     // row 4: phone number section items
@@ -100,13 +100,13 @@ PersonEditView::PersonEditView(MWidgetController *controller): MWidgetView(contr
     linear->addItem(layout);
     m_phonePolicy = new MGridLayoutPolicy(layout);
 
-    MButton *button = new MButton("<b>+ Add a Number</b>");  // TODO: i18n
+    MButton *button = new MButton(QObject::tr("<b>+ Add a Number</b>", "Edit View Button text to add a phone number"));
     button->setObjectName("SeasideEditButton");
     linear->addItem(button);
     connect(button, SIGNAL(clicked()), this, SLOT(newPhone()));
 
     // row 5: email section heading
-    header = createHeader("Email");
+    header = createHeader(QObject::tr("Email", "Edit view header for emails"));
     m_mainPolicy->addItem(header, 5, 0);
 
     // row 6: email section items
@@ -122,13 +122,13 @@ PersonEditView::PersonEditView(MWidgetController *controller): MWidgetView(contr
     linear->addItem(layout);
     m_emailPolicy = new MGridLayoutPolicy(layout);
 
-    button = new MButton("<b>+ Add an Email</b>");  // TODO: i18n
+    button = new MButton(QObject::tr("<b>+ Add an Email</b>", "Edit View Button text to add a emails"));
     button->setObjectName("SeasideEditButton");
     linear->addItem(button);
     connect(button, SIGNAL(clicked()), this, SLOT(newEmail()));
 
     // row 7: address section heading
-    header = createHeader("Addresses");
+    header = createHeader(QObject::tr("Addresses", "Edit view header for addresses"));
     m_mainPolicy->addItem(header, 7, 0);
 
     // row 8: address section items
@@ -144,7 +144,7 @@ PersonEditView::PersonEditView(MWidgetController *controller): MWidgetView(contr
     linear->addItem(layout);
     m_addressPolicy = new MGridLayoutPolicy(layout);
 
-    button = new MButton("<b>+ Add an Address</b>");  // TODO: i18n
+    button = new MButton(QObject::tr("<b>+ Add an Address</b>", "Edit View Button text to add a emails"));
     button->setObjectName("SeasideEditButton");
     linear->addItem(button);
     connect(button, SIGNAL(clicked()), this, SLOT(newAddress()));
@@ -222,9 +222,12 @@ static int findRowWithItem(MGridLayoutPolicy *grid, QGraphicsLayoutItem *item)
 MComboBox *createPhoneCombo()
 {
     MComboBox *combo = new MComboBox;
-    combo->setTitle("Phone Type");  // TODO: i18n
+    combo->setTitle(QObject::tr("Phone Type", "Combo box title to select type of phone number Work|Home|Other|Mobile"));
     QStringList list;
-    list << "Mobile" << "Home" << "Work";
+    list << QObject::tr("Mobile", "Phone Type for cell phone numbers")
+            << QObject::tr("Home","Phone type for home/landline phone numbers")
+            << QObject::tr("Work", "Phone Type for business/work numbers")
+           << QObject::tr("Other", "Phone Type for other type of numbers");
     combo->addItems(list);
     return combo;
 }
@@ -232,9 +235,11 @@ MComboBox *createPhoneCombo()
 MComboBox *createAddressCombo()
 {
     MComboBox *combo = new MComboBox;
-    combo->setTitle("Address Type");  // TODO: i18n
+    combo->setTitle(QObject::tr("Address Type","Edit view Combo box title to select type of address Work| Home| Other"));
     QStringList list;
-    list << "Home" << "Work";
+    list << QObject::tr("Home","Address type for home address type")
+            << QObject::tr("Work", "AddressType for business/work address type")
+           << QObject::tr("Other", "AddressType for other address type");
     combo->addItems(list);
     return combo;
 }
@@ -243,7 +248,7 @@ void PersonEditView::newPhone(const QString& phone, Seaside::Location location)
 {
     MTextEdit *edit = new MTextEdit;
     edit->setContentType(M::PhoneNumberContentType);
-    edit->setPrompt("Phone number");  // TODO: i18n
+    edit->setPrompt(QObject::tr("Phone number", "Edit screen prompt for phone number"));
     if (!phone.isEmpty())
         edit->setText(phone);
     m_phonePolicy->addItem(edit, m_phoneCount, 0, Qt::AlignVCenter);
@@ -274,7 +279,7 @@ void PersonEditView::newEmail(const QString& email)
 {
     MTextEdit *edit = new MTextEdit;
     edit->setContentType(M::EmailContentType);
-    edit->setPrompt("Email address");  // TODO: i18n
+    edit->setPrompt(QObject::tr("Email address", "Edit screen prompt for email addresses"));
     if (!email.isEmpty())
         edit->setText(email);
     m_emailPolicy->addItem(edit, m_emailCount, 0, Qt::AlignVCenter);
@@ -319,7 +324,7 @@ void PersonEditView::newAddress(const QString& address, Seaside::Location locati
 
     MTextEdit *edit = new MTextEdit;
     list << edit;
-    edit->setPrompt("Street address");  // TODO: i18n
+    edit->setPrompt(QObject::tr("Street address", "Edit view prompt for street address"));
     if (!street.isEmpty())
         edit->setText(street);
     landscapePolicy->addItem(edit, 0, 0, 1, 2);
@@ -344,7 +349,7 @@ void PersonEditView::newAddress(const QString& address, Seaside::Location locati
 
     edit = new MTextEdit;
     list << edit;
-    edit->setPrompt("City");  // TODO: i18n
+    edit->setPrompt(QObject::tr("City", "Edit view prompt for city"));
     if (!city.isEmpty())
         edit->setText(city);
     landscapePolicy->addItem(edit, 1, 0);
@@ -353,7 +358,7 @@ void PersonEditView::newAddress(const QString& address, Seaside::Location locati
 
     edit = new MTextEdit;
     list << edit;
-    edit->setPrompt("State");  // TODO: i18n
+    edit->setPrompt(QObject::tr("State", "Edit view prompt for state"));
     if (!state.isEmpty())
         edit->setText(state);
     landscapePolicy->addItem(edit, 1, 1);
@@ -362,7 +367,7 @@ void PersonEditView::newAddress(const QString& address, Seaside::Location locati
 
     edit = new MTextEdit;
     list << edit;
-    edit->setPrompt("ZIP Code");  // TODO: i18n
+    edit->setPrompt(QObject::tr("ZIP Code", "Edit view prompt for zip"));
     if (!zip.isEmpty())
         edit->setText(zip);
     landscapePolicy->addItem(edit, 2, 0);
@@ -371,7 +376,7 @@ void PersonEditView::newAddress(const QString& address, Seaside::Location locati
 
     edit = new MTextEdit;
     list << edit;
-    edit->setPrompt("Country");  // TODO: i18n
+    edit->setPrompt(QObject::tr("Country", "Edit view promp for country"));
     if (!country.isEmpty())
         edit->setText(country);
     landscapePolicy->addItem(edit, 2, 1);
@@ -544,7 +549,7 @@ void PersonEditView::favoriteClicked(bool init)
     }
 
     if (favorite)
-        m_favButton->setIconID("icon-m-common-favorite-mark");  // TODO: i18n
+        m_favButton->setIconID("icon-m-common-favorite-mark");
     else
         m_favButton->setIconID("icon-m-common-favorite-unmark");
 }

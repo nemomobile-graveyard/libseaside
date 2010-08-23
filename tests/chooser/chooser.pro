@@ -1,8 +1,7 @@
 TEMPLATE = app
 MOC_DIR = .moc
 OBJECTS_DIR = .obj
-CONFIG += meegotouch 
-CONFIG += mobility link_pkgconfig
+CONFIG += meegotouch mobility qt debug link_pkgconfig
 PKGCONFIG += meegotouch QtContacts
 LIBS += -lseaside
 HEADERS += \
@@ -15,5 +14,6 @@ INCLUDEPATH += $$PREFIX/include
 TARGET = chooser
 
 OTHER_FILES = \
-    chooser.css
+    chooser.css \
+    chooser.conf
 

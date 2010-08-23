@@ -174,15 +174,15 @@ static QVariant getContextList(const QList<QContactDetail>& details)
                 break;
             }
             else if (context == "Work") {
-                str = "Work";
+                str = QObject::tr("Work", "ContextList type for work type");
                 break;
             }
  	   else if (context == "Mobile") {
-                str = "Mobile";
+               str = QObject::tr("Mobile", "ContextList type for mobile type");
                 break;
             }
            else if (context == "Other") {
-                str = "Other";
+               str = QObject::tr("Other","ContextList for other type");
                 break;
             }
         }
@@ -196,7 +196,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    if (role != Qt::DisplayRole && role != Seaside::DataRole)
+    if (role != Qt::DisplayRole && role != Seaside::SearchRole)
         return QVariant();
 
     QContactLocalId id = priv->contactIds[index.row()];
@@ -225,8 +225,8 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
         {
             QContactOrganization company = contact->detail<QContactOrganization>();
             //return QVariant(company.name());
-	    if (role == Qt::DisplayRole)
-                return QVariant(company.name());
+          //  if (role == Qt::DisplayRole)
+                //return QVariant(company.name());
             if (priv->settings) {
                 QContactGuid guid = contact->detail<QContactGuid>();
                 QString key = guid.guid();
@@ -238,30 +238,33 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
     case Seaside::ColumnBirthday:  // birthday
         {
             QContactBirthday day = contact->detail<QContactBirthday>();
-            if (role == Qt::DisplayRole)
-                return QVariant(day.date().toString("MMMM dd yyyy"));
-            else
+            if (role != Qt::DisplayRole)
                 return QVariant(day.date());
+            else
+                return QVariant();
         }
 
     case Seaside::ColumnAnniversary:  // anniversary
         {
             QContactAnniversary day = contact->detail<QContactAnniversary>();
-            if (role == Qt::DisplayRole)
-                return QVariant(day.originalDate().toString("MMMM dd yyyy"));
-            else
+            if (role != Qt::DisplayRole)
                 return QVariant(day.originalDate());
+            else
+                return QVariant();
         }
 
     case Seaside::ColumnAvatar:  // avatar
         {
-            QContactAvatar avatar = contact->detail<QContactAvatar>(); //REVISIT search on avatar?
+            if(role != Qt::DisplayRole){
+            QContactAvatar avatar = contact->detail<QContactAvatar>();
             return QVariant(avatar.imageUrl().toString());
+             }
+            return QVariant();
         }
 
     case Seaside::ColumnFavorite:  // favorite
         {
-            if (role == Qt::DisplayRole)
+            if (role != Qt::DisplayRole) // TODO: this should always return false
                 return QVariant();
             if (priv->settings) {
                 QContactGuid guid = contact->detail<QContactGuid>();
@@ -293,18 +296,20 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
                 // is a temporary fix to make them look nicer, but it means
                 // hard-coding American-style phone numbers
 
+                qWarning() << "Seaside::ColumnPhoneNumbers phone" << phone;
+
                 // TODO: i18n //REVISIT
                 QString number = phone.number().replace("[^0-9]", "");
                 int count = number.count();
                 if (count == phone.number().count()) {
                     if (count == 10) {
-                        list << QString("(%1) %2-%3").
+                        list << QObject::tr("(%1) %2-%3", "Ten digit  phone number format (###) ###-####").
                                 arg(number.left(3)).
                                 arg(number.mid(3, 3)).
                                 arg(number.right(4));
                     }
                     else if (count == 7) {
-                        list << QString("%1-%3").
+                        list << QObject::tr("%1-%3", "Seven digit phone number format ###-####").
                                 arg(number.left(3)).
                                 arg(number.right(4));
                     }
@@ -313,16 +318,22 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
                 }
                 else
                     list << phone.number();
+
+                 qWarning() << "Seaside::ColumnPhoneNumbers list" << list;
             }
             if (role == Qt::DisplayRole) {
                 QStringList searchable;
                 foreach (QString number, list)
                     searchable << number.replace(QRegExp("[^0-9*#]"), "");
                 searchable << list;
+                qWarning() << "Seaside::ColumnPhoneNumbers searchable" << searchable;
                 return QVariant(searchable.join(" "));
             }
-            else
+            else{
+                qWarning() << "Seaside::ColumnPhoneNumbers empty list" << list;
                 return QVariant(list);
+
+            }
         }
 
     case Seaside::ColumnPhoneContexts:  // phone contexts
@@ -343,10 +354,10 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
                 foreach (const QString& subtype, phone.subTypes()) {
                     // TODO: handle MessagingCapable, Pager, etc...
                     if (subtype == QContactPhoneNumber::SubTypeMobile) {
-                        str = "Mobile";
+                        str = QObject::tr("Mobile", "Phone type for mobile type");
                         break;
                     }else if (subtype == QContactPhoneNumber::SubTypeLandline) { //REVISIT
-                        str = "Landline";
+                        str = QObject::tr("Landline", "Phone type for landline type");
                         break;
 		     }
                 }
@@ -446,7 +457,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
 
     default:
         qWarning() << "[SyncModel] request for data on unexpected column" <<
-                index.column();
+                index.column() << " role : " << role;
         return QVariant();
     }
 }
@@ -643,6 +654,7 @@ SeasidePersonModel *SeasideSyncModel::createPersonModel(const QModelIndex& index
         SeasideDetail phone(list[i], location);
         details.append(phone);
     }
+    qWarning() << "SeasideSyncModel::createPersonModel list phones " << list;
     model->setPhones(details);
 
     // handle emails
@@ -759,7 +771,7 @@ void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
     if (oldModel->phones() != newPhones) {
         foreach (QContactDetail detail, contact->details<QContactPhoneNumber>())
             if (!contact->removeDetail(&detail))
-                qWarning() << "[SyncModel] failed to remove phone number";
+                qWarning() << "[SyncModel] failed to remove phone number";   
 
         foreach (const SeasideDetail& detail, newPhones) {
             if (detail.isValid()) {
@@ -780,6 +792,11 @@ void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
 
                 if (!contact->saveDetail(&phone))
                     qWarning() << "[SyncModel] failed to save phone number";
+
+		foreach (const QContactPhoneNumber& phone,
+                     contact->details<QContactPhoneNumber>())            
+                qWarning() << "[SyncModel] to save phone number" << phone;
+
             }
         }
     }
@@ -805,7 +822,7 @@ void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
     if (oldModel->addresses() != newAddresses) {
         foreach (QContactDetail detail, contact->details<QContactAddress>())
             if (!contact->removeDetail(&detail))
-                qWarning() << "[SyncModel] failed to remove phone number";
+                qWarning() << "[SyncModel] failed to remove addresses";
 
         foreach (const SeasideDetail& detail, newAddresses) {
             if (detail.isValid()) {

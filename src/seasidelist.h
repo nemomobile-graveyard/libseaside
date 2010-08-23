@@ -20,8 +20,10 @@ class SeasideListPriv;
 class SeasideSyncModel;
 class SeasideProxyModel;
 class SeasidePersonModel;
+//class PersonCommsPage;
 class QPersistentModelIndex;
 class SeasidePerson;
+class MTextEdit;
 
 /*
  * SeasideList: Styling Notes
@@ -45,11 +47,18 @@ public:
         DetailNone
     };
 
+  enum CommCat {
+      CatCall,
+      CatSMS,
+      CatEmail
+  };
+
     SeasideList(Detail detail = DetailNone, MWidget *parent = NULL);
     virtual ~SeasideList();
 
     SeasideSyncModel *sourceModel();
     SeasideProxyModel *proxyModel();
+    void createSearchBar(MApplicationPage * page);
 
 signals:
     void contactSelected(const QUuid& uuid);
@@ -60,17 +69,21 @@ signals:
    void editRequest(const QModelIndex& index);
    void viewRequest(qreal ypos, qreal height);
 
+   public slots:
+    void filterSearch(const QString& text);
+
 protected slots:
     void handleClick(const QModelIndex& index);
     void handleDetailClick(const QModelIndex &index);
     void createDetailPage(const QModelIndex &index); 
-    /*void searchClicked();
+    //void createCommPage(SeasidePersonModel *pm, CommCat type);
+    void searchClicked();
     void searchChanged();
     void searchClear();
     void searchCancel();
-    void searchCommit();*/
+    void searchCommit();
     void detailBack();
-    //    void commBack();
+    void commBack();
     void editCurrent();
     void createEditPage(const QModelIndex& index = QModelIndex(),
                         const QString& title = QString());
@@ -80,9 +93,9 @@ protected slots:
     void callNumber(const QString& number);
     void composeSMS(const QString& number);
     void composeEmail(const QString& address);
-    //void repositionOverlays();
+    void repositionOverlays();
     //void scrollTo(qreal pos);
-    void scrollIntoView(qreal ypos, qreal height);
+    //void scrollIntoView(qreal ypos, qreal height);
 
 private:
     SeasideListPriv *priv;
@@ -90,20 +103,16 @@ private:
     QPersistentModelIndex m_currentIndex;
     MApplicationPage *m_detailPage;
     MApplicationPage *m_editPage;
+    MApplicationPage *m_mainPage;
     SeasidePerson *m_currentPerson;
     Q_DISABLE_COPY(SeasideList);
 
-    //SeasideWindow *m_window;
-    //MApplicationPage *m_mainPage;
    //PersonCommsPage *m_commPage;
 
-    //QGraphicsWidget *m_topSpacer;
-    //QGraphicsWidget *m_bottomSpacer;
+    QGraphicsWidget *m_bottomSpacer;
 
-    //SeasidePeople *m_people;
-
-    //MWidgetController *m_searchWidget;
-    //MTextEdit *m_searchEdit;
+    MWidgetController *m_searchWidget;
+    MTextEdit *m_searchEdit;
 
     SeasidePersonModel *m_editModel;
     bool m_editModelModified;

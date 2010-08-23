@@ -12,8 +12,7 @@ OBJECTS_DIR = .obj
 MGEN_OUTDIR = .gen
 DEPENDPATH += .
 INCLUDEPATH += ./src
-CONFIG += meegotouch
-CONFIG += mobility link_pkgconfig
+CONFIG += meegotouch mobility qt debug link_pkgconfig
 PKGCONFIG += meegotouch QtContacts
 MOBILITY += contacts
 SUBDIRS += tests
@@ -35,6 +34,7 @@ HEADERS += \
     src/seasideproxymodel.h \
     src/seasidesyncmodel.h  \
     src/persondetailview.h \
+    src/personcommspage.h \
     src/personeditview.h \
     src/person.h \
     src/imagelabel.h
@@ -48,7 +48,8 @@ SOURCES += \
     src/seasidepersonmodel.cpp \
     src/seasideproxymodel.cpp \
     src/seasidesyncmodel.cpp \
-    src/persondetailview.cpp \
+    src/persondetailview.cpp \ 
+    src/personcommspage.cpp \
     src/personeditview.cpp \
     src/person.cpp \
     src/imagelabel.cpp

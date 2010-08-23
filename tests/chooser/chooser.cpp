@@ -1,4 +1,4 @@
-/*
+ /*
  * libseaside - Library that provides an interface to the Contacts application
  * Copyright © 2010, Intel Corporation.
  *
@@ -15,6 +15,7 @@
 #include <MApplication>
 #include <MApplicationWindow>
 #include <MApplicationPage>
+#include <MAction>
 #include <MTheme>
 
 #include "seasidelist.h"
@@ -35,10 +36,17 @@ int main(int argc, char *argv[])
     linear->setSpacing(0);
     page.centralWidget()->setLayout(linear);
     
-    SeasideList *list = new SeasideList(SeasideList::DetailIM);
+    SeasideList *list = new SeasideList(SeasideList::DetailPhone);
     linear->addItem(list);
+    list->createSearchBar(&page);
 
     Target *target = new Target;
+    MAction *m_actionSearch = new MAction("<b>Search</b>", target );  // TODO: i18n
+    m_actionSearch->setLocation(MAction::ToolBarLocation);
+    page.addAction(m_actionSearch);
+
+    QObject::connect(m_actionSearch, SIGNAL(triggered()), 
+		     list, SLOT(searchClicked()));
     QObject::connect(list, SIGNAL(contactSelected(QUuid)),
                      target, SLOT(contactClicked(QUuid)));
     QObject::connect(list, SIGNAL(emailsSelected(QStringList)),

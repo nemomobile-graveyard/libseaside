@@ -57,7 +57,8 @@ bool SeasideLabel::isMouseEnabled()
 
 void SeasideLabel::setText(const QString &text)
 {
-    priv->label->setText(text);
+    if(priv->label)
+     priv->label->setText(text);
 }
 
 void SeasideLabel::mousePressEvent(QGraphicsSceneMouseEvent *event)

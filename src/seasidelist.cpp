@@ -22,20 +22,14 @@
 #include "seasidelistmodel.h"
 
 #include <MWidgetCreator>
-//#include <QGraphicsLinearLayout>
 #include <QtDBus/QtDBus>
 #include <MAction>
-//#include <QActionGroup>
 #include <MApplicationPage>
-//#include <MTextEdit>
-//#include <MButton>
-//#include <MPannableViewport>
-//#include <MSceneManager>
+#include <MTextEdit>
+#include <MButton>
+#include  <QGraphicsLinearLayout>
 
 #include <seasidepersonmodel.h>
-//#include "peopleapp.h"
-//#include "window.h"
-//#include "people.h"
 
 M_REGISTER_WIDGET(SeasideList)
 
@@ -51,6 +45,11 @@ public:
 
     void updateCell(const QModelIndex& index, MWidget *cell) const
     {
+        qWarning() << "updateCell(const QModelIndex& index, MWidget *cell) " << index;
+
+        if(!index.isValid())
+              return;
+
         SeasideListItem *item = static_cast<SeasideListItem *>(cell);
         if (!item)
             return;
@@ -93,22 +92,15 @@ public:
 SeasideList::SeasideList(Detail detail, MWidget *parent):
         MList(parent), detailType(detail)
 {
-    /* m_window = new SeasideWindow;
-    m_window->show();
-
-    m_mainPage = NULL;*/
     m_detailPage = NULL;
     m_editPage = NULL;
-    /*m_commPage = NULL;
+    m_mainPage = NULL;
+    //m_commPage = NULL;
 
-    m_topSpacer = NULL;
-      m_bottomSpacer = NULL;
+    m_bottomSpacer = NULL;
 
-    m_people = NULL;
-    m_sliderH = NULL;
-    m_sliderV = NULL;
     m_searchWidget = NULL;
-    m_searchEdit = NULL;*/
+    m_searchEdit = NULL;
 
     m_currentPerson = NULL;
     m_editModel = NULL;
@@ -120,7 +112,6 @@ SeasideList::SeasideList(Detail detail, MWidget *parent):
     priv->proxyModel->sort(0);  // enable custom sorting
     priv->proxyModel->setSourceModel(priv->sourceModel);
 
-     qDebug() << "SETTING ITEM MODEL";
      //setItemModel(new SeasideListModel(detail));
     setItemModel(priv->proxyModel);
 
@@ -137,7 +128,7 @@ SeasideList::SeasideList(Detail detail, MWidget *parent):
         } else
             type = "Phone";
 
-    setCellCreator(new CellCreator(type)); //REVISIT
+    setCellCreator(new CellCreator(type)); //REVISIT  
 
     connect(this, SIGNAL(itemClicked(QModelIndex)),
             this, SLOT(handleClick(QModelIndex)));
@@ -148,6 +139,7 @@ SeasideList::SeasideList(Detail detail, MWidget *parent):
          this, SLOT(createDetailPage(QModelIndex)));
      connect(this, SIGNAL(editRequest(QModelIndex)),
          this, SLOT(createEditPage(QModelIndex)));
+
 }
 
 SeasideList::~SeasideList()
@@ -159,15 +151,15 @@ SeasideList::~SeasideList()
 
 /*void SeasideList::createCommPage(SeasidePersonModel *pm, CommCat type)
 {
-    if (m_commPage)
-        return;
+    //if (m_commPage)
+    //    return;
 
     searchCancel();
 
-    m_commPage = new PersonCommsPage(pm, type);
+    //m_commPage = new PersonCommsPage(pm, type);
 
-    connect(m_commPage, SIGNAL(backButtonClicked()),
-            this, SLOT(commBack()));
+   // connect(m_commPage, SIGNAL(backButtonClicked()),
+    //        this, SLOT(commBack()));
 
     switch (type) {
     case CatCall:
@@ -190,49 +182,81 @@ SeasideList::~SeasideList()
 
     m_commPage->appear(MApplicationPage::DestroyWhenDismissed);
     }
+*/
 
-void PeopleApplication::initSearch()
+void SeasideList::createSearchBar(MApplicationPage * page)
 {
+
+    m_mainPage = page;
+    if(m_mainPage != NULL){
+
+     connect(m_mainPage, SIGNAL(exposedContentRectChanged()),
+                this, SLOT(repositionOverlays()));
+
+    QGraphicsLinearLayout *linear = new QGraphicsLinearLayout(Qt::Vertical);
+    linear->setContentsMargins(0, 0, 0, 0);
+    linear->setSpacing(0);
+    linear->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    m_mainPage->centralWidget()->setLayout(linear);
+
+    m_bottomSpacer = new QGraphicsWidget;
+    m_bottomSpacer->setPreferredHeight(0);
+    linear->addItem(m_bottomSpacer); 
+
     m_searchWidget = new MWidgetController;
     m_searchWidget->setViewType("background");
-    m_searchWidget->setObjectName("PeopleSearch");
+    m_searchWidget->setObjectName("SeasideSearch");
     m_searchWidget->setParentItem(m_mainPage);
+    m_searchWidget->setMinimumWidth(600);
+    m_searchWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
     m_searchWidget->setZValue(1);
     m_searchWidget->hide();
-
+  
     QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(Qt::Horizontal, m_searchWidget);
+    layout->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
     m_searchEdit = new MTextEdit;
-    m_searchEdit->setObjectName("PeopleSearchEdit");
-    m_searchEdit->setPrompt("Tap to start searching people");  // TODO: i18n
+    m_searchEdit->setObjectName("SeasideSearchEdit");
+    m_searchEdit->setPreferredWidth(400);
+    m_searchEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    m_searchEdit->setPrompt(QObject::tr("Tap to start searching people","List widget's prompt for search default text"));
     layout->addItem(m_searchEdit);
     layout->setAlignment(m_searchEdit, Qt::AlignVCenter);
     connect(m_searchEdit, SIGNAL(returnPressed()), this, SLOT(searchCommit()));
 
     // uncomment this line to enable dynamic search
-//    connect(m_searchEdit, SIGNAL(textChanged()), this, SLOT(searchChanged()));
+    connect(m_searchEdit, SIGNAL(textChanged()), this, SLOT(searchChanged()));
 
     MButton *button = new MButton();
     button->setIconID("icon-m-framework-close-alt");
-    button->setObjectName("PeopleSearchButton");
+    button->setObjectName("SeasideSearchButton");
+    button->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
     layout->addItem(button);
     layout->setAlignment(button, Qt::AlignVCenter);
     connect(button, SIGNAL(clicked()), this, SLOT(searchClear()));
 
-    button = new MButton("<b>Search</b>");  // TODO: i18n
-    button->setObjectName("PeopleSearchButton");
+    button = new MButton(QObject::tr("<b>Search</b>", "Search button for list widget"));
+    button->setObjectName("SeasideSearchButton");
+    button->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
     layout->addItem(button);
     layout->setAlignment(button, Qt::AlignVCenter);
     connect(button, SIGNAL(clicked()), this, SLOT(searchCommit()));
+
+    m_mainPage->appear();
+    repositionOverlays();
+
+}else{
+      qWarning() << "SeasideList::createSearchBar: m_mainPage is NULL ";
+    }
 }
 
-void PeopleApplication::searchClicked()
+void SeasideList::searchClicked()
 {
     m_searchWidget->show();
     m_bottomSpacer->setPreferredHeight(m_searchWidget->size().height());
 }
 
-void PeopleApplication::searchClear()
+void SeasideList::searchClear()
 {
     if (m_searchEdit) {
         m_searchEdit->clear();
@@ -240,13 +264,22 @@ void PeopleApplication::searchClear()
     }
 }
 
-void PeopleApplication::searchChanged()
+void SeasideList::searchChanged()
 {
     if (m_searchEdit)
-        m_people->filterSearch(m_searchEdit->text());
+       filterSearch(m_searchEdit->text());
 }
 
-void PeopleApplication::searchCancel()
+void SeasideList::filterSearch(const QString& text)
+{
+    if (priv->proxyModel) {
+        priv->proxyModel->setFilter(SeasideProxyModel::FilterAll);
+        priv->proxyModel->setFilterRegExp(QRegExp(text, Qt::CaseInsensitive,
+                                              QRegExp::FixedString));
+    }
+}
+
+void SeasideList::searchCancel()
 {
     if (m_searchEdit)
         m_searchEdit->clearFocus();
@@ -257,20 +290,19 @@ void PeopleApplication::searchCancel()
     }
 }
 
-void PeopleApplication::searchCommit()
+void SeasideList::searchCommit()
 {
     searchChanged();
     searchCancel();
     }
 
-void PeopleApplication::commBack()
+void SeasideList::commBack()
 {
-    if (m_commPage) {
+    /*if (m_commPage) {
         m_commPage->dismiss();
         m_commPage = NULL;
-    }
+    }*/
 }
-*/
 
 void SeasideList::handleClick(const QModelIndex &index)
 {
@@ -303,7 +335,7 @@ void SeasideList::createDetailPage(const QModelIndex &index)
         if (!index.isValid())
             return;
 
-        //searchCancel();
+        searchCancel();
 
         m_currentIndex = index;
 
@@ -326,7 +358,7 @@ void SeasideList::createDetailPage(const QModelIndex &index)
         m_detailPage->setTitle("Contact Detail");  // TODO: i18n
         m_detailPage->setCentralWidget(m_currentPerson);
 
-        MAction *action = new MAction("<b>Edit</b>", this);  // TODO: i18n
+        MAction *action = new MAction(QObject::tr("<b>Edit</b>", "Edit button text for list widget"), this);  // TODO: i18n
         action->setLocation(MAction::ToolBarLocation);
         m_detailPage->addAction(action);
         connect(action, SIGNAL(triggered()), this, SLOT(editCurrent()));
@@ -381,11 +413,11 @@ void SeasideList::composeEmail(const QString& address)
     qDebug() << "Composing IM to" << address << "- not implemented";
     }*/
 
-void SeasideList::scrollIntoView(qreal ypos, qreal height)
+/*void SeasideList::scrollIntoView(qreal ypos, qreal height)
 {
     // effects: scrolls the defined vertical area into view, or as much as possible
 
-    /*MApplicationPage *page = activeApplicationWindow()->currentPage();
+    MApplicationPage *page = activeApplicationWindow()->currentPage();
     QGraphicsWidget *widget = page->centralWidget();
     MPannableWidget *viewport = page->pannableViewport();
     if (!widget || !viewport)
@@ -410,9 +442,9 @@ void SeasideList::scrollIntoView(qreal ypos, qreal height)
         scrollto = ypos;
 
     viewport->physics()->stop();
-    viewport->physics()->setPosition(QPointF(0, scrollto));*/
+    viewport->physics()->setPosition(QPointF(0, scrollto));
 }
-
+*/
 void SeasideList::detailBack()
 {
     m_currentIndex = QModelIndex();
@@ -453,12 +485,12 @@ void SeasideList::createEditPage(const QModelIndex &index, const QString& title)
 
     m_editPage = new MApplicationPage;
     if (title.isNull())
-        m_editPage->setTitle("Edit Contact");  // TODO: i18n
+        m_editPage->setTitle(QObject::tr("Edit Contact", "Edit screen title for toolbar"));
     else
         m_editPage->setTitle(title);
     m_editPage->setCentralWidget(person);
 
-    MAction *action = new MAction("<b>Save</b>", this);  // TODO: i18n
+    MAction *action = new MAction(QObject::tr("<b>Save</b>", "Edit screen button text to save changes"), this);  // TODO: i18n
     action->setLocation(MAction::ToolBarLocation);
     m_editPage->addAction(action);
     connect(action, SIGNAL(triggered()), this, SLOT(editSave()));
@@ -491,3 +523,14 @@ void SeasideList::editBack()
         m_editPage = NULL;
     }
 }
+
+void SeasideList::repositionOverlays()
+{
+    if(m_mainPage){
+    QRectF exposed = m_mainPage->exposedContentRect();
+
+    if (m_searchWidget)
+        m_searchWidget->setPos(0, exposed.bottom() - m_searchWidget->preferredHeight());
+ }
+}
+

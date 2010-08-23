@@ -241,7 +241,7 @@ void PersonDetailView::addPhone(const SeasideDetail& detail)
     linear->setSpacing(0);
     linear->addItem(createImageLabel(objectName, detail.text()));
 
-    SeasideLabel *button = new SeasideLabel("CALL");  // TODO: i18n
+    SeasideLabel *button = new SeasideLabel(QObject::tr("CALL", "Call button label to launch call"));
     if (detail.location() == Seaside::LocationMobile)
         button->setObjectName("SeasideCallButton");
     else
@@ -253,7 +253,7 @@ void PersonDetailView::addPhone(const SeasideDetail& detail)
     linear->addItem(button);
 
     if (detail.location() == Seaside::LocationMobile) {
-        button = new SeasideLabel("SMS");  // TODO: i18n
+        button = new SeasideLabel(QObject::tr("SMS", "SMS button label to open SMS compose window"));
         button->setObjectName("SeasideSmsButton");
         button->setMouseEnabled(true);
         m_labelToDetail[button] = detail;
@@ -268,14 +268,14 @@ void PersonDetailView::addPhone(const SeasideDetail& detail)
 void PersonDetailView::addEmail(const SeasideDetail& detail)
 {
     if (!m_headers[SectionEmail])
-        addSection(SectionEmail, "Email");  // TODO: i18n
+        addSection(SectionEmail, QObject::tr("Email", "Email Section Header label detail view"));
 
     QGraphicsLinearLayout *linear = new QGraphicsLinearLayout(Qt::Horizontal);
     linear->setContentsMargins(0, 0, 0, 0);
     linear->setSpacing(0);
     linear->addItem(createImageLabel("EmailAddress", detail.text()));
 
-    SeasideLabel *button = new SeasideLabel("EMAIL");  // TODO: i18n
+    SeasideLabel *button = new SeasideLabel(QObject::tr("Email", "Email button label to open email compose window"));
     button->setObjectName("SeasideEmailButton");
     button->setMouseEnabled(true);
     m_labelToDetail[button] = detail;
@@ -289,7 +289,7 @@ void PersonDetailView::addEmail(const SeasideDetail& detail)
 void PersonDetailView::addAddress(const SeasideDetail& detail)
 {
     if (!m_headers[SectionAddress])
-        addSection(SectionAddress, "Addresses");  // TODO: i18n
+        addSection(SectionAddress, QObject::tr("Addresses", "Section Header label detail view"));
 
     QString objectName;
     switch (detail.location()) {
@@ -310,21 +310,18 @@ void PersonDetailView::addAddress(const SeasideDetail& detail)
     QString zip     = fields[3];
     QString country = fields[4];
 
-    // city and state with separator (%1 = city, %2 = state/region)
-    QString format = "%1, %2";  // TODO: i18n
+
     QString place;
     if (!city.isEmpty() && !state.isEmpty())
-        place = format.arg(city, state);
+        place = QObject::tr("%1, %2", "%1 = city, %2 = state/region").arg(city).arg(state);
     else if (!city.isEmpty())
         place = city;
     else
         place = state;
 
-    // city/state and postcode with separator (%1 = city/state, %2 = postcode)
     QString line;
-    format = "%1&nbsp;&nbsp;%2";  // TODO: i18n
     if (!place.isEmpty() && !zip.isEmpty())
-        line = format.arg(place, zip);
+        line = QObject::tr("%1&nbsp;&nbsp;%2", "%1 = city/state, %2 = postcode").arg(place).arg(zip);
     else if (!place.isEmpty())
         line = place;
     else
