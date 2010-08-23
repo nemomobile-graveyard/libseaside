@@ -1,3 +1,10 @@
+Changes in 0.0.28
+
+2ac6... Fixing version number, should be 0.0.27 Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+d0a4... Adding SearchWidget to search for contacts by filtering dynamically on input text string. Also expanded seasidelistitem to have a "thinner" card when specified with mode !=0 without status or detail fields. Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+08fd... Adding feature to launch Detail and Edit views in Seaside list Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+f5e6... Adding sample data patch to generate data for testing Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+
 Changes in 0.0.27
 
 ec9a... Adding pkgconfig changes to .pro files to match qt-beta2 build patches Signed-off-by: Connie Berardi <connie.berardi@intel.com>
