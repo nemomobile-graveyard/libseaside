@@ -1,3 +1,8 @@
+Changes in 0.0.31
+
+91d0... Adding Seaside::SearchRole to replace default Qt::DisplayRole and correcting usage of Seaside::DataRole Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+bee1... Changing view params for detail edit views in *.conf files Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+
 Changes in 0.0.30
 
 3513... Fixing build errors from class name changes Signed-off-by: Connie Berardi <connie.berardi@intel.com>
