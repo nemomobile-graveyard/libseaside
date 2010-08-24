@@ -25,7 +25,7 @@
 
 #include "seasidedetailview.h"
 #include "seasideimagelabel.h"
-#include "person.h"
+#include "seasideperson.h"
 
 enum Section {
     SectionRecent,
@@ -399,4 +399,4 @@ void SeasideDetailView::composeEmail(SeasideLabel *label)
         emit composeEmail(detail.text());
 }
 
-M_REGISTER_VIEW(SeasideDetailView, SeasidePerson)
+M_REGISTER_VIEW(SeasideDetailView, MWidgetController)

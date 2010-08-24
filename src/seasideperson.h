@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef PERSON_H
-#define PERSON_H
+#ifndef SEASIDEPERSON_H
+#define SEASIDEPERSON_H
 
 #include <QModelIndex>
 
@@ -32,4 +32,4 @@ signals:
     void viewRequest(qreal ypos, qreal height);
 };
 
-#endif // PERSON_H
+#endif // SEASIDEPERSON_H

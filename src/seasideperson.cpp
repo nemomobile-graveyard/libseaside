@@ -11,7 +11,7 @@
 #include <seasidepersonmodel.h>
 #include <seasidesyncmodel.h>
 
-#include "person.h"
+#include "seasideperson.h"
 
 SeasidePerson::SeasidePerson(const QModelIndex& index, MWidget *parent):
         MWidgetController(SeasideSyncModel::createPersonModel(index), parent)

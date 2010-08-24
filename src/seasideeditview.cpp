@@ -26,7 +26,7 @@
 #include <seasidelabel.h>
 
 #include "seasideeditview.h"
-#include "imagelabel.h"
+#include "seasideimagelabel.h"
 
 static SeasideLabel *createHeader(const QString &text) {
     SeasideLabel *label = new SeasideLabel(text);

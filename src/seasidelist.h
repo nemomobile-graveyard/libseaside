@@ -20,7 +20,7 @@ class SeasideListPriv;
 class SeasideSyncModel;
 class SeasideProxyModel;
 class SeasidePersonModel;
-//class PersonCommsPage;
+//class SeasideCommsPage;
 class QPersistentModelIndex;
 class SeasidePerson;
 class MTextEdit;
@@ -107,7 +107,7 @@ private:
     SeasidePerson *m_currentPerson;
     Q_DISABLE_COPY(SeasideList);
 
-   //PersonCommsPage *m_commPage;
+   //SeasideCommsPage *m_commPage;
 
     QGraphicsWidget *m_bottomSpacer;
 

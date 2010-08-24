@@ -15,7 +15,7 @@
 #include <MAbstractCellCreator>
 
 #include "seasidelist.h"
-#include "person.h"
+#include "seasideperson.h"
 #include "seasidelistitem.h"
 #include "seasidesyncmodel.h"
 #include "seasideproxymodel.h"
@@ -156,7 +156,7 @@ SeasideList::~SeasideList()
 
     searchCancel();
 
-    //m_commPage = new PersonCommsPage(pm, type);
+    //m_commPage = new SeasideCommsPage(pm, type);
 
    // connect(m_commPage, SIGNAL(backButtonClicked()),
     //        this, SLOT(commBack()));
@@ -477,7 +477,7 @@ void SeasideList::createEditPage(const QModelIndex &index, const QString& title)
     else  // create empty edit model to add new contact
         m_editModel = new SeasidePersonModel;
     MWidgetController *person = new MWidgetController(m_editModel);
-    person->setViewType("personEdit");
+    person->setViewType("seasideEdit");
 
     m_editModelModified = false;
     connect(m_editModel, SIGNAL(modified(QList<const char*>)),
