@@ -399,4 +399,4 @@ void SeasideDetailView::composeEmail(SeasideLabel *label)
         emit composeEmail(detail.text());
 }
 
-M_REGISTER_VIEW(SeasideDetailView, MWidgetController)
+M_REGISTER_VIEW(SeasideDetailView, SeasidePerson)
