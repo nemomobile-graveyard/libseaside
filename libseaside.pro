@@ -21,7 +21,7 @@ MODEL_HEADERS += \
     src/seasidepersonmodel.h
 STYLE_HEADERS += \
     src/seasidelabelstyle.h \
-    src/imagelabelstyle.h
+    src/seasideimagelabelstyle.h
 HEADERS += \
     $$MODEL_HEADERS \
     $$STYLE_HEADERS \
@@ -33,11 +33,11 @@ HEADERS += \
     src/seasidelistmodel.h \
     src/seasideproxymodel.h \
     src/seasidesyncmodel.h  \
-    src/persondetailview.h \
-    src/personcommspage.h \
-    src/personeditview.h \
-    src/person.h \
-    src/imagelabel.h
+    src/seasidedetailview.h \
+    src/seasidecommspage.h \
+    src/seasideeditview.h \
+    src/seasideperson.h \
+    src/seasideimagelabel.h
 SOURCES += \
     src/seaside.cpp \
     src/seasidedetail.cpp \
@@ -48,11 +48,11 @@ SOURCES += \
     src/seasidepersonmodel.cpp \
     src/seasideproxymodel.cpp \
     src/seasidesyncmodel.cpp \
-    src/persondetailview.cpp \ 
-    src/personcommspage.cpp \
-    src/personeditview.cpp \
-    src/person.cpp \
-    src/imagelabel.cpp
+    src/seasidedetailview.cpp \
+    src/seasidecommspage.cpp \
+    src/seasideeditview.cpp \
+    src/seasideperson.cpp \
+    src/seasideimagelabel.cpp
 M_THEME_DIR = $$PREFIX/share/themes/base/meegotouch
 SEASIDE_THEME_DIR = $$M_THEME_DIR/lib$$TARGET
 DEFINES += IMAGES_DIR=\"\\\"$$SEASIDE_THEME_DIR/images/\\\"\" 
