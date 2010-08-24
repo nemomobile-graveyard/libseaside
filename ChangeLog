@@ -1,3 +1,8 @@
+Changes in 0.0.29
+
+176d... Removing untracked files, files were replaced by library versions Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+be09... Renamed classes to "Seaside*" to fix with spectacle build error and for consistency. Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+
 Changes in 0.0.28
 
 2ac6... Fixing version number, should be 0.0.27 Signed-off-by: Connie Berardi <connie.berardi@intel.com>
