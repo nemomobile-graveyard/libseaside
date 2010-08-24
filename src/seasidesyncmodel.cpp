@@ -196,7 +196,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    if (role != Qt::DisplayRole && role != Seaside::SearchRole)
+    if (role != Seaside::SearchRole && role != Seaside::DataRole)
         return QVariant();
 
     QContactLocalId id = priv->contactIds[index.row()];
@@ -205,7 +205,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
     if (!contact)
         return QVariant();
 
-    // expect searching on DisplayRole, only return text that makes sense to search
+    // expect searching on SearchRole, only return text that makes sense to search
     switch (index.column()) {
     case Seaside::ColumnFirstName:  // first name
         {
@@ -225,7 +225,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
         {
             QContactOrganization company = contact->detail<QContactOrganization>();
             //return QVariant(company.name());
-          //  if (role == Qt::DisplayRole)
+          //  if (role == Seaside::SearchRole)
                 //return QVariant(company.name());
             if (priv->settings) {
                 QContactGuid guid = contact->detail<QContactGuid>();
@@ -238,7 +238,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
     case Seaside::ColumnBirthday:  // birthday
         {
             QContactBirthday day = contact->detail<QContactBirthday>();
-            if (role != Qt::DisplayRole)
+            if (role != Seaside::SearchRole)
                 return QVariant(day.date());
             else
                 return QVariant();
@@ -247,7 +247,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
     case Seaside::ColumnAnniversary:  // anniversary
         {
             QContactAnniversary day = contact->detail<QContactAnniversary>();
-            if (role != Qt::DisplayRole)
+            if (role != Seaside::SearchRole)
                 return QVariant(day.originalDate());
             else
                 return QVariant();
@@ -255,7 +255,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
 
     case Seaside::ColumnAvatar:  // avatar
         {
-            if(role != Qt::DisplayRole){
+            if(role != Seaside::SearchRole){
             QContactAvatar avatar = contact->detail<QContactAvatar>();
             return QVariant(avatar.imageUrl().toString());
              }
@@ -264,7 +264,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
 
     case Seaside::ColumnFavorite:  // favorite
         {
-            if (role != Qt::DisplayRole) // TODO: this should always return false
+            if (role != Seaside::SearchRole) // TODO: this should always return false
                 return QVariant();
             if (priv->settings) {
                 QContactGuid guid = contact->detail<QContactGuid>();
@@ -281,7 +281,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
             foreach (const QContactEmailAddress& email,
                      contact->details<QContactEmailAddress>())
                 list << email.emailAddress();
-            if (role == Qt::DisplayRole)
+            if (role == Seaside::SearchRole)
                 return QVariant(list.join(" "));
             else
                 return QVariant(list);
@@ -321,7 +321,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
 
                  qWarning() << "Seaside::ColumnPhoneNumbers list" << list;
             }
-            if (role == Qt::DisplayRole) {
+            if (role == Seaside::SearchRole) {
                 QStringList searchable;
                 foreach (QString number, list)
                     searchable << number.replace(QRegExp("[^0-9*#]"), "");
@@ -338,14 +338,14 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
 
     case Seaside::ColumnPhoneContexts:  // phone contexts
         {
-            if (role == Qt::DisplayRole)
+            if (role == Seaside::SearchRole)
                 return QVariant();
             return getContextList(contact->details(QContactPhoneNumber::DefinitionName));
         }
 
     case Seaside::ColumnPhoneTypes:  // phone types
         {
-            if (role == Qt::DisplayRole)
+            if (role == Seaside::SearchRole)
                 return QVariant();
             QStringList list;
             foreach (const QContactPhoneNumber& phone,
@@ -375,7 +375,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
                         address.region() + "\n" + address.postcode() + "\n" +
                         address.country();
             }
-            if (role == Qt::DisplayRole)
+            if (role == Seaside::SearchRole)
                 return QVariant(list.join(" "));
             else
                 return QVariant(list);
@@ -383,14 +383,14 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
 
     case Seaside::ColumnAddressContexts:  // address contexts
         {
-            if (role == Qt::DisplayRole)
+            if (role == Seaside::SearchRole)
                 return QVariant();
             return getContextList(contact->details(QContactAddress::DefinitionName));
         }
 
     case Seaside::ColumnPresence:  // presence
         {
-            if (role == Qt::DisplayRole)
+            if (role == Seaside::SearchRole)
                 return QVariant();
             // report the most available presence status found
             Seaside::Presence presence = Seaside::PresenceUnknown;
@@ -419,7 +419,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
 
     case Seaside::ColumnUuid:  // uuid
         {
-            if (role == Qt::DisplayRole)
+            if (role == Seaside::SearchRole)
                 return QVariant();
             QContactGuid guid = contact->detail<QContactGuid>();
             return QVariant(guid.guid());
@@ -427,7 +427,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
 
     case Seaside::ColumnCommTimestamp:  // most recent communication
         {
-            if (role == Qt::DisplayRole)
+            if (role == Seaside::SearchRole)
                 return QVariant();
             foreach (const SeasideCustomDetail& detail,
                      contact->details<SeasideCustomDetail>())
@@ -437,7 +437,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
 
     case Seaside::ColumnCommType:  // recent communication type
         {
-            if (role == Qt::DisplayRole)
+            if (role == Seaside::SearchRole)
                 return QVariant();
             foreach (const SeasideCustomDetail& detail,
                      contact->details<SeasideCustomDetail>())
@@ -447,7 +447,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
 
     case Seaside::ColumnCommLocation:  // recent communication location
         {
-            if (role == Qt::DisplayRole)
+            if (role == Seaside::SearchRole)
                 return QVariant();
             foreach (const SeasideCustomDetail& detail,
                      contact->details<SeasideCustomDetail>())
@@ -466,7 +466,7 @@ QVariant SeasideSyncModel::headerData(int section, Qt::Orientation orientation, 
 {
     Q_UNUSED(orientation);
 
-    if (role == Qt::DisplayRole) {
+    if (role == Seaside::SearchRole) {
         if (section < priv->headers.size()) {
             return QVariant(priv->headers.at(section));
         }

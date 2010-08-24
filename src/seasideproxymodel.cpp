@@ -90,14 +90,14 @@ bool SeasideProxyModel::lessThan(const QModelIndex& left,
                                  const QModelIndex& right) const
 {
     if (priv->sortType == SortName) {
-        const QString& lStr = left.data(Seaside::SearchRole).toString();
-        const QString& rStr = right.data(Seaside::SearchRole).toString();
+        const QString& lStr = left.data(Seaside::DataRole).toString();
+        const QString& rStr = right.data(Seaside::DataRole).toString();
         //qWarning() << "[ProxyModel] lessThan " << lStr << "VS" << rStr;
         return QString::localeAwareCompare(lStr, rStr) < 0;
     }
     else if (priv->sortType == SortRecent) {
-        const QDateTime& lDate = left.data(Seaside::SearchRole).toDateTime();
-        const QDateTime& rDate = right.data(Seaside::SearchRole).toDateTime();
+        const QDateTime& lDate = left.data(Seaside::DataRole).toDateTime();
+        const QDateTime& rDate = right.data(Seaside::DataRole).toDateTime();
         return lDate < rDate;
     }
     return false;

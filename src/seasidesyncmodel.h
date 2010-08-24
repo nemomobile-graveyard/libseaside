@@ -19,7 +19,7 @@
 class SeasidePersonModel;
 
 /*
-  Model data for Seaside::SearchRole
+  Model data for Seaside::DataRole
   --------------------------------
   Column 0:     First Name          QString
   Column 1:     Last Name           QString

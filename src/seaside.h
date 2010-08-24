@@ -24,7 +24,8 @@ class Seaside
 {
 public:
     enum Role {
-        SearchRole = Qt::UserRole + 0
+      DataRole = Qt::UserRole + 0,
+        SearchRole = Qt::UserRole + 1
     };
 
     enum Column {
@@ -82,7 +83,7 @@ public:
 
     static inline QVariant field(const QAbstractItemModel *model, int row, int column)
     {
-        return model->index(row, column).data(SearchRole);
+        return model->index(row, column).data(DataRole);
     }
 
     // convenience functions for working with QContact
@@ -112,7 +113,7 @@ private:
 };
 
 /*
-  Model data for Seaside::SearchRole
+  Model data for Seaside::DataRole
   --------------------------------
   FirstName           String
   LastName            String
