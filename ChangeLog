@@ -1,3 +1,7 @@
+Changes in 0.0.30
+
+3513... Fixing build errors from class name changes Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+
 Changes in 0.0.29
 
 176d... Removing untracked files, files were replaced by library versions Signed-off-by: Connie Berardi <connie.berardi@intel.com>
