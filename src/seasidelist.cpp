@@ -340,8 +340,7 @@ void SeasideList::createDetailPage(const QModelIndex &index)
         m_currentIndex = index;
 
         m_currentPerson = new SeasidePerson(index);
-        m_currentPerson->setObjectName("SeasidePerson");
-        m_currentPerson->setViewType("seasideDetail");
+        m_currentPerson->setViewType("seasideDetailView");
 
         connect(m_currentPerson, SIGNAL(callNumber(const QString&)),
                 this, SLOT(callNumber(const QString&)));
