@@ -24,6 +24,7 @@ public:
 
     void setPhone(int index, const SeasideDetail& detail);
     void setEmail(int index, const SeasideDetail& detail);
+    void setIMAccount(int index, const SeasideDetail& detail);
     void setAddress(int index, const SeasideDetail& detail);
 
     M_MODEL_PROPERTY(QUuid, uuid, Uuid, true, QUuid());
@@ -36,6 +37,7 @@ public:
 
     M_MODEL_PROPERTY(QList<SeasideCommEvent>, events, Events, true, QList<SeasideCommEvent>())
     M_MODEL_PROPERTY(QVector<SeasideDetail>, phones, Phones, true, QVector<SeasideDetail>())
+    M_MODEL_PROPERTY(QVector<SeasideDetail>, ims, IMs, true, QVector<SeasideDetail>())
     M_MODEL_PROPERTY(QVector<SeasideDetail>, emails, Emails, true, QVector<SeasideDetail>())
     M_MODEL_PROPERTY(QVector<SeasideDetail>, addresses, Addresses, true, QVector<SeasideDetail>())
 };

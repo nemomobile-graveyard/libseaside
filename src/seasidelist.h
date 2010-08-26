@@ -50,7 +50,8 @@ public:
   enum CommCat {
       CatCall,
       CatSMS,
-      CatEmail
+      CatEmail,
+      CatIM
   };
 
     SeasideList(Detail detail = DetailNone, MWidget *parent = NULL);

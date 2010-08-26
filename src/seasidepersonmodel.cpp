@@ -28,6 +28,15 @@ void SeasidePersonModel::setPhone(int index, const SeasideDetail& detail)
     memberModified(SeasidePersonModel::Phones);
 }
 
+void SeasidePersonModel::setIMAccount(int index, const SeasideDetail& detail)
+{
+    QVector<SeasideDetail>& vector = _ims();
+    if (index >= vector.count())
+        vector.resize(index + 1);
+    vector[index] = detail;
+    memberModified(SeasidePersonModel::IMs);
+}
+
 void SeasidePersonModel::setEmail(int index, const SeasideDetail& detail)
 {
     QVector<SeasideDetail>& vector = _emails();

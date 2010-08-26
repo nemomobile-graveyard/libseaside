@@ -1,5 +1,5 @@
 /*
- * libseaside - Library that provides an interface to the Contacts application
+ * Libseaside - Library that provides an interface to the Contacts application
  * Copyright © 2010, Intel Corporation.
  *
  * This program is licensed under the terms and conditions of the
@@ -45,7 +45,7 @@ public:
 
     void updateCell(const QModelIndex& index, MWidget *cell) const
     {
-        qWarning() << "updateCell(const QModelIndex& index, MWidget *cell) " << index;
+        //qWarning() << "updateCell(const QModelIndex& index, MWidget *cell) " << index;
 
         if(!index.isValid())
               return;
@@ -354,10 +354,10 @@ void SeasideList::createDetailPage(const QModelIndex &index)
                 this, SLOT(scrollIntoView(qreal,qreal)));
 
         m_detailPage = new MApplicationPage;
-        m_detailPage->setTitle("Contact Detail");  // TODO: i18n
+        m_detailPage->setTitle(QObject::tr("Contact Detail", "Screen title for the MApplicationPage" ));
         m_detailPage->setCentralWidget(m_currentPerson);
 
-        MAction *action = new MAction(QObject::tr("<b>Edit</b>", "Edit button text for list widget"), this);  // TODO: i18n
+        MAction *action = new MAction(QObject::tr("<b>Edit</b>", "Edit button text for list widget"), this);  
         action->setLocation(MAction::ToolBarLocation);
         m_detailPage->addAction(action);
         connect(action, SIGNAL(triggered()), this, SLOT(editCurrent()));

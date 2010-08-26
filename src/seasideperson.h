@@ -28,6 +28,7 @@ public:
 signals:
     void callNumber(const QString& number);
     void composeSMS(const QString& number);
+    void composeIM(const QString& account);
     void composeEmail(const QString& address);
     void viewRequest(qreal ypos, qreal height);
 };

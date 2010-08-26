@@ -37,7 +37,7 @@ public:
         ColumnAnniversary,
         ColumnAvatar,
         ColumnFavorite,
- 	ColumnIMAccounts, //REVISIT
+        ColumnIMAccounts, //REVISIT
         ColumnEmailAddresses,
         ColumnPhoneNumbers,
         ColumnPhoneContexts,
@@ -122,8 +122,8 @@ private:
   Anniversary         Date
   Avatar              String      path/filename
   Favorite            Bool
-  EmailAddresses      StringList
   IMAccounts          StringList
+  EmailAddresses      StringList
   PhoneNumbers        StringList
   PhoneContexts       StringList  of "Home", "Work", or empty
   PhoneTypes          StringList  of "Mobile" or empty

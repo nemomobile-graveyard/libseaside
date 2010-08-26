@@ -70,7 +70,6 @@ SeasideListModel::SeasideListModel(SeasideList::Detail detail)
         return;
     }
 
-    qDebug() << "\n\nLISTMODEL!\n\n";
     QList<QContact> contacts;
     QContactDetailFilter filter;
     if (detail == SeasideList::DetailEmail) {
@@ -84,10 +83,8 @@ SeasideListModel::SeasideListModel(SeasideList::Detail detail)
     else
         contacts = manager->contacts();
 
-    qDebug() << "CONTACTS:" << contacts.size();
     foreach (const QContact& contact, contacts) {
         QString name = Seaside::contactName(&contact);
-        qDebug() << "CONTACTS name:" << name;
     }
 }
 
@@ -118,11 +115,11 @@ static QVariant getContextList(const QList<QContactDetail>& details)
         QString str;
         foreach (const QString& context, detail.contexts()) {
             if (context == "Home") {
-                str = "Home";
+                str = QObject::tr("Home", "Context for communication location: landline or home");
                 break;
             }
             else if (context == "Work") {
-                str = "Work";
+                str = QObject::tr("Work", "Context for communication location: work or company");
                 break;
             }
         }
@@ -166,7 +163,7 @@ QVariant SeasideListModel::data(const QModelIndex& index, int role) const
         {
             QContactBirthday day = contact->detail<QContactBirthday>();
             if (role == Seaside::SearchRole)
-                return QVariant(day.date().toString("MMMM dd yyyy"));
+                return QVariant(day.date().toString(QObject::tr("MMMM dd yyyy","Format for date M= month, d = day, y = year")));
             else
                 return QVariant(day.date());
         }
@@ -175,7 +172,7 @@ QVariant SeasideListModel::data(const QModelIndex& index, int role) const
         {
             QContactAnniversary day = contact->detail<QContactAnniversary>();
             if (role == Seaside::SearchRole)
-                return QVariant(day.originalDate().toString("MMMM dd yyyy"));
+                return QVariant(day.originalDate().toString(QObject::tr("MMMM dd yyyy","Format for date M= month, d = day, y = year")));
             else
                 return QVariant(day.originalDate());
         }
@@ -244,7 +241,7 @@ QVariant SeasideListModel::data(const QModelIndex& index, int role) const
                 foreach (const QString& subtype, phone.subTypes()) {
                     // TODO: handle MessagingCapable, Pager, etc...
                     if (subtype == QContactPhoneNumber::SubTypeMobile) {
-                        str = "Mobile";
+                        str = QObject::tr("Mobile","Phone communication type for cell/mobile numbers");
                         break;
                     }
                 }

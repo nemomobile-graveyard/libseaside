@@ -27,17 +27,17 @@ SeasideCommsPage::SeasideCommsPage(SeasidePersonModel *pm,
     MLinearLayoutPolicy *policy = new MLinearLayoutPolicy(layout, Qt::Vertical);
     MButtonGroup *btnGroup = new MButtonGroup();
     bool useDetailType = false;
-    QString headerText = QString("Select the %1 to %2:");
+    QString headerText = QObject::tr("Select the %1 to %2:", "Prompt to chooser %1= number|address|chatcontact to %2 = call|SMS|email|IM");
 
     switch (type) {
     case SeasideList::CatCall:
         useDetailType = true;
-        headerText = headerText.arg("number", "call");
+        headerText = headerText.arg(QObject::tr("number", "Noun for phone number"), QObject::tr("call", "Verb describing action i.e. to call a number"));
         m_detailList.append(pm->phones().toList());
         break;
 
     case SeasideList::CatSMS:
-        headerText = headerText.arg("number", "SMS");
+        headerText = headerText.arg(QObject::tr("number", "Noun for phone number"), QObject::tr("SMS", "Verb describing action i.e. to SMS a number"));
         foreach (const SeasideDetail& detail, pm->phones()) {
             if (detail.location() == Seaside::LocationMobile)
                 m_detailList.append(detail);
@@ -45,7 +45,12 @@ SeasideCommsPage::SeasideCommsPage(SeasidePersonModel *pm,
 
         break;
     case SeasideList::CatEmail:
-        headerText = headerText.arg("address", "Email");
+        headerText = headerText.arg(QObject::tr("address", "Noun for address"), QObject::tr("email","Verb describing action i.e. to email an address"));
+        m_detailList.append(pm->emails().toList());
+        break;
+
+    case SeasideList::CatIM:
+        headerText = headerText.arg(QObject::tr("chat contact", "Noun for im contact"), QObject::tr("IM","Verb describing action i.e. to IM a chat contact"));
         m_detailList.append(pm->emails().toList());
         break;
     }
@@ -59,19 +64,19 @@ SeasideCommsPage::SeasideCommsPage(SeasidePersonModel *pm,
         QString type;
         foreach(const SeasideDetail& detail, m_detailList) {
             if (detail.location() == Seaside::LocationHome)
-                type = "Home";  // TODO: i18n;
+                type = QObject::tr("Home", "Location of communication home phone, home address, etc");
             else if (detail.location() == Seaside::LocationWork)
-                type = "Work";  // TODO: i18n;
+                type = QObject::tr("Work", "Location of communication work phone, work address, etc");
             else
-                type = "Mobile";  // TODO: i18n;
-            MButton *btn = new MButton(QString("%1 (%2)").arg(detail.text(), type));
+                type = QObject::tr("Mobile", "Location of communication mobile phone, mobile email, etc");
+            MButton *btn = new MButton(QObject::tr("%1 (%2)", "%1 = Communication data ie 321-3333 or jon@gmail.com, %2=Location of communication ie work or home").arg(detail.text(), type));
             btn->setObjectName("SeasideCommsPageDestButton");
             btnGroup->addButton(btn, i++);
             policy->addItem(btn, Qt::AlignCenter);
         }
     } else {
         foreach(const SeasideDetail& detail, m_detailList) {
-            MButton *btn = new MButton(QString("%1").arg(detail.text()));
+            MButton *btn = new MButton(QObject::tr("%1", "Raw communication data ie 321-3333 or jon@gmail.com").arg(detail.text()));
             btn->setObjectName("SeasideCommsPageDestButton");
             btnGroup->addButton(btn, i++);
             policy->addItem(btn, Qt::AlignCenter);

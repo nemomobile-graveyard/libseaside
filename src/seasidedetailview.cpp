@@ -135,11 +135,11 @@ void SeasideDetailView::setupModel()
     QString fullname;
     if(!(pm->lastname()).isEmpty())
       { 
-	fullname = QObject::tr("%1 %2").arg(pm->firstname()).arg(pm->lastname());
+        fullname = QObject::tr("%1 %2", "%1=firstname %2=lastname").arg(pm->firstname()).arg(pm->lastname());
       }
     else
       {
-	fullname = QObject::tr("%1").arg(pm->firstname());
+        fullname = QObject::tr("%1", "%1=firstname").arg(pm->firstname());
       }
     const QString& name = fullname;
     if (!name.isEmpty()) {
@@ -212,16 +212,16 @@ void SeasideDetailView::addSection(int index, const QString& title)
 void SeasideDetailView::addRecent(const SeasideDetail& detail)
 {
     if (!m_headers[SectionRecent])
-        addSection(SectionRecent, "Recent conversations");  // TODO: i18n
+        addSection(SectionRecent, QObject::tr("Recent conversations", "Header Recent communications for People/Contacts detail view"));
 
     // TODO: choose different object names when we support recent events
-    m_layouts[SectionRecent]->addItem(createSeasideImageLabel("CallDialed", detail.text()));
+    m_layouts[SectionRecent]->addItem(createSeasideImageLabel("CallDialed", detail.text())); //does not need i18n, used as objectName
 }
 
 void SeasideDetailView::addPhone(const SeasideDetail& detail)
 {
     if (!m_headers[SectionPhone])
-        addSection(SectionPhone, "Telephone numbers");  // TODO: i18n
+        addSection(SectionPhone, QObject::tr("Telephone numbers","Header title for telephone numbers in the detail view"));
 
     QString objectName;
     switch (detail.location()) {

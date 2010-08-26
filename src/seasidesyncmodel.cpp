@@ -20,6 +20,7 @@
 #include <QContactName>
 #include <QContactNote>
 #include <QContactOrganization>
+#include <QContactOnlineAccount>
 #include <QContactPhoneNumber>
 #include <QContactPresence>
 #include <QSettings>
@@ -114,6 +115,7 @@ SeasideSyncModel::SeasideSyncModel()
     priv->headers.append("Anniversary");
     priv->headers.append("Avatar");
     priv->headers.append("Favorite");
+    priv->headers.append("IM Accounts");
     priv->headers.append("Email Addresses");
     priv->headers.append("Phone Numbers");
     priv->headers.append("Phone Contexts");
@@ -194,7 +196,7 @@ void SeasideSyncModel::createMeCard()
     qWarning() << "[SyncModel] failed to save seaside detail in mecard contact";
   
   QContactName name;
-  name.setFirstName("Me");
+  name.setFirstName(QObject::tr("Me","Default string to describe self if no self contact information found, default created with [Me] as firstname"));
   name.setLastName("");
   if (!contact->saveDetail(&name))
     qWarning() << "[SyncModel] failed to save mecard name";
@@ -249,7 +251,7 @@ static QVariant getContextList(const QList<QContactDetail>& details)
         QString str;
         foreach (const QString& context, detail.contexts()) {
             if (context == "Home") {
-                str = "Home";
+                str = QObject::tr("Home", "ContextList type for home type");
                 break;
             }
             else if (context == "Work") {
@@ -354,6 +356,19 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
             return QVariant(false);
         }
 
+    case Seaside::ColumnIMAccounts:  // IMAccounts
+        {
+            QStringList list;
+	    foreach (const QContactOnlineAccount& account, 
+                     contact->details<QContactOnlineAccount>())
+                list << account.accountUri() + ":" +account.value("Nickname")+":"+account.value("AccountPath") ;
+
+	    if (role != Seaside::SearchRole)
+	      return QVariant(list.join(" "));
+	    else
+	      return QVariant(list);
+        }
+
     case Seaside::ColumnEmailAddresses:  // emails
         {
             QStringList list;
@@ -375,7 +390,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
                 // is a temporary fix to make them look nicer, but it means
                 // hard-coding American-style phone numbers
 
-                qWarning() << "Seaside::ColumnPhoneNumbers phone" << phone;
+                //qWarning() << "Seaside::ColumnPhoneNumbers phone" << phone;
 
                 // TODO: i18n //REVISIT
                 QString number = phone.number().replace("[^0-9]", "");
@@ -736,10 +751,18 @@ SeasidePersonModel *SeasideSyncModel::createPersonModel(const QModelIndex& index
     qWarning() << "SeasideSyncModel::createPersonModel list phones " << list;
     model->setPhones(details);
 
+    //handle im accounts
+    details.clear();
+    foreach (QString account, SEASIDE_FIELD(IMAccounts, StringList)) {
+        SeasideDetail detail(account, Seaside::LocationNone);
+        details.append(detail);
+    }
+    model->setIMs(details);
+
     // handle emails
     details.clear();
     foreach (QString email, SEASIDE_FIELD(EmailAddresses, StringList)) {
-        SeasideDetail detail(email, Seaside::LocationHome);
+      SeasideDetail detail(email, Seaside::LocationHome);
         details.append(detail);
     }
     model->setEmails(details);
@@ -875,6 +898,27 @@ void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
                      contact->details<QContactPhoneNumber>())            
                 qWarning() << "[SyncModel] to save phone number" << phone;
 
+            }
+        }
+    }
+
+    const QVector<SeasideDetail>& newIMs = newModel->ims();
+    if (oldModel->ims() != newIMs) {
+        foreach (QContactDetail detail, contact->details<QContactOnlineAccount>())
+            if (!contact->removeDetail(&detail))
+                qWarning() << "[SyncModel] failed to remove im account";
+
+        foreach (const SeasideDetail& detail, newIMs) {
+            if (detail.isValid()) {
+                QContactOnlineAccount imAccount;
+                QStringList list = (detail.text()).split(":");
+                if(list.count() != 3)
+                     qWarning() << "[SyncModel] im detail missing fields";
+                imAccount.setValue("AccountPath", list.at(2));
+                 imAccount.setAccountUri(list.at(0));
+                 imAccount.setValue("Nickname", list.at(1));
+                if (!contact->saveDetail(&imAccount))
+                    qWarning() << "[SyncModel] failed to save im account";
             }
         }
     }
