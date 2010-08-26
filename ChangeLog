@@ -1,3 +1,9 @@
+Changes in 0.0.32
+
+0f67... Added IM to SeasideSyncModel and Seaside tables to reads/write QContactOnlineAccount from tracker backend to persistently store IM contacts.FEA#4178,4195 Adding more tr() translation strings marked for localization. Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+0e46... Adding MeCard feature, no FEA# available, using qtcontacts-tracker APIs for selfId so that user can store their contact information. Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+cf45... Changing .pro file for test app to install views/theme files Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+
 Changes in 0.0.31
 
 91d0... Adding Seaside::SearchRole to replace default Qt::DisplayRole and correcting usage of Seaside::DataRole Signed-off-by: Connie Berardi <connie.berardi@intel.com>
