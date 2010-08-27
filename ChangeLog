@@ -1,3 +1,7 @@
+Changes in 0.0.33
+
+bf24... Exposing function to map QContactLocalId to model index for dbus interface that allows IM App to launch details view for a given QContactLocalId FEA# 3067 Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+
 Changes in 0.0.32
 
 0f67... Added IM to SeasideSyncModel and Seaside tables to reads/write QContactOnlineAccount from tracker backend to persistently store IM contacts.FEA#4178,4195 Adding more tr() translation strings marked for localization. Signed-off-by: Connie Berardi <connie.berardi@intel.com>
