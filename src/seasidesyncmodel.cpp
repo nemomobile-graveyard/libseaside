@@ -168,6 +168,11 @@ SeasideSyncModel::SeasideSyncModel()
 
     dataReset();
 }
+
+QModelIndex SeasideSyncModel::getModelIndex(QContactLocalId id){
+  QModelIndex personIndex = index(priv->idToIndex[id], 0);
+  return personIndex;
+}
  
 void SeasideSyncModel::createMeCard()
 {

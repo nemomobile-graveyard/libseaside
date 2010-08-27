@@ -78,6 +78,7 @@ public:
     void setCompany(const QUuid& uuid, QString company);
    static QString getLocalSelfId();
    QContactLocalId getSelfContactId();
+   QModelIndex getModelIndex(QContactLocalId id);
 
 public slots:
     void createMeCard();
