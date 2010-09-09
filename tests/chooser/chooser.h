@@ -20,4 +20,5 @@ public slots:
     void emailsClicked(const QStringList& emails);
      void phonesClicked(const QStringList& emails);
      void imsClicked(const QStringList& emails);
+     void photoContactClicked(const QUuid& uuid);
 };

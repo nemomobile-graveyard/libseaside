@@ -26,8 +26,21 @@ MAbstractLayoutPolicyStyle {
 #SeasideListItem {
     background-color: white;
     minimum-size: 100% -1;
-   /* background-image: card-bg 0 0 0 2;*/
+  /*  background-image: card-bg 0 0 0 2;*/
 }
+
+#SeasideListItemSmall{
+    background-color: white;
+    minimum-size: 100% -1;
+  /*  background-image: card-bg 0 0 0 2;*/
+}
+
+#SeasideListItemLarge{
+    background-color: white;
+    minimum-size: 100% -1;
+  /*  background-image: card-bg 0 0 0 2;*/
+}
+
 
 #SeasideListItemThumbnail {
     margin-top: 8;
@@ -68,6 +81,108 @@ MAbstractLayoutPolicyStyle {
 }
 
  #SeasideListItemStatus {
+    color: red;
+    pressed-color: red;
+    font: "Droid Sans" 18;
+    font-weight: "bold";
+    text-align: "right";
+    vertical-align: "center";
+    padding-top: 0.5mm;
+    padding-right: 0.5mm;
+    padding-bottom: 0.5mm;
+    padding-left: 0.5mm;
+}
+
+#SeasideListItemSmallThumbnail {
+    margin-top: 8;
+    margin-right: 8;
+    margin-bottom: 8;
+    margin-left: 8;
+    border-color: gray;
+    border-top: 2;
+    border-right: 2;
+    border-bottom: 2;
+    border-left: 2;
+}
+
+#SeasideListItemSmallName {
+    color: #667786;
+    pressed-color: black;
+    font: "Droid Sans" 24;
+    font-weight: "bold";
+    text-align: "left";
+    vertical-align: "center";
+    padding-top: 0.5mm;
+    padding-right: 0.5mm;
+    padding-bottom: 0.5mm;
+    padding-left: 0.5mm;
+}
+
+ #SeasideListItemSmallDetail {
+    color: #667786;
+    pressed-color: black;
+    font: "Droid Sans" 20;
+    font-weight: "bold";
+    text-align: "left";
+    vertical-align: "center";
+    padding-top: 0.5mm;
+    padding-right: 0.5mm;
+    padding-bottom: 0.5mm;
+    padding-left: 0.5mm;
+}
+
+ #SeasideListItemSmallStatus {
+    color: red;
+    pressed-color: red;
+    font: "Droid Sans" 18;
+    font-weight: "bold";
+    text-align: "right";
+    vertical-align: "center";
+    padding-top: 0.5mm;
+    padding-right: 0.5mm;
+    padding-bottom: 0.5mm;
+    padding-left: 0.5mm;
+}
+
+#SeasideListItemLargeThumbnail {
+    margin-top: 8;
+    margin-right: 8;
+    margin-bottom: 8;
+    margin-left: 8;
+    border-color: gray;
+    border-top: 2;
+    border-right: 2;
+    border-bottom: 2;
+    border-left: 2;
+}
+
+#SeasideListItemLargeName {
+    color: #667786;
+    pressed-color: black;
+    font: "Droid Sans" 24;
+    font-weight: "bold";
+    text-align: "left";
+    vertical-align: "center";
+    padding-top: 0.5mm;
+    padding-right: 0.5mm;
+    padding-bottom: 0.5mm;
+    padding-left: 0.5mm;
+}
+
+ #SeasideListItemLargeDetail {
+    color: #667786;
+    pressed-color: black;
+    font: "Droid Sans" 20;
+    font-weight: "bold";
+    text-align: "left";
+    vertical-align: "center";
+    padding-top: 0.5mm;
+    padding-right: 0.5mm;
+    padding-bottom: 0.5mm;
+    padding-left: 0.5mm;
+}
+
+ #SeasideListItemLargeStatus {
     color: red;
     pressed-color: red;
     font: "Droid Sans" 18;

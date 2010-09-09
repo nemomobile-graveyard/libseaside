@@ -37,7 +37,10 @@ HEADERS += \
     src/seasidecommspage.h \
     src/seasideeditview.h \
     src/seasideperson.h \
-    src/seasideimagelabel.h
+    src/seasideimagelabel.h \
+    src/seasidecellcreators.h \
+    src/seasidelistitemsmall.h \
+    src/seasidelistitemlarge.h
 SOURCES += \
     src/seaside.cpp \
     src/seasidedetail.cpp \
@@ -52,7 +55,10 @@ SOURCES += \
     src/seasidecommspage.cpp \
     src/seasideeditview.cpp \
     src/seasideperson.cpp \
-    src/seasideimagelabel.cpp
+    src/seasideimagelabel.cpp \
+    src/seasidecellcreators.cpp \
+    src/seasidelistitemsmall.cpp \
+    src/seasidelistitemlarge.cpp
 M_THEME_DIR = $$PREFIX/share/themes/base/meegotouch
 SEASIDE_THEME_DIR = $$M_THEME_DIR/lib$$TARGET
 DEFINES += IMAGES_DIR=\"\\\"$$SEASIDE_THEME_DIR/images/\\\"\" 

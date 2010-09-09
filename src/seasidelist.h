@@ -44,6 +44,7 @@ public:
         DetailEmail,
         DetailPhone,
 	DetailIM,
+        DetailPhoto,
         DetailNone
     };
 
@@ -54,7 +55,12 @@ public:
       CatIM
   };
 
-    SeasideList(Detail detail = DetailNone, MWidget *parent = NULL);
+  enum SeasideCard { 
+    LargeCard,
+    SmallCard
+  };
+
+  SeasideList(Detail detail = DetailNone, SeasideCard view = LargeCard, MWidget *parent = NULL);
     virtual ~SeasideList();
 
     SeasideSyncModel *sourceModel();
@@ -66,6 +72,7 @@ signals:
     void imAccountsSelected(const QStringList accounts);
     void emailsSelected(const QStringList emails);
     void phonesSelected(const QStringList numbers);
+    void photoContactSelected(const QUuid& uuid);
 
    void editRequest(const QModelIndex& index);
    void viewRequest(qreal ypos, qreal height);
@@ -117,6 +124,7 @@ private:
 
     SeasidePersonModel *m_editModel;
     bool m_editModelModified;
+    SeasideList::SeasideCard m_listView;
 };
 
 #endif // SEASIDELIST_H

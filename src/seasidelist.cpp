@@ -20,6 +20,7 @@
 #include "seasidesyncmodel.h"
 #include "seasideproxymodel.h"
 #include "seasidelistmodel.h"
+#include "seasidecellcreators.h"
 
 #include <MWidgetCreator>
 #include <QtDBus/QtDBus>
@@ -31,56 +32,7 @@
 
 #include <seasidepersonmodel.h>
 
-M_REGISTER_WIDGET(SeasideList)
-
-
-class CellCreator: public MAbstractCellCreator<SeasideListItem>
-{
-
-public:
-    CellCreator(const QString type)
-	{
-                itemType = type;
-	}
-
-    void updateCell(const QModelIndex& index, MWidget *cell) const
-    {
-        //qWarning() << "updateCell(const QModelIndex& index, MWidget *cell) " << index;
-
-        if(!index.isValid())
-              return;
-
-        SeasideListItem *item = static_cast<SeasideListItem *>(cell);
-        if (!item)
-            return;
-
-        SEASIDE_SHORTCUTS
-        SEASIDE_SET_MODEL_AND_ROW(index.model(), index.row())
-
-        item->setThumbnail(SEASIDE_FIELD(Avatar, String));
-        item->setName(QObject::tr("%1 %2").arg(SEASIDE_FIELD(FirstName, String)).arg(SEASIDE_FIELD(LastName, String)));
-        item->setUuid(SEASIDE_FIELD(Uuid, String));
-        item->setFavorite(SEASIDE_FIELD(Favorite, Bool)); //REVISIT
-        item->setPresence(SEASIDE_FIELD(Presence, Int));
-        item->setCommFlags(SEASIDE_FIELD(CommType, Int));
-        //item->setCommFlags((0|3|5|7)); //0|3|5|7 for all
-        item->setStatus(SEASIDE_FIELD(CommTimestamp, DateTime).toString());
-        //item->setStatus("This is a status string");
-        item->setButton("");
-
-        if(itemType == "Phone")
-        	item->setDetails(SEASIDE_FIELD(PhoneNumbers, StringList));
-        else if(itemType == "Email")
-        	item->setDetails(SEASIDE_FIELD(EmailAddresses, StringList));
-        else if(itemType == "IM")
-        	item->setDetails(SEASIDE_FIELD(IMAccounts, StringList));
-	else
-		item->setDetails(SEASIDE_FIELD(PhoneNumbers, StringList));	
-    }
-
-private:
-    QString itemType;
-};
+M_REGISTER_WIDGET(SeasideList);
 
 class SeasideListPriv
 {
@@ -89,8 +41,8 @@ public:
     SeasideProxyModel *proxyModel;
 };
 
-SeasideList::SeasideList(Detail detail, MWidget *parent):
-        MList(parent), detailType(detail)
+SeasideList::SeasideList(Detail detail, SeasideCard view, MWidget *parent):
+        MList(parent), detailType(detail), m_listView(view)
 {
     m_detailPage = NULL;
     m_editPage = NULL;
@@ -112,23 +64,38 @@ SeasideList::SeasideList(Detail detail, MWidget *parent):
     priv->proxyModel->sort(0);  // enable custom sorting
     priv->proxyModel->setSourceModel(priv->sourceModel);
 
-     //setItemModel(new SeasideListModel(detail));
     setItemModel(priv->proxyModel);
 
     setObjectName("SeasideList");
     setViewType("fast");
-
-    QString type = "";
-    if(detail == SeasideList::DetailPhone){
-            type = "Phone";
-        } else if(detail == SeasideList::DetailEmail){
-           type = "Email";
-       }else if(detail == SeasideList::DetailIM){
-            type = "IM";
-        } else
-            type = "Phone";
-
-    setCellCreator(new CellCreator(type)); //REVISIT  
+     
+     if(detail == SeasideList::DetailPhone){
+      if(view == SeasideList::SmallCard){
+           setCellCreator(new CellCreatorPhoneSmall);
+      }else{
+           setCellCreator(new CellCreatorPhoneLarge);
+      }
+    } else if(detail == SeasideList::DetailEmail){
+      if(view == SeasideList::SmallCard){
+          setCellCreator(new CellCreatorEmailSmall);
+      }else{
+          setCellCreator(new CellCreatorEmailLarge);
+      }     
+    }else if(detail == SeasideList::DetailIM){
+      if(view == SeasideList::SmallCard){
+              setCellCreator(new CellCreatorIMSmall);
+      }else{
+              setCellCreator(new CellCreatorIMLarge);
+      }           
+    }else if(detail == SeasideList::DetailPhoto){
+        if(view == SeasideList::SmallCard){
+                setCellCreator(new CellCreatorPhotoSmall);
+        }else{
+                setCellCreator(new CellCreatorPhotoLarge);
+        }
+    }else{
+           setCellCreator(new CellCreator);
+    }
 
     connect(this, SIGNAL(itemClicked(QModelIndex)),
             this, SLOT(handleClick(QModelIndex)));
@@ -148,6 +115,7 @@ SeasideList::~SeasideList()
     delete priv->proxyModel;
     delete priv;
 }
+
 
 /*void SeasideList::createCommPage(SeasidePersonModel *pm, CommCat type)
 {
@@ -322,6 +290,8 @@ void SeasideList::handleDetailClick(const QModelIndex &index)
     emit emailsSelected(QStringList(SEASIDE_FIELD(EmailAddresses, StringList)));
   }else if(detailType == SeasideList::DetailIM){ 
     emit imAccountsSelected(QStringList(SEASIDE_FIELD(IMAccounts, StringList)));
+ }else if(detailType == SeasideList::DetailPhoto){
+        emit photoContactSelected(QUuid(SEASIDE_FIELD(Uuid, String)));
   } else{
     emit phonesSelected(QStringList(SEASIDE_FIELD(PhoneNumbers, StringList))) ;
   }

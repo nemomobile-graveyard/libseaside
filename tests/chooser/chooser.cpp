@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     linear->setSpacing(0);
     page.centralWidget()->setLayout(linear);
     
-    SeasideList *list = new SeasideList(SeasideList::DetailPhone);
+    SeasideList *list = new SeasideList(SeasideList::DetailPhoto, SeasideList::SmallCard);
     linear->addItem(list);
     list->createSearchBar(&page);
 
@@ -55,12 +55,18 @@ int main(int argc, char *argv[])
                      target, SLOT(imsClicked(QStringList)));
     QObject::connect(list, SIGNAL(phonesSelected(QStringList)),
                      target, SLOT(phonesClicked(QStringList)));
+    QObject::connect(list, SIGNAL(photoContactSelected(QUuid)),
+                     target, SLOT(photoContactClicked(QUuid)));
 
     page.appear();
 
     return app.exec();
 }
 
+void Target::photoContactClicked(const QUuid& uuid)
+{
+    qWarning() << "Photo Contact clicked:" << uuid.toString();
+}
 void Target::contactClicked(const QUuid& uuid)
 {
     qWarning() << "Contact clicked:" << uuid.toString();

@@ -24,6 +24,6 @@ INSTALLS += \
     theme
 
 OTHER_FILES += \
-    theme/styles/chooser.css \
+    theme/style/chooser.css \
     theme/chooser.conf \
 

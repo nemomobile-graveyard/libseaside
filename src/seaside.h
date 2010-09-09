@@ -14,6 +14,7 @@
 #include <QAbstractItemModel>
 #include <QUuid>
 #include <QContact>
+#include <QtDebug>
 
 class SeasidelListModel;
 class SeasideProxyModel;

@@ -1,2 +1,3 @@
 TEMPLATE = subdirs
-SUBDIRS = chooser
+SUBDIRS += chooser \
+                       datagen
