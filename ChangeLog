@@ -1,10 +1,18 @@
+Changes in 0.0.34
+
+2c11... Checking in patch from Shane Bryan for .gitignore Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+5b05... Correcting Changelog bug #3067 to 3068 for commit  bf246c2793c31645e39be686915be468946a09a1 Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+a570... Adding CellCreator for each type of application that could use SeasideList. Exposing API for the Photo application. FEA#3028 Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+69c2... Updated ChangeLog and libseaside.pro to version 0.0.33
+9681... Exposing function to map QContactLocalId to model index for dbus interface that allows IM App to launch details view for a given QContactLocalId FEA# 3068 Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+
 Changes in 0.0.33
 
-bf24... Exposing function to map QContactLocalId to model index for dbus interface that allows IM App to launch details view for a given QContactLocalId FEA# 3067 Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+bf24... Exposing function to map QContactLocalId to model index for dbus interface that allows IM App to launch details view for a given QContactLocalId FEA# 3068 Signed-off-by: Connie Berardi <connie.berardi@intel.com>
 
 Changes in 0.0.32
 
-0f67... Added IM to SeasideSyncModel and Seaside tables to reads/write QContactOnlineAccount from tracker backend to persistently store IM contacts.FEA#4178,4195 Adding more tr() translation strings marked for localization. Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+0f67... Added IM to SeasideSyncModel and Seaside tables to reads/write QContactnOlineAccount from tracker backend to persistently store IM contacts.FEA#4178,4195 Adding more tr() translation strings marked for localization. Signed-off-by: Connie Berardi <connie.berardi@intel.com>
 0e46... Adding MeCard feature, no FEA# available, using qtcontacts-tracker APIs for selfId so that user can store their contact information. Signed-off-by: Connie Berardi <connie.berardi@intel.com>
 cf45... Changing .pro file for test app to install views/theme files Signed-off-by: Connie Berardi <connie.berardi@intel.com>
 

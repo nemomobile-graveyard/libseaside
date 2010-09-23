@@ -62,16 +62,16 @@ public:
     };
 
     enum CommType {
-        CommCallDialed,
-        CommCallReceived,
-        CommCallMissed,
-        CommSmsSent,
-        CommSmsReceived,
-        CommEmailSent,
-        CommEmailReceived,
-	CommIMSent, //REVISIT
-        CommIMReceived, //REVISIT
-        CommNone
+        CommCallDialed    = 0x0001,
+        CommCallReceived  = 0x0002,
+        CommCallMissed    = 0x0004,
+        CommSmsSent       = 0x0010,
+        CommSmsReceived   = 0x0020,
+        CommEmailSent     = 0x0100,
+        CommEmailReceived = 0x0200,
+        CommIMSent        = 0x1000, //REVISIT
+        CommIMReceived    = 0x2000, //REVISIT
+        CommNone          = 0x0000
     };
 
     enum Location {
