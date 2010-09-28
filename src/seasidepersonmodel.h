@@ -34,6 +34,7 @@ public:
     M_MODEL_PROPERTY(QString, thumbnail, Thumbnail, true, QString())
     M_MODEL_PROPERTY(Seaside::Presence, presence, Presence, true, Seaside::PresenceUnknown)
     M_MODEL_PROPERTY(bool, favorite, Favorite, true, false)
+    M_MODEL_PROPERTY(bool, self, isSelf, true, false)
 
     M_MODEL_PROPERTY(QList<SeasideCommEvent>, events, Events, true, QList<SeasideCommEvent>())
     M_MODEL_PROPERTY(QVector<SeasideDetail>, phones, Phones, true, QVector<SeasideDetail>())

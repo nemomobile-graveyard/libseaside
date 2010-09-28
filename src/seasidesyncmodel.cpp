@@ -37,7 +37,7 @@ class SeasideSyncModelPriv
 public:
     static SeasideSyncModel *theSyncModel;
     static int theRefCount;
-    static const QString selfGuid;
+    static QString theEngine;
 
     QContactManager *manager;
     QContactFilter currentFilter;
@@ -54,7 +54,7 @@ public:
 
 SeasideSyncModel *SeasideSyncModelPriv::theSyncModel = NULL;
 int SeasideSyncModelPriv::theRefCount = 0;
-const QString SeasideSyncModelPriv::selfGuid = "01111111-1111-1111-1111-11111111 1111";
+QString SeasideSyncModelPriv::theEngine = "default";
 
 SeasideSyncModel *SeasideSyncModel::instance()
 {
@@ -62,11 +62,6 @@ SeasideSyncModel *SeasideSyncModel::instance()
         SeasideSyncModelPriv::theSyncModel = new SeasideSyncModel;
     SeasideSyncModelPriv::theRefCount++;
     return SeasideSyncModelPriv::theSyncModel;
-}
-
-QString SeasideSyncModel::getLocalSelfId()
-{
-  return SeasideSyncModelPriv::selfGuid;
 }
 
 void SeasideSyncModel::releaseInstance()
@@ -101,7 +96,7 @@ static void updateDefinitions(QContactManager *manager) {
     seaside.setName(SeasideCustomDetail::DefinitionName);
     seaside.setUnique(true);
     if (!manager->saveDetailDefinition(seaside))
-        qDebug() << "[SyncModel] failed to save new detail definition";
+      qWarning() << "[SyncModel] failed to save new detail definition";
 }
 
 SeasideSyncModel::SeasideSyncModel()
@@ -115,6 +110,7 @@ SeasideSyncModel::SeasideSyncModel()
     priv->headers.append("Anniversary");
     priv->headers.append("Avatar");
     priv->headers.append("Favorite");
+    priv->headers.append("isSelf");
     priv->headers.append("IM Accounts");
     priv->headers.append("Email Addresses");
     priv->headers.append("Phone Numbers");
@@ -131,31 +127,67 @@ SeasideSyncModel::SeasideSyncModel()
     // FIXME: temporary hack to provide images to dialer and sms
     MTheme::addPixmapDirectory(IMAGES_DIR);
 
-        if (QContactManager::availableManagers().contains("tracker")) {
-            priv->manager = new QContactManager("tracker");
-        }
-        else
-            priv->manager = new QContactManager("");
+    if (SeasideSyncModelPriv::theEngine == "default") {
+      qDebug() << "[SeasideSyncModel] Engine is default";
+      if (QContactManager::availableManagers().contains("tracker")) {
+	priv->manager = new QContactManager("tracker");
+	qDebug() << "[SeasideSyncModel] Manager is tracker";
+      }
+      else if (QContactManager::availableManagers().contains("memory")) {
+	priv->manager = new QContactManager("memory");
+	qDebug() << "[SeasideSyncModel] Manager is memory";
+      }else{
+	priv->manager = new QContactManager("");
+	qDebug() << "[SeasideSyncModel] Manager is empty";
+      }      
+    }
+    else
+      priv->manager = new QContactManager(SeasideSyncModelPriv::theEngine);
 
     priv->settings = new QSettings("MeeGo", "libseaside");
 
     updateDefinitions(priv->manager);
 
-    QContact *contact;
+  //is meCard supported by manager/engine
     if(priv->manager->hasFeature(QContactManager::SelfContact, QContactType::TypeContact))
     {     
       QContactId contactId;
+      QContact meContact;
+      QContactManager::Error error(QContactManager::NoError);      
       const QContactLocalId meCardId(priv->manager->selfContactId());
-      contact = priv->idToContact[meCardId];
+
+      //if we have a valid selfId
+      if((error == QContactManager::NoError) && (meCardId != 0)){
+	qDebug() << "[SeasideSyncModel] valid selfId, error" << error << "id " << meCardId;
+        //check if contact with selfId exists
+        meContact = priv->manager->contact(meCardId, QStringList() << QContactName::DefinitionName);
+
+        //if contact doesn't exist, create it
+        if(meContact.localId() != meCardId){
+          qDebug() << "[SeasideSyncModel] self contact does not exist, create meCard with selfId. Local id: " << meContact.localId() <<"is not self id " << meCardId;
+          contactId.setLocalId(meCardId);
+          meContact.setId(contactId);
+          if (!priv->manager->saveContact(&meContact))
+            qWarning() << "[SyncModel] failed to save mecard contact";
+          createMeCard(meContact);
+        }else{
+	  qDebug() << "SeasideSyncModel::SeasideSyncModel() id is valid and MeCard exists" << meCardId;
+	  //If it does exist, check that contact has valid firstname
+          meContact = priv->manager->contact(meCardId, QStringList() << QContactName::DefinitionName);
+          QString firstname = meContact.detail(QContactName::DefinitionName).value(QContactName::FieldFirstName);
+	  qDebug() << "[SeasideSyncModel] meCard has firstname" << firstname;
+	  //if no firstname, then update meCard
+	  if(firstname.isEmpty() || firstname.isNull()){
+            createMeCard(meContact);
+	  }else{//else do nothing
+	    qDebug() << "SeasideSyncModel::SeasideSyncModel() VALID MECARD EXISTS";
+	  }
+        }
+      }else{
+	qWarning() << "[SeasideSyncModel] no valid meCard Id provided";
+      }
     }else{
-        QContactLocalId id = priv->uuidToId[SeasideSyncModelPriv::selfGuid];
-	contact = priv->idToContact[id];
-    }
-    
-    if(!contact){
-      createMeCard();
-    }else{
-      qWarning() << "SeasideSyncModel::SeasideSyncModel() MeCard exists";
+      qWarning() << "SeasideSyncModel::SeasideSyncModel() MeCard Not supported";
     }
     
     connect(priv->manager, SIGNAL(contactsAdded(QList<QContactLocalId>)),
@@ -174,19 +206,34 @@ QModelIndex SeasideSyncModel::getModelIndex(QContactLocalId id){
   return personIndex;
 }
  
-void SeasideSyncModel::createMeCard()
+void SeasideSyncModel::viewDetails(QContactManager* cm)
 {
-  QContact *contact = new QContact;
-  if(priv->manager->hasFeature(QContactManager::SelfContact, QContactType::TypeContact))
-    {     
-      QContactId contactId;
-      const QContactLocalId meCardId(priv->manager->selfContactId());
-      contactId.setLocalId(meCardId);
-      contact->setId(contactId);
-    }     
+  QList<QContactLocalId> contactIds = cm->contactIds();
+  if(!contactIds.isEmpty()){
+    QContact a = cm->contact(contactIds.first());
+    qDebug() << "Viewing the details of" << a.displayLabel();
+    qDebug() << "Contact ID: " << a.localId();
+
+    QList<QContactDetail> allDetails = a.details();
+    for (int i = 0; i < allDetails.size(); i++) {
+      QContactDetail detail = allDetails.at(i);
+      QContactDetailDefinition currentDefinition = cm->detailDefinition(detail.definitionName());
+      QMap<QString, QContactDetailFieldDefinition> fields = currentDefinition.fields();
+
+      qDebug("\tDetail #%d (%s):", i, detail.definitionName().toAscii().constData());
+      foreach (const QString& fieldKey, fields.keys()) {
+	qDebug() << "\t\t" << fieldKey << "(" << fields.value(fieldKey).dataType() << ") =" << detail.value(fieldKey);      }
+      qDebug();
+    }
+  }
+}
+
+void SeasideSyncModel::createMeCard(QContact &card)
+{
+  QContact *contact = new QContact(card);
     
   QContactGuid guid;
-  guid.setGuid(SeasideSyncModelPriv::selfGuid);
+  guid.setGuid(QUuid::createUuid().toString());
   if (!contact->saveDetail(&guid))
     qWarning() << "[SyncModel] failed to save guid in mecard contact";
   
@@ -212,21 +259,29 @@ void SeasideSyncModel::createMeCard()
     key += "/favorite";
     priv->settings->setValue(key, favorite);
   }
+
+  bool isSelf = true;
+  if (priv->settings) {
+    QString key = guid.guid();
+    key += "/self";
+    priv->settings->setValue(key, isSelf);
+  }
   
   if (!priv->manager->saveContact(contact))
     qWarning() << "[SyncModel] failed to save mecard contact";
+
+  const QContactLocalId meCardId = contact->localId();
+  qDebug() << "[SyncModel] meCardId generated: " << meCardId;
 }
 
-QContactLocalId SeasideSyncModel::getSelfContactId()
+QContactLocalId SeasideSyncModel::getSelfContactId() const
 {
   if(priv->manager->hasFeature(QContactManager::SelfContact, QContactType::TypeContact)){
-    	 return priv->manager->selfContactId();
-    }else{
-      QContactLocalId id = priv->uuidToId[SeasideSyncModelPriv::selfGuid];
-      if(id)
-	return id;
-    }
-    return QContactLocalId();
+    return priv->manager->selfContactId();
+  }else{
+    qWarning() << "[SyncModel] MeCard not supported";
+  }
+  return QContactLocalId(0);
 }
 
 SeasideSyncModel::~SeasideSyncModel()
@@ -350,16 +405,27 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
 
     case Seaside::ColumnFavorite:  // favorite
         {
-            if (role != Seaside::SearchRole) // TODO: this should always return false
-                return QVariant();
+	  //            if (role != Seaside::SearchRole) // TODO: this should always return false
+          //      return QVariant();
             if (priv->settings) {
                 QContactGuid guid = contact->detail<QContactGuid>();
                 QString key = guid.guid();
                 key += "/favorite";
                 return priv->settings->value(key, false);
             }
-            return QVariant(false);
+	    //    return QVariant(false);
         }
+
+  case Seaside::ColumnisSelf:  // self
+    {  
+      if (priv->settings) {
+	QContactGuid guid = contact->detail<QContactGuid>();
+	QString key = guid.guid();
+	key += "/self";
+	return priv->settings->value(key, false);
+      }
+    }
+
 
     case Seaside::ColumnIMAccounts:  // IMAccounts
         {
@@ -395,7 +461,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
                 // is a temporary fix to make them look nicer, but it means
                 // hard-coding American-style phone numbers
 
-                //qWarning() << "Seaside::ColumnPhoneNumbers phone" << phone;
+                //qDebug() << "Seaside::ColumnPhoneNumbers phone" << phone;
 
                 // TODO: i18n //REVISIT
                 QString number = phone.number().replace("[^0-9]", "");
@@ -418,18 +484,18 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
                 else
                     list << phone.number();
 
-                 qWarning() << "Seaside::ColumnPhoneNumbers list" << list;
+                 qDebug() << "Seaside::ColumnPhoneNumbers list" << list;
             }
             if (role == Seaside::SearchRole) {
                 QStringList searchable;
                 foreach (QString number, list)
                     searchable << number.replace(QRegExp("[^0-9*#]"), "");
                 searchable << list;
-                qWarning() << "Seaside::ColumnPhoneNumbers searchable" << searchable;
+                qDebug() << "Seaside::ColumnPhoneNumbers searchable" << searchable;
                 return QVariant(searchable.join(" "));
             }
             else{
-                qWarning() << "Seaside::ColumnPhoneNumbers empty list" << list;
+                qDebug() << "Seaside::ColumnPhoneNumbers empty list" << list;
                 return QVariant(list);
 
             }
@@ -753,7 +819,7 @@ SeasidePersonModel *SeasideSyncModel::createPersonModel(const QModelIndex& index
         SeasideDetail phone(list[i], location);
         details.append(phone);
     }
-    qWarning() << "SeasideSyncModel::createPersonModel list phones " << list;
+    qDebug() << "SeasideSyncModel::createPersonModel list phones " << list;
     model->setPhones(details);
 
     //handle im accounts
@@ -795,6 +861,7 @@ SeasidePersonModel *SeasideSyncModel::createPersonModel(const QModelIndex& index
 
     model->setPresence((Seaside::Presence)(SEASIDE_FIELD(Presence, Int)));
     model->setFavorite(SEASIDE_FIELD(Favorite, Bool));
+    model->setisSelf(SEASIDE_FIELD(isSelf, Bool));
 
     return model;
 }
@@ -806,10 +873,26 @@ SeasidePersonModel *SeasideSyncModel::createPersonModel(const QUuid& uuid)
     return createPersonModel(personIndex);
 }
 
+bool SeasideSyncModel::isSelfContact(const QContactLocalId id)
+{
+  if(id == priv->manager->selfContactId())
+    return true;
+  return false;
+}
+
+bool SeasideSyncModel::isSelfContact(const QUuid id){
+  return isSelfContact(priv->uuidToId[id]);
+}
+
 void SeasideSyncModel::deletePerson(const QUuid& uuid)
 {
-    if (!priv->manager->removeContact(priv->uuidToId[uuid]))
-        qWarning() << "[SyncModel] failed to delete contact";
+  if(priv->manager->selfContactId() != priv->uuidToId[uuid])
+    {
+      if (!priv->manager->removeContact(priv->uuidToId[uuid]))
+	qWarning() << "[SyncModel] failed to delete contact";
+    }else{
+    qWarning() << "[SyncModel] attempted to remove MeCard";
+  }
 }
 
 void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
@@ -828,12 +911,12 @@ void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
         QContactAvatar avatar;
         avatar.setImageUrl(QUrl("icon-m-content-avatar-placeholder"));
         if (!contact->saveDetail(&avatar))
-            qWarning() << "[SyncModel] failed to save avatar in new contact";
+	  qWarning() << "[SyncModel] failed to save avatar in new contact";
 
         // add the custom seaside detail
         SeasideCustomDetail sd;
         if (!contact->saveDetail(&sd))
-            qWarning() << "[SyncModel] failed to save seaside detail in new contact";
+	  qWarning() << "[SyncModel] failed to save seaside detail in new contact";
     }
     SeasidePersonModel *oldModel = createPersonModel(newModel->uuid());
 
@@ -855,14 +938,14 @@ void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
         QContactOrganization company = contact->detail<QContactOrganization>();
        /* if (!company.name().isEmpty()) {
             if (!contact->removeDetail(&company))
-                qWarning() << "[SyncModel] failed to remove company";
+                qDebug() << "[SyncModel] failed to remove company";
         }
 
         if (!newModel->company().isEmpty()) {
             company.setName(newCompany);
 
             if (!contact->saveDetail(&company))
-                qWarning() << "[SyncModel] failed to update company";
+                qDebug() << "[SyncModel] failed to update company";
         }*/
 	if (priv->settings) {
             QContactGuid guid = contact->detail<QContactGuid>();
@@ -940,7 +1023,7 @@ void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
                 email.setEmailAddress(detail.text());
 
                 if (!contact->saveDetail(&email))
-                    qWarning() << "[SyncModel] failed to save email address";
+		  qWarning() << "[SyncModel] failed to save email address";
             }
         }
     }
@@ -989,6 +1072,17 @@ void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
         }
       }
 
+  if (oldModel->self() != newModel->self()) {
+    qDebug() << "[SeasideSyncModel] self id changed";
+    if (priv->settings) {
+      QContactGuid guid = contact->detail<QContactGuid>();
+     QString key = guid.guid();
+      key += "/self";
+      priv->settings->setValue(key, newModel->self());
+      priv->settings->sync();
+    }
+  }
+
     if (!priv->manager->saveContact(contact)) {
         qWarning() << "[SyncModel] failed to update contact";
 
@@ -1035,6 +1129,8 @@ void SeasideSyncModel::setFavorite(const QUuid& uuid, bool favorite)
     contactsChanged(list);
 }
 
+
+
 void SeasideSyncModel::setCompany(const QUuid& uuid, QString company)
 {
     if (!priv->settings)
@@ -1051,3 +1147,22 @@ void SeasideSyncModel::setCompany(const QUuid& uuid, QString company)
     // writing to QSettings doesn't cause a change event, so manually call
     contactsChanged(list);
 }
+
+void SeasideSyncModel::setisSelf(const QUuid& uuid, bool self)
+{
+  if (!priv->settings)
+    return;
+
+  QString key = uuid.toString();
+  key += "/self";
+  priv->settings->setValue(key, self);
+  priv->settings->sync();
+
+  QList<QContactLocalId> list;
+  list.append(priv->uuidToId[uuid]);
+
+  // writing to QSettings doesn't cause a change event, so manually call
+  contactsChanged(list);
+}
+
+

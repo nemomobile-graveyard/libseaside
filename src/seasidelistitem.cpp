@@ -215,9 +215,9 @@ void SeasideListItem::setPresence(const int presence){
 void SeasideListItem::setFavorite(const bool& favorite){
     QString str= "";
 	if(favorite)
-                str ="icon-m-common-favorite-mark";
+                str ="icon-s-common-favorite-mark";
 	else
-            str = "";
+	  str = "icon-s-common-favorite-unmark";          
          if(priv->favorite)
          priv->favorite->setImage(str);
 }

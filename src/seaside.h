@@ -38,6 +38,7 @@ public:
         ColumnAnniversary,
         ColumnAvatar,
         ColumnFavorite,
+	ColumnisSelf,
         ColumnIMAccounts, //REVISIT
         ColumnEmailAddresses,
         ColumnPhoneNumbers,
@@ -98,6 +99,7 @@ private:
     static QDate contactBirthday(const QContact *contact);
     static QDate contactAnniversary(const QContact *contact);
     static bool contactFavorite(const QContact *contact);
+    static bool contactisSelf(const QContact *contact);
     static Presence contactPresence(const QContact *contact);
     static QUuid contactUuid(const QContact *contact);
     static QDateTime contactCommTimestamp(const QContact *contact);
@@ -123,6 +125,7 @@ private:
   Anniversary         Date
   Avatar              String      path/filename
   Favorite            Bool
+  isSelf              Bool
   IMAccounts          StringList
   EmailAddresses      StringList
   PhoneNumbers        StringList

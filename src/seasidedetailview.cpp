@@ -160,7 +160,7 @@ void SeasideDetailView::setupModel()
     image->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     grid->addItem(image, 0, 2, Qt::AlignTop);
 
-    const char *fav = pm->favorite() ? "icon-m-common-favorite-mark":"icon-m-common-favorite-unmark";
+    const char *fav = pm->favorite() ? "icon-s-common-favorite-mark":"icon-s-common-favorite-unmark";
     image = new MImageWidget(MTheme::pixmap(fav));
     image->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     grid->addItem(image, 0, 3, Qt::AlignTop);

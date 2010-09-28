@@ -28,17 +28,18 @@ class SeasidePersonModel;
   Column 4:     Anniversary         QDate
   Column 5:     Avatar              QString path/filename
   Column 6:     Favorite            bool
-  Column 7:     Email Addresses     QStringList
-  Column 8:     Phone Numbers       QStringList
-  Column 9:     Phone Contexts      QStringList of "Home", "Work", or empty
-  Column 10:     Phone Types         QStringList of "Mobile" or empty
-  Column 11:    Addresses           QStringList*
-  Column 12:    Address Contexts    QStringList of "Home", "Work", or empty
-  Column 13:    Presence            int mapping to Seaside::Presence enum
-  Column 14:    Uuid                QString
-  Column 15:    CommTimestamp       QDateTime
-  Column 16:    CommType            int mapping to Seaside::CommType enum
-  Column 17:    CommLocation        int mapping to Seaside::Location enum
+  Column 7:     isSelf              bool
+  Column 8:     Email Addresses     QStringList
+  Column 9:     Phone Numbers       QStringList
+  Column 10:     Phone Contexts      QStringList of "Home", "Work", or empty
+  Column 11:     Phone Types         QStringList of "Mobile" or empty
+  Column 12:    Addresses           QStringList*
+  Column 13:    Address Contexts    QStringList of "Home", "Work", or empty
+  Column 14:    Presence            int mapping to Seaside::Presence enum
+  Column 15:    Uuid                QString
+  Column 16:    CommTimestamp       QDateTime
+  Column 17:    CommType            int mapping to Seaside::CommType enum
+  Column 18:    CommLocation        int mapping to Seaside::Location enum
 
   * Address strings currently consist of five lines separated by \n, containing
     i) street address, ii) city, iii) state (region), iv) postal code, v) country
@@ -75,13 +76,17 @@ public:
 
     void setAvatar(const QUuid& uuid, const QString& path);
     void setFavorite(const QUuid& uuid, bool favorite);
+    void setisSelf(const QUuid& uuid, bool self);
     void setCompany(const QUuid& uuid, QString company);
-   static QString getLocalSelfId();
-   QContactLocalId getSelfContactId();
-   QModelIndex getModelIndex(QContactLocalId id);
+
+    QContactLocalId getSelfContactId() const;
+    bool isSelfContact(const QContactLocalId id);
+    bool isSelfContact(const QUuid id);
+    QModelIndex getModelIndex(QContactLocalId id);
+    void viewDetails(QContactManager* cm);
 
 public slots:
-    void createMeCard();
+    void createMeCard(QContact &contact);  
 
 protected:
     void fixIndexMap();
