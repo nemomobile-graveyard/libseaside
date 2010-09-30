@@ -64,6 +64,18 @@ SeasideSyncModel *SeasideSyncModel::instance()
     return SeasideSyncModelPriv::theSyncModel;
 }
 
+QString SeasideSyncModel::getLocalSelfId()
+{
+  qWarning() << "[SyncModel] getLocalSelfId() DEPRECATED!!! This function is no longer supported. Use getSelfContactId() only.";
+
+  if(priv->manager->hasFeature(QContactManager::SelfContact, QContactType::TypeContact)){
+    return QString(priv->manager->selfContactId());
+  }else{
+    qWarning() << "[SyncModel] MeCard not supported";
+  }
+  return QString();
+}
+
 void SeasideSyncModel::releaseInstance()
 {
     if (SeasideSyncModelPriv::theRefCount > 0)

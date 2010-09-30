@@ -80,6 +80,7 @@ public:
     void setCompany(const QUuid& uuid, QString company);
 
     QContactLocalId getSelfContactId() const;
+    QString getLocalSelfId(); //DEPRECATED
     bool isSelfContact(const QContactLocalId id);
     bool isSelfContact(const QUuid id);
     QModelIndex getModelIndex(QContactLocalId id);
