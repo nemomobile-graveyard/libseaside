@@ -1,3 +1,7 @@
+Changes in 0.0.37
+
+b9b2... Restoring deprecated function getLocalSelfId() Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+
 Changes in 0.0.36
 
 0fb7... BMC# 6009 Unable to save contact as favorite -Fixed BMC# 6045 People Application fails to launch in new image -Fixed BMC# 7516 Two MeCards appear in Tracker -Fixed Signed-off-by: Connie Berardi <connie.berardi@intel.com>
