@@ -89,10 +89,30 @@ bool SeasideProxyModel::filterAcceptsRow(int source_row,
 bool SeasideProxyModel::lessThan(const QModelIndex& left,
                                  const QModelIndex& right) const
 {
+
+    SeasideSyncModel *model = dynamic_cast<SeasideSyncModel *>(sourceModel());
+    if (!model)
+        return true;
+
+    SEASIDE_SHORTCUTS;
+    SEASIDE_SET_MODEL_AND_ROW(model, left.row());
+    const QString& lStr = SEASIDE_FIELD(FirstName, String);
+    const bool isleftSelf = SEASIDE_FIELD(isSelf, Bool);
+
+    SEASIDE_SET_MODEL_AND_ROW(model, right.row());
+    const QString& rStr = SEASIDE_FIELD(FirstName, String);
+    const bool isrightSelf = SEASIDE_FIELD(isSelf, Bool);
+
+    //qWarning() << "[ProxyModel] lessThan isSelf left" << isleftSelf << " right" << isrightSelf;
+
+    //MeCard should always be top of the list
+    if(isleftSelf)
+        return true;
+    if(isrightSelf)
+        return false;
+
     if (priv->sortType == SortName) {
-        const QString& lStr = left.data(Seaside::DataRole).toString();
-        const QString& rStr = right.data(Seaside::DataRole).toString();
-        //qWarning() << "[ProxyModel] lessThan " << lStr << "VS" << rStr;
+      //qWarning() << "[ProxyModel] lessThan " << lStr << "VS" << rStr;
         return QString::localeAwareCompare(lStr, rStr) < 0;
     }
     else if (priv->sortType == SortRecent) {
