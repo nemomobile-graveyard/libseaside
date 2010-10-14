@@ -1,3 +1,9 @@
+Changes in 0.0.38
+
+b3e8 BMC#8426: Integrating build_against_new-qt-mobility.patch upstream Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+dca3 Reverting company field to use qtcontacts-tracker API instead of QSettings BMC#6996, 7801 Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+9c77 Ensuring that a MeCard is always evaluated to be less than any other Contact in proxy model. Fix for BMC#6007 Contacts crashes when saving a contact with high possibility. Ensure proxy model and list are aligned in sort order. Signed-off-by: Connie Berardi <connie.berardi@intel.com>
+
 Changes in 0.0.37
 
 b9b2... Restoring deprecated function getLocalSelfId() Signed-off-by: Connie Berardi <connie.berardi@intel.com>
