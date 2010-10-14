@@ -172,7 +172,10 @@ SeasideSyncModel::SeasideSyncModel()
       if((error == QContactManager::NoError) && (meCardId != 0)){
 	qDebug() << "[SeasideSyncModel] valid selfId, error" << error << "id " << meCardId;
         //check if contact with selfId exists
-        meContact = priv->manager->contact(meCardId, QStringList() << QContactName::DefinitionName);
+        //meContact = priv->manager->contact(meCardId, QStringList() << QContactName::DefinitionName);
+        QContactFetchHint hint;
+        hint.setDetailDefinitionsHint(QStringList() << QContactName::DefinitionName);
+        meContact = priv->manager->contact(meCardId, hint);
 
         //if contact doesn't exist, create it
         if(meContact.localId() != meCardId){
@@ -185,7 +188,8 @@ SeasideSyncModel::SeasideSyncModel()
         }else{
 	  qDebug() << "SeasideSyncModel::SeasideSyncModel() id is valid and MeCard exists" << meCardId;
 	  //If it does exist, check that contact has valid firstname
-          meContact = priv->manager->contact(meCardId, QStringList() << QContactName::DefinitionName);
+          //meContact = priv->manager->contact(meCardId, QStringList() << QContactName::DefinitionName);
+          meContact = priv->manager->contact(meCardId, hint);
           QString firstname = meContact.detail(QContactName::DefinitionName).value(QContactName::FieldFirstName);
 	  qDebug() << "[SeasideSyncModel] meCard has firstname" << firstname;
 	  //if no firstname, then update meCard
@@ -401,9 +405,9 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
     case Seaside::ColumnAvatar:  // avatar
         {
             if(role != Seaside::SearchRole){
-            QContactAvatar avatar = contact->detail<QContactAvatar>();
-            return QVariant(avatar.imageUrl().toString());
-             }
+	      QContactAvatar avatar = contact->detail<QContactAvatar>();
+	      return QVariant(avatar.imageUrl().toString());
+            }
             return QVariant();
         }
 
