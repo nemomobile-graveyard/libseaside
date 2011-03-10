@@ -26,6 +26,9 @@
 #include <QContactPresence>
 #include <QSettings>
 
+#include <QContactLocalIdFilter>
+#include <QContactManagerEngine>
+
 #include <MTheme>
 
 #include "seasidesyncmodel.h"
@@ -157,6 +160,11 @@ SeasideSyncModel::SeasideSyncModel()
 
     updateDefinitions(priv->manager);
 
+    //Set up async requests
+    fetchAddedContacts.setManager(priv->manager);
+    connect(&fetchAddedContacts, SIGNAL(resultsAvailable()), this,
+            SLOT(fetchContactsRequest()));
+ 
   //is meCard supported by manager/engine
     if(priv->manager->hasFeature(QContactManager::SelfContact, QContactType::TypeContact))
     {     
@@ -657,16 +665,46 @@ void SeasideSyncModel::fixIndexMap()
         priv->idToIndex.insert(id, i++);
 }
 
-void SeasideSyncModel::addContacts(const QList<QContactLocalId>& contactIds) {
-    int size = priv->contactIds.size();
+void SeasideSyncModel::fetchContactsRequest()
+{
+    QContactFetchRequest *request = qobject_cast<QContactFetchRequest*>(QObject::sender());
 
-    foreach (const QContactLocalId& id, contactIds) {
+    if (request->error() != QContactManager::NoError) {
+        qDebug() << "[SyncModel] Error" << request->error() 
+                 << "occurred during fetch request!";
+        return;
+    }
+
+    if (request == &fetchAddedContacts)
+    {
+        QList<QContact> addedContactsList = fetchAddedContacts.contacts();
+
+        int size = priv->contactIds.size();
+        int added = addedContactsList.size();
+
+        beginInsertRows(QModelIndex(), size, size + added - 1);
+        addContacts(addedContactsList, size);
+        endInsertRows();
+
+        qDebug() << "[DataGenModel] Done updating model after adding" 
+                 << added << "contacts";
+    }
+    else
+        qDebug() << "[SyncModel] Error: unexpected request!";
+}
+
+void SeasideSyncModel::addContacts(const QList<QContact> contactsList, 
+                                   int size)
+{
+    foreach (QContact contact, contactsList) {
+        QContactLocalId id = contact.localId();
+
         priv->contactIds.push_back(id);
         priv->idToIndex.insert(id, size++);
-        QContact *contact = new QContact(priv->manager->contact(id));
-        priv->idToContact.insert(id, contact);
+        QContact *new_contact = new QContact(contact);
+        priv->idToContact.insert(id, new_contact);
 
-        QContactGuid guid = contact->detail<QContactGuid>();
+        QContactGuid guid = new_contact->detail<QContactGuid>();
         if (!guid.isEmpty()) {
             QUuid uuid(guid.guid());
             priv->uuidToId.insert(uuid, id);
@@ -678,12 +716,13 @@ void SeasideSyncModel::addContacts(const QList<QContactLocalId>& contactIds) {
 void SeasideSyncModel::contactsAdded(const QList<QContactLocalId>& contactIds)
 {
     qDebug() << "[SyncModel] contacts added:" << contactIds;
-    int size = priv->contactIds.size();
-    int added = contactIds.size();
+    if (contactIds.size() == 0)
+        return;
 
-    beginInsertRows(QModelIndex(), size, size + added - 1);
-    addContacts(contactIds);
-    endInsertRows();
+    QContactLocalIdFilter filter;
+    filter.setIds(contactIds);
+    fetchAddedContacts.setFilter(filter);
+    fetchAddedContacts.start();
 }
 
 void SeasideSyncModel::contactsChanged(const QList<QContactLocalId>& contactIds)
@@ -759,7 +798,10 @@ void SeasideSyncModel::dataReset()
     priv->uuidToId.clear();
     priv->idToUuid.clear();
 
-    addContacts(priv->manager->contactIds(priv->currentFilter));
+    QList<QContact> contactsList = priv->manager->contacts();
+    int size = contactsList.size();
+
+    addContacts(contactsList, size);
 
     endResetModel();
 }
