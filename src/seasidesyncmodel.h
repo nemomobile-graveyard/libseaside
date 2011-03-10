@@ -15,6 +15,7 @@
 #include <QUuid>
 
 #include <QContactManager>
+#include <QContactManagerEngine>
 
 class SeasidePersonModel;
 
@@ -91,7 +92,7 @@ public slots:
 
 protected:
     void fixIndexMap();
-    void addContacts(const QList<QContactLocalId>& contactIds);
+    void addContacts(const QList<QContact> contactsList, int size);
 
 protected slots:
     void contactsAdded(const QList<QContactLocalId>& contactIds);
@@ -99,9 +100,13 @@ protected slots:
     void contactsRemoved(const QList<QContactLocalId>& contactIds);
     void dataReset();
 
+    void fetchContactsRequest();
+
 private:
     SeasideSyncModelPriv *priv;
     Q_DISABLE_COPY(SeasideSyncModel);
+
+    QContactFetchRequest fetchAddedContacts;
 };
 
 #endif // SEASIDESYNCMODEL_H
