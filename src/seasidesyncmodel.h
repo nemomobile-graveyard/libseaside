@@ -107,6 +107,7 @@ private:
     Q_DISABLE_COPY(SeasideSyncModel);
 
     QContactFetchRequest fetchAddedContacts;
+    QContactFetchRequest fetchAllContacts;
 };
 
 #endif // SEASIDESYNCMODEL_H
