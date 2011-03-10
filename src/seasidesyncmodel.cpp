@@ -179,12 +179,14 @@ SeasideSyncModel::SeasideSyncModel()
     fetchMeCard.setManager(priv->manager);
     connect(&fetchMeCard, SIGNAL(resultsAvailable()), this,
             SLOT(fetchContactsRequest()));
+
+    addMeCard.setManager(priv->manager);
+    connect(&addMeCard, SIGNAL(resultsAvailable()), this,
+            SLOT(saveContactsRequest()));
  
   //is meCard supported by manager/engine
     if(priv->manager->hasFeature(QContactManager::SelfContact, QContactType::TypeContact))
     {     
-      QContactId contactId;
-      QContact meContact;
       QContactManager::Error error(QContactManager::NoError);      
       const QContactLocalId meCardId(priv->manager->selfContactId());
 
@@ -772,11 +774,8 @@ void SeasideSyncModel::fetchContactsRequest()
             contactId.setLocalId(meCardId);
             meContact.setId(contactId);
 
-            //addMeCard.setContact(meContact);
-            //addMeCard.start();
-            if (!priv->manager->saveContact(&meContact))
-                qWarning() << "[SyncModel] failed to save mecard contact";
-            createMeCard(meContact);
+            addMeCard.setContact(meContact);
+            addMeCard.start();
        } else {
             qDebug() << "SeasideSyncModel::SeasideSyncModel() id is valid"
                      << "and MeCard exists" << meCardId;
@@ -796,6 +795,34 @@ void SeasideSyncModel::fetchContactsRequest()
         }
     }
 
+    else
+        qDebug() << "[SyncModel] Error: unexpected request!";
+}
+
+void SeasideSyncModel::saveContactsRequest()
+{
+    QContactSaveRequest *request = qobject_cast<QContactSaveRequest*>(QObject::sender());
+
+    if (request->error() != QContactManager::NoError) {
+        qDebug() << "[SyncModel] Error" << request->error()
+                 << "occurred during save request!";
+        return;
+    }
+
+    if (request == &addMeCard)
+    {
+        if (request->state() != QContactAbstractRequest::FinishedState)
+            return;
+
+        QList<QContact> meCardList = addMeCard.contacts();
+        if (meCardList.size() < 0) {
+            qDebug() << "[SyncModel] Error - failed to save meCard";
+            return;
+        }
+
+        QContact card = meCardList.at(0);
+        createMeCard(card);
+    }
     else
         qDebug() << "[SyncModel] Error: unexpected request!";
 }
