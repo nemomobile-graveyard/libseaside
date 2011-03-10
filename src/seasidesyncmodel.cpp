@@ -167,6 +167,10 @@ SeasideSyncModel::SeasideSyncModel()
     fetchAddedContacts.setManager(priv->manager);
     connect(&fetchAddedContacts, SIGNAL(resultsAvailable()), this,
             SLOT(fetchContactsRequest()));
+
+    fetchAllContacts.setManager(priv->manager);
+    connect(&fetchAllContacts, SIGNAL(resultsAvailable()), this,
+            SLOT(fetchContactsRequest()));
  
   //is meCard supported by manager/engine
     if(priv->manager->hasFeature(QContactManager::SelfContact, QContactType::TypeContact))
@@ -699,6 +703,30 @@ void SeasideSyncModel::fetchContactsRequest()
         qDebug() << "[DataGenModel] Done updating model after adding" 
                  << added << "contacts";
     }
+
+    else if (request == &fetchAllContacts)
+    {
+        QList<QContact> contactsList = fetchAllContacts.contacts();
+        int size = 0;
+
+        qDebug() << "[SyncModel] Starting model reset";
+        beginResetModel();
+
+        foreach (QContact *contact, priv->idToContact.values())
+            delete contact;
+
+        priv->contactIds.clear();
+        priv->idToContact.clear();
+        priv->idToIndex.clear();
+        priv->uuidToId.clear();
+        priv->idToUuid.clear();
+
+        addContacts(contactsList, size);
+
+        endResetModel();
+        qDebug() << "[SyncModel] Done with model reset";
+    }
+
     else
         qDebug() << "[SyncModel] Error: unexpected request!";
 }
@@ -797,23 +825,8 @@ void SeasideSyncModel::contactsRemoved(const QList<QContactLocalId>& contactIds)
 void SeasideSyncModel::dataReset()
 {
     qDebug() << "[SyncModel] data reset";
-    beginResetModel();
-
-    foreach (QContact *contact, priv->idToContact.values())
-        delete contact;
-
-    priv->contactIds.clear();
-    priv->idToContact.clear();
-    priv->idToIndex.clear();
-    priv->uuidToId.clear();
-    priv->idToUuid.clear();
-
-    QList<QContact> contactsList = priv->manager->contacts();
-    int size = contactsList.size();
-
-    addContacts(contactsList, size);
-
-    endResetModel();
+    fetchAllContacts.setFilter(priv->currentFilter);
+    fetchAllContacts.start();
 }
 
 SeasidePersonModel *SeasideSyncModel::createPersonModel(const QModelIndex& index)
