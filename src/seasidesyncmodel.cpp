@@ -192,6 +192,10 @@ SeasideSyncModel::SeasideSyncModel()
     connect(&updateContact, SIGNAL(resultsAvailable()), this,
             SLOT(saveContactsRequest()));
 
+    updateAvatar.setManager(priv->manager);
+    connect(&updateAvatar, SIGNAL(resultsAvailable()), this,
+            SLOT(saveContactsRequest()));
+
   //is meCard supported by manager/engine
     if(priv->manager->hasFeature(QContactManager::SelfContact, QContactType::TypeContact))
     {     
@@ -861,6 +865,12 @@ void SeasideSyncModel::saveContactsRequest()
         }
     }
 
+    else if (request == &updateAvatar)
+    {
+        if (request->state() != QContactAbstractRequest::FinishedState)
+            qDebug() << "[SyncModel] Contact's avatar updated successfully";
+    }
+
     else
         qDebug() << "[SyncModel] Error: unexpected request!";
 }
@@ -1280,8 +1290,8 @@ void SeasideSyncModel::setAvatar(const QUuid& uuid, const QString& path)
     if (!contact->saveDetail(&avatar))
         qWarning() << "[SyncModel] failed to save avatar";
 
-    if (!priv->manager->saveContact(contact))
-        qWarning() << "[SyncModel] failed to save contact while setting avatar";
+    updateAvatar.setContact(*contact);
+    updateAvatar.start();
 }
 
 void SeasideSyncModel::setFavorite(const QUuid& uuid, bool favorite)

@@ -115,6 +115,7 @@ private:
     QContactSaveRequest addMeCard;
     QContactSaveRequest updateMeCard;
     QContactSaveRequest updateContact;
+    QContactSaveRequest updateAvatar;
 };
 
 #endif // SEASIDESYNCMODEL_H
