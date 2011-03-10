@@ -183,6 +183,10 @@ SeasideSyncModel::SeasideSyncModel()
     addMeCard.setManager(priv->manager);
     connect(&addMeCard, SIGNAL(resultsAvailable()), this,
             SLOT(saveContactsRequest()));
+
+    updateMeCard.setManager(priv->manager);
+    connect(&updateMeCard, SIGNAL(resultsAvailable()), this,
+            SLOT(saveContactsRequest()));
  
   //is meCard supported by manager/engine
     if(priv->manager->hasFeature(QContactManager::SelfContact, QContactType::TypeContact))
@@ -283,11 +287,8 @@ void SeasideSyncModel::createMeCard(QContact &card)
     priv->settings->setValue(key, isSelf);
   }
   
-  if (!priv->manager->saveContact(contact))
-    qWarning() << "[SyncModel] failed to save mecard contact";
-
-  const QContactLocalId meCardId = contact->localId();
-  qDebug() << "[SyncModel] meCardId generated: " << meCardId;
+  updateMeCard.setContact(*contact);
+  updateMeCard.start();
 }
 
 QContactLocalId SeasideSyncModel::getSelfContactId() const
@@ -823,6 +824,22 @@ void SeasideSyncModel::saveContactsRequest()
         QContact card = meCardList.at(0);
         createMeCard(card);
     }
+
+    else if (request == &updateMeCard)
+    {
+        if (request->state() != QContactAbstractRequest::FinishedState)
+            return;
+
+        QList<QContact> meCardList = updateMeCard.contacts();
+        if (meCardList.size() < 0) {
+            qDebug() << "[SyncModel] Error - failed to save meCard";
+            return;
+        }
+
+        const QContactLocalId meCardId = meCardList.at(0).localId();
+        qDebug() << "[SyncModel] meCardId generated: " << meCardId;
+    }
+
     else
         qDebug() << "[SyncModel] Error: unexpected request!";
 }
