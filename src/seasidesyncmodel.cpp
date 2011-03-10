@@ -175,6 +175,10 @@ SeasideSyncModel::SeasideSyncModel()
     fetchChangedContacts.setManager(priv->manager);
     connect(&fetchChangedContacts, SIGNAL(resultsAvailable()), this,
             SLOT(fetchContactsRequest()));
+
+    fetchMeCard.setManager(priv->manager);
+    connect(&fetchMeCard, SIGNAL(resultsAvailable()), this,
+            SLOT(fetchContactsRequest()));
  
   //is meCard supported by manager/engine
     if(priv->manager->hasFeature(QContactManager::SelfContact, QContactType::TypeContact))
@@ -188,33 +192,11 @@ SeasideSyncModel::SeasideSyncModel()
       if((error == QContactManager::NoError) && (meCardId != 0)){
 	qDebug() << "[SeasideSyncModel] valid selfId, error" << error << "id " << meCardId;
         //check if contact with selfId exists
-        //meContact = priv->manager->contact(meCardId, QStringList() << QContactName::DefinitionName);
-        QContactFetchHint hint;
-        hint.setDetailDefinitionsHint(QStringList() << QContactName::DefinitionName);
-        meContact = priv->manager->contact(meCardId, hint);
+        QContactLocalIdFilter idListFilter;
+        idListFilter.setIds(QList<QContactLocalId>() << meCardId);
 
-        //if contact doesn't exist, create it
-        if(meContact.localId() != meCardId){
-          qDebug() << "[SeasideSyncModel] self contact does not exist, create meCard with selfId. Local id: " << meContact.localId() <<"is not self id " << meCardId;
-          contactId.setLocalId(meCardId);
-          meContact.setId(contactId);
-          if (!priv->manager->saveContact(&meContact))
-            qWarning() << "[SyncModel] failed to save mecard contact";
-          createMeCard(meContact);
-        }else{
-	  qDebug() << "SeasideSyncModel::SeasideSyncModel() id is valid and MeCard exists" << meCardId;
-	  //If it does exist, check that contact has valid firstname
-          //meContact = priv->manager->contact(meCardId, QStringList() << QContactName::DefinitionName);
-          meContact = priv->manager->contact(meCardId, hint);
-          QString firstname = meContact.detail(QContactName::DefinitionName).value(QContactName::FieldFirstName);
-	  qDebug() << "[SeasideSyncModel] meCard has firstname" << firstname;
-	  //if no firstname, then update meCard
-	  if(firstname.isEmpty() || firstname.isNull()){
-            createMeCard(meContact);
-	  }else{//else do nothing
-	    qDebug() << "SeasideSyncModel::SeasideSyncModel() VALID MECARD EXISTS";
-	  }
-        }
+        fetchMeCard.setFilter(idListFilter);
+        fetchMeCard.start();
       }else{
 	qWarning() << "[SeasideSyncModel] no valid meCard Id provided";
       }
@@ -764,6 +746,54 @@ void SeasideSyncModel::fetchContactsRequest()
             emit dataChanged(index(min, 0), index(max, Seaside::ColumnLast));
         
         qDebug() << "[SyncModel] Done updating model after contacts update";
+    }
+
+    else if (request == &fetchMeCard)
+    {
+        if (request->state() != QContactAbstractRequest::FinishedState)
+            return;
+
+        const QContactLocalId meCardId(priv->manager->selfContactId());
+        QList<QContact> meCardList = fetchMeCard.contacts();
+        QContact meContact;
+
+        //if contact doesn't exist, create it
+        if ((meCardList.size() == 0) || (meCardList.at(0).localId() != meCardId)) {
+            QContactId contactId;
+
+            if (meCardList.size() == 0)
+                meContact = *(new QContact());
+            else
+                meContact = meCardList.at(0);
+
+            qDebug() << "[SeasideSyncModel] self contact does not exist, "
+                     << "create meCard with selfId. Local id: " 
+                     << meContact.localId() <<"is not self id " << meCardId;
+            contactId.setLocalId(meCardId);
+            meContact.setId(contactId);
+
+            //addMeCard.setContact(meContact);
+            //addMeCard.start();
+            if (!priv->manager->saveContact(&meContact))
+                qWarning() << "[SyncModel] failed to save mecard contact";
+            createMeCard(meContact);
+       } else {
+            qDebug() << "SeasideSyncModel::SeasideSyncModel() id is valid"
+                     << "and MeCard exists" << meCardId;
+
+            meContact = meCardList.at(0);
+
+            //If it does exist, check that contact has valid firstname
+            QString firstname = meContact.detail<QContactName>().firstName();
+            qDebug() << "[SeasideSyncModel] meCard has firstname" << firstname;
+
+            //if no firstname, then update meCard
+            if (firstname.isEmpty() || firstname.isNull()){
+                createMeCard(meContact);
+            } else {//else do nothing
+                qDebug() << "SeasideSyncModel() VALID MECARD EXISTS";
+            }
+        }
     }
 
     else
