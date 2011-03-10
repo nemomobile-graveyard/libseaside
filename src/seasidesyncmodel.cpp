@@ -187,7 +187,11 @@ SeasideSyncModel::SeasideSyncModel()
     updateMeCard.setManager(priv->manager);
     connect(&updateMeCard, SIGNAL(resultsAvailable()), this,
             SLOT(saveContactsRequest()));
- 
+
+    updateContact.setManager(priv->manager);
+    connect(&updateContact, SIGNAL(resultsAvailable()), this,
+            SLOT(saveContactsRequest()));
+
   //is meCard supported by manager/engine
     if(priv->manager->hasFeature(QContactManager::SelfContact, QContactType::TypeContact))
     {     
@@ -840,6 +844,23 @@ void SeasideSyncModel::saveContactsRequest()
         qDebug() << "[SyncModel] meCardId generated: " << meCardId;
     }
 
+    else if (request == &updateContact)
+    {
+        if (request->state() != QContactAbstractRequest::FinishedState)
+            return;
+
+        QList<QContact> contactList = updateContact.contacts();
+
+        foreach (QContact new_contact, contactList)
+        {
+            // make sure data shown to user matches what is 
+            // really in the database
+            QContactLocalId id = new_contact.localId();
+            QContact *contact = priv->idToContact[id];
+            contact = &new_contact;
+        }
+    }
+
     else
         qDebug() << "[SyncModel] Error: unexpected request!";
 }
@@ -1238,12 +1259,8 @@ void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
     }
   }
 
-    if (!priv->manager->saveContact(contact)) {
-        qWarning() << "[SyncModel] failed to update contact";
-
-        // make sure data shown to user matches what is really in the database
-        *contact = priv->manager->contact(id);
-    }
+    updateContact.setContact(*contact);
+    updateContact.start();
 
     delete oldModel;
 }
