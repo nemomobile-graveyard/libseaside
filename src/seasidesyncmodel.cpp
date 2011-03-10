@@ -171,6 +171,10 @@ SeasideSyncModel::SeasideSyncModel()
     fetchAllContacts.setManager(priv->manager);
     connect(&fetchAllContacts, SIGNAL(resultsAvailable()), this,
             SLOT(fetchContactsRequest()));
+
+    fetchChangedContacts.setManager(priv->manager);
+    connect(&fetchChangedContacts, SIGNAL(resultsAvailable()), this,
+            SLOT(fetchContactsRequest()));
  
   //is meCard supported by manager/engine
     if(priv->manager->hasFeature(QContactManager::SelfContact, QContactType::TypeContact))
@@ -727,6 +731,41 @@ void SeasideSyncModel::fetchContactsRequest()
         qDebug() << "[SyncModel] Done with model reset";
     }
 
+    else if (request == &fetchChangedContacts)
+    {
+        // NOTE: this implementation sends one dataChanged signal with
+        // the minimal range that covers all the changed contacts, but it
+        // could be more efficient to send multiple dataChanged signals, 
+        // though more work to find them
+        int min = priv->contactIds.size();
+        int max = 0;
+
+        QList<QContact> changedContactsList = fetchChangedContacts.contacts();
+
+        foreach (QContact changedContact, changedContactsList) {
+            int index = priv->idToIndex.value(changedContact.localId());
+
+            if (index < min)
+                min = index;
+
+            if (index > max)
+                max = index;
+
+            // FIXME: this looks like it may be wrong, 
+            // could lead to multiple entries
+            QContact *contact = priv->idToContact[changedContact.localId()];
+            if (contact) {
+                *contact = changedContact;
+            }
+        }
+
+        // FIXME: unfortunate that we can't easily identify what changed
+        if (min <= max)
+            emit dataChanged(index(min, 0), index(max, Seaside::ColumnLast));
+        
+        qDebug() << "[SyncModel] Done updating model after contacts update";
+    }
+
     else
         qDebug() << "[SyncModel] Error: unexpected request!";
 }
@@ -765,28 +804,14 @@ void SeasideSyncModel::contactsAdded(const QList<QContactLocalId>& contactIds)
 
 void SeasideSyncModel::contactsChanged(const QList<QContactLocalId>& contactIds)
 {
+    if (contactIds.size() == 0)
+        return;
+
     qDebug() << "[SyncModel] contacts changed:" << contactIds;
-    // NOTE: this implementation sends one dataChanged signal with the minimal range
-    //   that covers all the changed contacts, but it could be more efficient to send
-    //   multiple dataChanged signals, though more work to find them
-    int min = priv->contactIds.size();
-    int max = 0;
-
-    foreach (const QContactLocalId& id, contactIds) {
-        int index = priv->idToIndex.value(id);
-        if (index < min)
-            min = index;
-        if (index > max)
-            max = index;
-        // FIXME: this looks like it may be wrong, could lead to multiple entries
-        QContact *contact = priv->idToContact[id];
-        if (contact)
-            *contact = priv->manager->contact(id);
-    }
-
-    // FIXME: unfortunate that we can't easily identify what changed
-    if (min <= max)
-        emit dataChanged(index(min, 0), index(max, Seaside::ColumnLast));
+    QContactLocalIdFilter filter;
+    filter.setIds(contactIds);
+    fetchChangedContacts.setFilter(filter);
+    fetchChangedContacts.start();
 }
 
 void SeasideSyncModel::contactsRemoved(const QList<QContactLocalId>& contactIds)
