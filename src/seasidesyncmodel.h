@@ -109,6 +109,7 @@ private:
     QContactFetchRequest fetchAddedContacts;
     QContactFetchRequest fetchAllContacts;
     QContactFetchRequest fetchChangedContacts;
+    QContactFetchRequest fetchMeCard;
 };
 
 #endif // SEASIDESYNCMODEL_H
