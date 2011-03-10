@@ -110,6 +110,9 @@ static void updateDefinitions(QContactManager *manager) {
 
     seaside.setName(SeasideCustomDetail::DefinitionName);
     seaside.setUnique(true);
+
+    //TODO: This is a synchronous call that needs to be async.
+    //However, tracker doesn't support saving details via async calls currently.
     if (!manager->saveDetailDefinition(seaside))
       qWarning() << "[SyncModel] failed to save new detail definition";
 }
@@ -196,6 +199,10 @@ SeasideSyncModel::SeasideSyncModel()
     connect(&updateAvatar, SIGNAL(resultsAvailable()), this,
             SLOT(saveContactsRequest()));
 
+    removeContact.setManager(priv->manager);
+    connect(&removeContact, SIGNAL(resultsAvailable()), this,
+            SLOT(removeContactsRequest()));
+
   //is meCard supported by manager/engine
     if(priv->manager->hasFeature(QContactManager::SelfContact, QContactType::TypeContact))
     {     
@@ -234,6 +241,8 @@ QModelIndex SeasideSyncModel::getModelIndex(QContactLocalId id){
   return personIndex;
 }
  
+//This is a debug function, so the synchronous calls will
+//not be converted to asynchronous calls.
 void SeasideSyncModel::viewDetails(QContactManager* cm)
 {
   QList<QContactLocalId> contactIds = cm->contactIds();
@@ -299,6 +308,8 @@ void SeasideSyncModel::createMeCard(QContact &card)
   updateMeCard.start();
 }
 
+//TODO: selfContactId() is a synchronous call
+//However, no an async call is not currently implemented
 QContactLocalId SeasideSyncModel::getSelfContactId() const
 {
   if(priv->manager->hasFeature(QContactManager::SelfContact, QContactType::TypeContact)){
@@ -875,6 +886,28 @@ void SeasideSyncModel::saveContactsRequest()
         qDebug() << "[SyncModel] Error: unexpected request!";
 }
 
+void SeasideSyncModel::removeContactsRequest()
+{
+    qWarning() << "[SyncModel] Calling removeContactsRequest";
+    QContactRemoveRequest *request = qobject_cast<QContactRemoveRequest*>(QObject::sender());
+
+    if (request->error() != QContactManager::NoError) {
+        qDebug() << "[SyncModel] Error" << request->error()
+                 << "occurred during remove request!";
+        return;
+    }
+
+
+    if (request == &removeContact)
+    {
+        if (request->state() != QContactAbstractRequest::FinishedState)
+            return;
+
+        qDebug() << "[SyncModel] Removed" << removeContact.contactIds() 
+                 << "contacts from tracker";
+    }
+}
+
 void SeasideSyncModel::addContacts(const QList<QContact> contactsList, 
                                    int size)
 {
@@ -1081,8 +1114,8 @@ void SeasideSyncModel::deletePerson(const QUuid& uuid)
 {
   if(priv->manager->selfContactId() != priv->uuidToId[uuid])
     {
-      if (!priv->manager->removeContact(priv->uuidToId[uuid]))
-	qWarning() << "[SyncModel] failed to delete contact";
+      removeContact.setContactId(priv->uuidToId[uuid]);
+      removeContact.start();
     }else{
     qWarning() << "[SyncModel] attempted to remove MeCard";
   }

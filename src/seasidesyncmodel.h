@@ -102,6 +102,7 @@ protected slots:
 
     void fetchContactsRequest();
     void saveContactsRequest();
+    void removeContactsRequest();
 
 private:
     SeasideSyncModelPriv *priv;
@@ -116,6 +117,8 @@ private:
     QContactSaveRequest updateMeCard;
     QContactSaveRequest updateContact;
     QContactSaveRequest updateAvatar;
+
+    QContactRemoveRequest removeContact;
 };
 
 #endif // SEASIDESYNCMODEL_H
