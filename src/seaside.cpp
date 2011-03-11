@@ -16,6 +16,7 @@
 #include <QContactAvatar>
 #include <QContactBirthday>
 #include <QContactEmailAddress>
+#include <QContactFavorite>
 #include <QContactName>
 #include <QContactNote>
 #include <QContactOrganization>
@@ -83,12 +84,10 @@ QDate Seaside::contactAnniversary(const QContact *contact)
     return day.originalDate();
 }
 
-bool Seaside::contactFavorite(const QContact *contact) //REVISIT
+bool Seaside::contactFavorite(const QContact *contact)
 {
-    foreach (const SeasideCustomDetail& detail,
-             contact->details(SeasideCustomDetail::DefinitionName))
-        return detail.favorite();
-    return false;
+    QContactFavorite favorite = contact->detail(QContactFavorite::DefinitionName);
+    return favorite.isFavorite();
 }
 
 Seaside::Presence Seaside::contactPresence(const QContact *contact)

@@ -21,13 +21,9 @@ class SeasideCustomDetail: public QContactDetail
 {
 public:
     Q_DECLARE_CUSTOM_CONTACT_DETAIL(SeasideCustomDetail, "Seaside");
-    Q_DECLARE_LATIN1_CONSTANT(FieldFavorite, "Favorite");
     Q_DECLARE_LATIN1_CONSTANT(FieldCommTimestamp, "CommTimestamp");
     Q_DECLARE_LATIN1_CONSTANT(FieldCommType, "CommType");
     Q_DECLARE_LATIN1_CONSTANT(FieldCommLocation, "CommLocation");
-
-    void setFavorite(bool favorite) { setValue(FieldFavorite, favorite); }
-    bool favorite() const { return value<bool>(FieldFavorite); }
 
     void setCommTimestamp(const QDateTime& timestamp) { setValue(FieldCommTimestamp, timestamp); }
     QDateTime commTimestamp() const { return value<QDateTime>(FieldCommTimestamp); }

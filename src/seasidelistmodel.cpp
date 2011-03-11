@@ -16,6 +16,7 @@
 #include <QContactAvatar>
 #include <QContactBirthday>
 #include <QContactEmailAddress>
+#include <QContactFavorite>
 #include <QContactGuid>
 #include <QContactName>
 #include <QContactNote>
@@ -189,9 +190,8 @@ QVariant SeasideListModel::data(const QModelIndex& index, int role) const
         {
             if (role == Seaside::SearchRole)
                 return QVariant();
-            foreach (const SeasideCustomDetail& detail, contact->details<SeasideCustomDetail>())
-                return QVariant(detail.favorite());
-            return QVariant(false);
+            QContactFavorite favorite = contact->detail<QContactFavorite>();
+            return QVariant(favorite.isFavorite());
         }
 
     case Seaside::ColumnEmailAddresses:  // emails

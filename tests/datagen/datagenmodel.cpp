@@ -16,6 +16,7 @@
 #include <QContactAvatar>
 #include <QContactBirthday>
 #include <QContactEmailAddress>
+#include <QContactFavorite>
 #include <QContactGuid>
 #include <QContactName>
 #include <QContactNote>
@@ -138,10 +139,6 @@ void DataGenModel::releaseInstance()
 
 static void updateDefinitions(QContactManager *manager) {
     QContactDetailDefinition seaside;
-
-    QContactDetailFieldDefinition favorite;
-    favorite.setDataType(QVariant::Bool);
-    seaside.insertField(SeasideCustomDetail::FieldFavorite, favorite);
 
     QContactDetailFieldDefinition commTimestamp;
     commTimestamp.setDataType(QVariant::DateTime);
@@ -1269,13 +1266,10 @@ void DataGenModel::updatePerson(const SeasidePersonModel *newModel)
     }
 
     if (oldModel->favorite() != newModel->favorite()) {
-        if (priv->settings) {
-            QContactGuid guid = contact->detail<QContactGuid>();
-            QString key = guid.guid();
-            key += "/favorite";
-            priv->settings->setValue(key, newModel->favorite());
-            priv->settings->sync();
-        }
+        QContactFavorite favorite = contact->detail<QContactFavorite>();
+        favorite.setFavorite(newModel->favorite());
+        if (!contact->saveDetail(&favorite))
+            qWarning() << "[SyncModel] failed to update favorite";
     }
 
     if (!priv->manager->saveContact(contact)) {
@@ -1324,19 +1318,20 @@ void DataGenModel::setAvatar(const QUuid& uuid, const QString& path)
 
 void DataGenModel::setFavorite(const QUuid& uuid, bool favorite)
 {
-    if (!priv->settings)
+    QContactLocalId id = priv->uuidToId[uuid];
+    QContact *contact = priv->idToContact[id];
+
+    if (!contact)
         return;
 
-    QString key = uuid.toString();
-    key += "/favorite";
-    priv->settings->setValue(key, favorite);
-    priv->settings->sync();
+    QContactFavorite fav = contact->detail<QContactFavorite>();
+    fav.setFavorite(favorite);
 
-    QList<QContactLocalId> list;
-    list.append(priv->uuidToId[uuid]);
+    if (!contact->saveDetail(&fav))
+        qWarning() << "[SyncModel] failed to save favorite";
 
-    // writing to QSettings doesn't cause a change event, so manually call
-    contactsChanged(list);
+    if (!priv->manager->saveContact(contact))
+        qWarning() << "[SyncModel] failed to save contact while setting favorite";
 }
 
 void DataGenModel::setCompany(const QUuid& uuid, QString company)

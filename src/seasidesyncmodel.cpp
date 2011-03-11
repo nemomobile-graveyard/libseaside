@@ -16,6 +16,7 @@
 #include <QContactAvatar>
 #include <QContactBirthday>
 #include <QContactEmailAddress>
+#include <QContactFavorite>
 #include <QContactGuid>
 #include <QContactName>
 #include <QContactNote>
@@ -88,10 +89,6 @@ void SeasideSyncModel::releaseInstance()
 
 static void updateDefinitions(QContactManager *manager) {
     QContactDetailDefinition seaside;
-
-    QContactDetailFieldDefinition favorite;
-    favorite.setDataType(QVariant::Bool);
-    seaside.insertField(SeasideCustomDetail::FieldFavorite, favorite);
 
     QContactDetailFieldDefinition commTimestamp;
     commTimestamp.setDataType(QVariant::DateTime);
@@ -413,15 +410,8 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
 
     case Seaside::ColumnFavorite:  // favorite
         {
-	  //            if (role != Seaside::SearchRole) // TODO: this should always return false
-          //      return QVariant();
-            if (priv->settings) {
-                QContactGuid guid = contact->detail<QContactGuid>();
-                QString key = guid.guid();
-                key += "/favorite";
-                return priv->settings->value(key, false);
-            }
-	    //    return QVariant(false);
+            QContactFavorite favorite = contact->detail<QContactFavorite>();
+            return QVariant(favorite.isFavorite());
         }
 
   case Seaside::ColumnisSelf:  // self
@@ -1064,13 +1054,10 @@ void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
     }
 
       if (oldModel->favorite() != newModel->favorite()) {
-        if (priv->settings) {
-	  QContactGuid guid = contact->detail<QContactGuid>();
-	  QString key = guid.guid();
-	  key += "/favorite";
-	  priv->settings->setValue(key, newModel->favorite());
-	  priv->settings->sync();
-        }
+        QContactFavorite favorite = contact->detail<QContactFavorite>();
+        favorite.setFavorite(newModel->favorite());
+        if (!contact->saveDetail(&favorite))
+            qWarning() << "[SyncModel] failed to update favorite";
       }
 
   if (oldModel->self() != newModel->self()) {
@@ -1115,22 +1102,21 @@ void SeasideSyncModel::setAvatar(const QUuid& uuid, const QString& path)
 
 void SeasideSyncModel::setFavorite(const QUuid& uuid, bool favorite)
 {
-    if (!priv->settings)
+    QContactLocalId id = priv->uuidToId[uuid];
+    QContact *contact = priv->idToContact[id];
+
+    if (!contact)
         return;
 
-    QString key = uuid.toString();
-    key += "/favorite";
-    priv->settings->setValue(key, favorite);
-    priv->settings->sync();
+    QContactFavorite fav= contact->detail<QContactFavorite>();
+    fav.setFavorite(favorite);
 
-    QList<QContactLocalId> list;
-    list.append(priv->uuidToId[uuid]);
+    if (!contact->saveDetail(&fav))
+        qWarning() << "[SyncModel] failed to save favorite";
 
-    // writing to QSettings doesn't cause a change event, so manually call
-    contactsChanged(list);
+    if (!priv->manager->saveContact(contact))
+        qWarning() << "[SyncModel] failed to save contact while setting favorite";
 }
-
-
 
 void SeasideSyncModel::setCompany(const QUuid& uuid, QString company)
 {
