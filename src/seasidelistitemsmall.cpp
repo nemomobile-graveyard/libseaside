@@ -17,6 +17,7 @@
 #include <MButton>
 
 #include "seasidelistitemsmall.h"
+#include "seasidelistitem_p.h"
 #include "seasidelabel.h"
 
 #include <MWidgetCreator>
@@ -26,27 +27,10 @@ M_REGISTER_WIDGET(SeasideListItemSmall)
 
 #define SCREEN_WIDTH 400
 
-class SeasideListItemSmallPriv
+SeasideListItemSmall::SeasideListItemSmall(MWidget *parent)
+    : MWidgetController(parent)
+    , priv(new SeasideListItemPriv)
 {
-public:
-    MImageWidget *image;
-    SeasideLabel *name;
-    SeasideLabel *detail;
-    SeasideLabel *status;
-    QStringList  *detailList;
-    MImageWidget *favorite;
-    MImageWidget *presence;
-    MButton *button;
-    MImageWidget *email;
-    MImageWidget *sms;
-    MImageWidget *im;
-    MImageWidget *call;
-    QUuid *uuid;
-};
-
-SeasideListItemSmall::SeasideListItemSmall(MWidget *parent): MWidgetController(parent)
-{
-    priv = new SeasideListItemSmallPriv;
     setObjectName("SeasideListItemSmall");
 
     QGraphicsGridLayout *grid = new QGraphicsGridLayout;

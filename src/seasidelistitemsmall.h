@@ -13,7 +13,7 @@
 
 #include <MWidgetController>
 #include "seaside.h"
-class SeasideListItemSmallPriv;
+struct SeasideListItemPriv;
 
 /*
  * SeasideListItemSmall: Styling Notes
@@ -53,7 +53,7 @@ protected slots:
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 
 private:
-    SeasideListItemSmallPriv *priv;
+    SeasideListItemPriv *priv;
     QPixmap  getAvatar(QString avatar);
     Q_DISABLE_COPY(SeasideListItemSmall);
 };

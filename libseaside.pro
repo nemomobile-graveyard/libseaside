@@ -72,6 +72,9 @@ theme.files = theme/*
 theme.path = $$SEASIDE_THEME_DIR
 theme.CONFIG += no_check_exist
 
+# private headers, that shouldn't be installed
+HEADERS += src/seasidelistitem_p.h
+
 INSTALLS += \
     target \
     headers \
