@@ -172,18 +172,10 @@ void SeasideListItemBase::setName(const QString &name)
 {
      if(!priv->detail)
          return;
-    priv->detailList = new QStringList(details);
     if(!details.isEmpty() && (details.count() > 0)){
         priv->detail->setText(details[0]);
     }
 }
-
- void SeasideListItemBase::setUuid(const QString &id)
- {
-     if(!id.isNull()){
-     priv->uuid = new QUuid(id);
-     }
- }
 
 void SeasideListItemBase::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {

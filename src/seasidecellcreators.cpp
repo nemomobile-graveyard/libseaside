@@ -26,7 +26,6 @@ void CellCreator::updateCell(const QModelIndex& index, MWidget *cell) const
     
     item->setThumbnail(SEASIDE_FIELD(Avatar, String));
   item->setName(QObject::tr("%1 %2").arg(SEASIDE_FIELD(FirstName, String)).arg(SEASIDE_FIELD(LastName, String)));
-  item->setUuid(SEASIDE_FIELD(Uuid, String));
   item->setFavorite(SEASIDE_FIELD(Favorite, Bool)); //REVISIT
   item->setPresence(SEASIDE_FIELD(Presence, Int));
   item->setCommFlags(SEASIDE_FIELD(CommType, Int));
@@ -53,7 +52,6 @@ void CellCreatorSmall::updateCell(const QModelIndex& index, MWidget *cell) const
 
     item->setThumbnail(SEASIDE_FIELD(Avatar, String));
   item->setName(QObject::tr("%1 %2").arg(SEASIDE_FIELD(FirstName, String)).arg(SEASIDE_FIELD(LastName, String)));
-  item->setUuid(SEASIDE_FIELD(Uuid, String));
   item->setFavorite(SEASIDE_FIELD(Favorite, Bool)); //REVISIT
   item->setPresence(SEASIDE_FIELD(Presence, Int));
   item->setCommFlags(SEASIDE_FIELD(CommType, Int));
@@ -80,7 +78,6 @@ void CellCreatorLarge::updateCell(const QModelIndex& index, MWidget *cell) const
 
     item->setThumbnail(SEASIDE_FIELD(Avatar, String));
   item->setName(QObject::tr("%1 %2").arg(SEASIDE_FIELD(FirstName, String)).arg(SEASIDE_FIELD(LastName, String)));
-  item->setUuid(SEASIDE_FIELD(Uuid, String));
   item->setFavorite(SEASIDE_FIELD(Favorite, Bool)); //REVISIT
   item->setPresence(SEASIDE_FIELD(Presence, Int));
   item->setCommFlags(SEASIDE_FIELD(CommType, Int));
@@ -107,7 +104,6 @@ void CellCreatorPhoneSmall::updateCell(const QModelIndex& index, MWidget *cell) 
     
     item->setThumbnail(SEASIDE_FIELD(Avatar, String));
   item->setName(QObject::tr("%1 %2").arg(SEASIDE_FIELD(FirstName, String)).arg(SEASIDE_FIELD(LastName, String)));
-  item->setUuid(SEASIDE_FIELD(Uuid, String));
   item->setFavorite(SEASIDE_FIELD(Favorite, Bool)); //REVISIT
   item->setPresence(SEASIDE_FIELD(Presence, Int));
   item->setCommFlags(SEASIDE_FIELD(CommType, Int));
@@ -132,7 +128,6 @@ void CellCreatorPhoneLarge::updateCell(const QModelIndex& index, MWidget *cell) 
 
     item->setThumbnail(SEASIDE_FIELD(Avatar, String));
   item->setName(QObject::tr("%1 %2").arg(SEASIDE_FIELD(FirstName, String)).arg(SEASIDE_FIELD(LastName, String)));
-  item->setUuid(SEASIDE_FIELD(Uuid, String));
   item->setFavorite(SEASIDE_FIELD(Favorite, Bool)); //REVISIT
   item->setPresence(SEASIDE_FIELD(Presence, Int));
   item->setCommFlags(SEASIDE_FIELD(CommType, Int));
@@ -157,7 +152,6 @@ void CellCreatorEmailSmall::updateCell(const QModelIndex& index, MWidget *cell) 
 
         item->setThumbnail(SEASIDE_FIELD(Avatar, String));
   item->setName(QObject::tr("%1 %2").arg(SEASIDE_FIELD(FirstName, String)).arg(SEASIDE_FIELD(LastName, String)));
-  item->setUuid(SEASIDE_FIELD(Uuid, String));
   item->setFavorite(SEASIDE_FIELD(Favorite, Bool));
   item->setPresence(SEASIDE_FIELD(Presence, Int));
   item->setCommFlags(SEASIDE_FIELD(CommType, Int));
@@ -182,7 +176,6 @@ void CellCreatorEmailLarge::updateCell(const QModelIndex& index, MWidget *cell) 
 
         item->setThumbnail(SEASIDE_FIELD(Avatar, String));
   item->setName(QObject::tr("%1 %2").arg(SEASIDE_FIELD(FirstName, String)).arg(SEASIDE_FIELD(LastName, String)));
-  item->setUuid(SEASIDE_FIELD(Uuid, String));
   item->setFavorite(SEASIDE_FIELD(Favorite, Bool));
   item->setPresence(SEASIDE_FIELD(Presence, Int));
   item->setCommFlags(SEASIDE_FIELD(CommType, Int));
@@ -207,7 +200,6 @@ void CellCreatorIMSmall::updateCell(const QModelIndex& index, MWidget *cell) con
 
     item->setThumbnail(SEASIDE_FIELD(Avatar, String));
   item->setName(QObject::tr("%1 %2").arg(SEASIDE_FIELD(FirstName, String)).arg(SEASIDE_FIELD(LastName, String)));
-  item->setUuid(SEASIDE_FIELD(Uuid, String));
   item->setFavorite(SEASIDE_FIELD(Favorite, Bool));
   item->setPresence(SEASIDE_FIELD(Presence, Int));
   item->setCommFlags(SEASIDE_FIELD(CommType, Int));
@@ -231,7 +223,6 @@ void CellCreatorIMLarge::updateCell(const QModelIndex& index, MWidget *cell) con
     
     item->setThumbnail(SEASIDE_FIELD(Avatar, String));
   item->setName(QObject::tr("%1 %2").arg(SEASIDE_FIELD(FirstName, String)).arg(SEASIDE_FIELD(LastName, String)));
-  item->setUuid(SEASIDE_FIELD(Uuid, String));
   item->setFavorite(SEASIDE_FIELD(Favorite, Bool));
   item->setPresence(SEASIDE_FIELD(Presence, Int));
   item->setCommFlags(SEASIDE_FIELD(CommType, Int));
@@ -255,7 +246,6 @@ void CellCreatorPhotoSmall::updateCell(const QModelIndex& index, MWidget *cell) 
 
     item->setThumbnail(SEASIDE_FIELD(Avatar, String));
   item->setName(QObject::tr("%1 %2").arg(SEASIDE_FIELD(FirstName, String)).arg(SEASIDE_FIELD(LastName, String)));
-  item->setUuid(SEASIDE_FIELD(Uuid, String));
   item->setFavorite(SEASIDE_FIELD(Favorite, Bool));
   item->setPresence(SEASIDE_FIELD(Presence, Int));
   item->setCommFlags(SEASIDE_FIELD(CommType, Int));
@@ -279,7 +269,6 @@ void CellCreatorPhotoLarge::updateCell(const QModelIndex& index, MWidget *cell) 
 
     item->setThumbnail(SEASIDE_FIELD(Avatar, String));
   item->setName(QObject::tr("%1 %2").arg(SEASIDE_FIELD(FirstName, String)).arg(SEASIDE_FIELD(LastName, String)));
-  item->setUuid(SEASIDE_FIELD(Uuid, String));
   item->setFavorite(SEASIDE_FIELD(Favorite, Bool));
   item->setPresence(SEASIDE_FIELD(Presence, Int));
   item->setCommFlags(SEASIDE_FIELD(CommType, Int));

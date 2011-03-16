@@ -11,9 +11,6 @@
 #ifndef SEASIDELISTITEM_P_H
 #define SEASIDELISTITEM_P_H
 
-class QStringList;
-class QUuid;
-
 class MImageWidget;
 class MButton;
 
@@ -27,7 +24,6 @@ struct SeasideListItemPriv
     SeasideLabel *name;
     SeasideLabel *detail;
     SeasideLabel *status;
-    QStringList  *detailList;
     MImageWidget *favorite;
     MImageWidget *presence;
     MButton *button;
@@ -35,7 +31,6 @@ struct SeasideListItemPriv
     MImageWidget *sms;
     MImageWidget *im;
     MImageWidget *call;
-    QUuid *uuid;
 };
 
 #endif // SEASIDELISTITEM_P_H

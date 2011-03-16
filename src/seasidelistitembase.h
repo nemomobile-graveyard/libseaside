@@ -41,7 +41,6 @@ public:
 
     void setThumbnail(const QString& thumbnail);
     void setName(const QString& name);
-    void setUuid(const QString& id);
     void setDetails(const QStringList& detail); //REVISIT phone or email or IM
     void setPresence(const int presence);
     void setFavorite(const bool& favorite);

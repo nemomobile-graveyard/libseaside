@@ -10,7 +10,6 @@
 
 #include <QGraphicsGridLayout>
 #include <QGraphicsSceneMouseEvent>
-#include <QUuid>
 
 #include <MImageWidget>
 #include <MLabel>
