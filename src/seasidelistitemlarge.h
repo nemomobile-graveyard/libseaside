@@ -13,7 +13,7 @@
 
 #include <MWidgetController>
 #include "seaside.h"
-struct SeasideListItemPriv;
+#include "seasidelistitembase.h"
 
 /*
  * SeasideListItemLarge: Styling Notes
@@ -26,7 +26,7 @@ struct SeasideListItemPriv;
  *
  */
 
-class SeasideListItemLarge: public MWidgetController
+class SeasideListItemLarge : public SeasideListItemBase
 {
     Q_OBJECT
 
@@ -34,27 +34,7 @@ public:
     SeasideListItemLarge(MWidget *parent = NULL);
     virtual ~SeasideListItemLarge();
 
-    void setThumbnail(const QString& thumbnail);
-    void setName(const QString& name);
-    void setUuid(const QString& id);
-    void setDetails(const QStringList& detail); //REVISIT phone or email or IM
-    void setPresence(const int presence);
-    void setFavorite(const bool& favorite);
-    void setButton(const QString& hasButton);
-    void setStatus(const QString& status);
-    void setCommFlags(const int flags);
-    
-signals:
-    void clicked();
-    void buttonClicked();
-
-protected slots:
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-
 private:
-    SeasideListItemPriv *priv;
-    QPixmap  getAvatar(QString avatar);
     Q_DISABLE_COPY(SeasideListItemLarge);
 };
 
