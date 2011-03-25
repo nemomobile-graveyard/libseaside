@@ -19,7 +19,6 @@
 #include "seasidelistitem.h"
 #include "seasidesyncmodel.h"
 #include "seasideproxymodel.h"
-#include "seasidelistmodel.h"
 #include "seasidecellcreators.h"
 
 #include <MWidgetCreator>
