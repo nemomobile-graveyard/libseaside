@@ -46,7 +46,7 @@ class SeasidePersonModel;
     i) street address, ii) city, iii) state (region), iv) postal code, v) country
 */
 
-using namespace QtMobility;
+QTM_USE_NAMESPACE
 
 class SeasideSyncModelPriv;
 
@@ -78,47 +78,24 @@ public:
     void setAvatar(const QUuid& uuid, const QString& path);
     void setFavorite(const QUuid& uuid, bool favorite);
     void setisSelf(const QUuid& uuid, bool self);
-    void setCompany(const QUuid& uuid, QString company);
+    Q_DECL_DEPRECATED void setCompany(const QUuid& uuid, QString company);
 
     QContactLocalId getSelfContactId() const;
-    QString getLocalSelfId(); //DEPRECATED
+    Q_DECL_DEPRECATED QString getLocalSelfId();
     bool isSelfContact(const QContactLocalId id);
     bool isSelfContact(const QUuid id);
     QModelIndex getModelIndex(QContactLocalId id);
     void viewDetails(QContactManager* cm);
 
-public slots:
-    void createMeCard(QContact &contact);  
-
 protected:
     void fixIndexMap();
     void addContacts(const QList<QContact> contactsList, int size);
-
-protected slots:
-    void contactsAdded(const QList<QContactLocalId>& contactIds);
-    void contactsChanged(const QList<QContactLocalId>& contactIds);
-    void contactsRemoved(const QList<QContactLocalId>& contactIds);
-    void dataReset();
-
-    void fetchContactsRequest();
-    void saveContactsRequest();
-    void removeContactsRequest();
 
 private:
     SeasideSyncModelPriv *priv;
     Q_DISABLE_COPY(SeasideSyncModel);
 
-    QContactFetchRequest fetchAddedContacts;
-    QContactFetchRequest fetchAllContacts;
-    QContactFetchRequest fetchChangedContacts;
-    QContactFetchRequest fetchMeCard;
-
-    QContactSaveRequest addMeCard;
-    QContactSaveRequest updateMeCard;
-    QContactSaveRequest updateContact;
-    QContactSaveRequest updateAvatar;
-
-    QContactRemoveRequest removeContact;
+    friend class SeasideSyncModelPriv;
 };
 
 #endif // SEASIDESYNCMODEL_H
