@@ -226,7 +226,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
 
     case Seaside::ColumnFavorite:  // favorite
         {
-            QContactFavorite favorite = contact->detail<QContactFavorite>();
+            QContactFavorite favorite = contact.detail<QContactFavorite>();
             return QVariant(favorite.isFavorite());
         }
 
@@ -780,9 +780,9 @@ void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
     }
 
       if (oldModel->favorite() != newModel->favorite()) {
-        QContactFavorite favorite = contact->detail<QContactFavorite>();
+        QContactFavorite favorite = contact.detail<QContactFavorite>();
         favorite.setFavorite(newModel->favorite());
-        if (!contact->saveDetail(&favorite))
+        if (!contact.saveDetail(&favorite))
             qWarning() << "[SyncModel] failed to update favorite";
       }
 

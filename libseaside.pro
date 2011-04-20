@@ -30,7 +30,6 @@ HEADERS += \
     src/seasidelabel.h \
     src/seasidelist.h \
     src/seasidelistitem.h \
-    src/seasidelistmodel.h \
     src/seasideproxymodel.h \
     src/seasidesyncmodel.h  \
     src/seasidesyncmodel_p.h  \
@@ -48,7 +47,6 @@ SOURCES += \
     src/seasidelabel.cpp \
     src/seasidelist.cpp \
     src/seasidelistitem.cpp \
-    src/seasidelistmodel.cpp \
     src/seasidepersonmodel.cpp \
     src/seasideproxymodel.cpp \
     src/seasidesyncmodel.cpp \
