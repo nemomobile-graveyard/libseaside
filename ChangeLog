@@ -1,3 +1,13 @@
+Changes in 0.0.39
+
+24772 Fix some Favorite related issues from the merge with the async branch
+43759 - 1803c Large refactoring os SeasideSyncModel, convert sync calls to
+async Robin Burchell <viroteck at viroteck.net>
+1a843 Remove SeasideListModel - this is no longer in use Kaitlin Rupert
+<kaitlin.rupert@intel.com>
+73521 BMC#14196: Use QContactFavorite Robin Burchell <viroteck at
+viroteck.net>
+
 Changes in 0.0.38
 
 b3e8 BMC#8426: Integrating build_against_new-qt-mobility.patch upstream Signed-off-by: Connie Berardi <connie.berardi@intel.com>
