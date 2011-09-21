@@ -636,8 +636,11 @@ void SeasideSyncModel::updatePerson(const QContact *contact)
 void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
 {
     QContactLocalId id = priv->uuidToId[newModel->uuid()];
-    QContact &contact = priv->idToContact[id];
-    if (contact.isEmpty()) {
+    QContact contact = QContact();
+
+    if (id != 0) {
+        contact = priv->idToContact[id];
+    } else {
         // we are creating a new contact
         QContactGuid guid;
         guid.setGuid(QUuid::createUuid().toString());
@@ -654,6 +657,7 @@ void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
         if (!contact.saveDetail(&sd))
           qWarning() << Q_FUNC_INFO << "failed to save seaside detail in new contact";
     }
+
     SeasidePersonModel *oldModel = createPersonModel(newModel->uuid());
 
     const QString& newFirstName = newModel->firstname();
