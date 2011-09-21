@@ -310,7 +310,7 @@ QVariant SeasideSyncModel::data(const QModelIndex& index, int role) const
             if (role == Seaside::SearchRole) {
                 QStringList searchable;
                 foreach (QString number, list)
-                    searchable << number.replace(QRegExp("[^0-9*#]"), "");
+                    searchable << number.replace(QRegExp("[^0-9*+#]"), "");
                 searchable << list;
                 qDebug() << Q_FUNC_INFO << "Seaside::ColumnPhoneNumbers searchable" << searchable;
                 return QVariant(searchable.join(" "));
