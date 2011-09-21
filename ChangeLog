@@ -1,3 +1,8 @@
+Changes in 0.0.41
+889e9a4fbcaf72db2946218e8f428bc9b32215f6 forward-port BMC16895_fix_for_new_user_save.patch
+7b95a03711faf8198c8a5449307223b6e138fe2a Apply BMC9978_phonenumber_match_fix.patch
+5a59665cffa82399d866e01a9ab4a541ba60034b Apply BMC19685_add_updatePerson_function_for_qcontact.patch
+
 Changes in 0.0.40
 e361a1376807476b9859c1dab62e2900ae9b2e00 Really fix BMC#14196.
 15abb00c85ab9bc40fa60d859d95a1c0c46ca54c Update Changelog and version in .pro file to prepare for 0.0.39 release
