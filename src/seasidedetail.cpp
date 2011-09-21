@@ -11,7 +11,6 @@
 #include "seasidedetail.h"
 
 Q_IMPLEMENT_CUSTOM_CONTACT_DETAIL(SeasideCustomDetail, "Seaside");
-Q_DEFINE_LATIN1_CONSTANT(SeasideCustomDetail::FieldFavorite, "Favorite");
 Q_DEFINE_LATIN1_CONSTANT(SeasideCustomDetail::FieldCommTimestamp, "CommTimestamp");
 Q_DEFINE_LATIN1_CONSTANT(SeasideCustomDetail::FieldCommType, "CommType");
 Q_DEFINE_LATIN1_CONSTANT(SeasideCustomDetail::FieldCommLocation, "CommLocation");

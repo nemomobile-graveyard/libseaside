@@ -28,10 +28,6 @@ static void updateDefinitions(QContactManager *manager)
 {
     QContactDetailDefinition seaside;
 
-    QContactDetailFieldDefinition favorite;
-    favorite.setDataType(QVariant::Bool);
-    seaside.insertField(SeasideCustomDetail::FieldFavorite, favorite);
-
     QContactDetailFieldDefinition commTimestamp;
     commTimestamp.setDataType(QVariant::DateTime);
     seaside.insertField(SeasideCustomDetail::FieldCommTimestamp, commTimestamp);
