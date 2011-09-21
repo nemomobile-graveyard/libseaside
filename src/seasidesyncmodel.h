@@ -73,7 +73,9 @@ public:
     SeasidePersonModel *createPersonModel(const QUuid& index);
 
     void deletePerson(const QUuid& uuid);
+
     void updatePerson(const SeasidePersonModel *newModel);
+    void updatePerson(const QContact *contact);
 
     void setAvatar(const QUuid& uuid, const QString& path);
     void setFavorite(const QUuid& uuid, bool favorite);

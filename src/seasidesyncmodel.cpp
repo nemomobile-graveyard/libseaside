@@ -628,6 +628,11 @@ void SeasideSyncModel::deletePerson(const QUuid& uuid)
     priv->removeContact(priv->uuidToId[uuid]);
 }
 
+void SeasideSyncModel::updatePerson(const QContact *contact)
+{
+    priv->queueContactSave(*contact);
+}
+
 void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
 {
     QContactLocalId id = priv->uuidToId[newModel->uuid()];
