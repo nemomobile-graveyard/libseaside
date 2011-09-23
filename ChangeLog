@@ -1,3 +1,6 @@
+Changes in 0.0.42
+Merge async branch back to master.
+
 Changes in 0.0.41
 889e9a4fbcaf72db2946218e8f428bc9b32215f6 forward-port BMC16895_fix_for_new_user_save.patch
 7b95a03711faf8198c8a5449307223b6e138fe2a Apply BMC9978_phonenumber_match_fix.patch
