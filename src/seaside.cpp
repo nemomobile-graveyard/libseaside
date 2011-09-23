@@ -86,7 +86,7 @@ QDate Seaside::contactAnniversary(const QContact *contact)
 
 bool Seaside::contactFavorite(const QContact *contact)
 {
-    QContactFavorite favorite = contact->detail(QContactFavorite::DefinitionName);
+    const QContactFavorite &favorite = contact->detail<QContactFavorite>();
     return favorite.isFavorite();
 }
 

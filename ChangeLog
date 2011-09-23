@@ -1,3 +1,35 @@
+Changes in 0.0.41
+889e9a4fbcaf72db2946218e8f428bc9b32215f6 forward-port BMC16895_fix_for_new_user_save.patch
+7b95a03711faf8198c8a5449307223b6e138fe2a Apply BMC9978_phonenumber_match_fix.patch
+5a59665cffa82399d866e01a9ab4a541ba60034b Apply BMC19685_add_updatePerson_function_for_qcontact.patch
+
+Changes in 0.0.40
+e361a1376807476b9859c1dab62e2900ae9b2e00 Really fix BMC#14196.
+15abb00c85ab9bc40fa60d859d95a1c0c46ca54c Update Changelog and version in .pro file to prepare for 0.0.39 release
+24772d3b9f622e90f9d8bdbc00ead80babb1049c Fix some Favorite related issues from the merge with the async branch.
+4375971edb603cb267b95f8e5e6a9f193ab12a21 Large refactoring of SeasideSyncModel.
+bcdfe23a63aeec96d5d9c1fffe4c2cb574ab1226 Convert sync calls in deletePerson() to be async
+990ba4a0cf4e667f9c593f37391e93d0478991cd Convert sync calls in setAvatar() to be async
+1601e45fe3067ecdba1cbf3f36b74996b36d1d9e Convert sync calls in updatePerson() to be async
+d9487f19b474972660137fa4cf2177ecd3df3223 Convert sync calls in createMeCard() to be async
+650397b8bb92b2cf7cde61df321354cb7f7d114b Convert synchronous meCard creation to be async
+fe2f2f842aa9a29ca87e7219bc7b047020e67076 Convert sync meCard fetch to be an async fetch
+f38d0b4f2ffdcf8df83437db7b59f379ca06ea64 Convert sync calls in contactsChanged() to be async
+1558c8473715aee2d5151e4440aac82371154556 Convert sync calls in dataReset() to be async
+1803c5f10547d25efc868a467b4168f9c29d8532 Convert sync calls in contactsAdded() to be async
+99a770b4d405076a3b6fee42aedac2eb0b36b0c1 Large refactoring of SeasideSyncModel.
+1a84302c2e890ed2c1515854ef771469c0d0b1d0 Remove SeasideListModel - this is no longer in use
+73521fe4df422bf9d7fd5ab2f868b11d64419e7d This approach is incompatible with QContactFavorite, and makes applications less portable to/from M
+9d830ca60103298063ce066c3d18e686c8901e25 Convert sync calls in deletePerson() to be async
+b70810dee5a8fcc849b875c588414f75d8902211 Convert sync calls in setAvatar() to be async
+91702a52330c36155c6a4bb0244e46561e0eacf8 Convert sync calls in updatePerson() to be async
+899a06a3f275e1ccd1fb51d92b1c13af951bd056 Convert sync calls in createMeCard() to be async
+3a2647b8182f9bfbcd502add76cb7e4fb28b3920 Convert synchronous meCard creation to be async
+8866398467f1fd055b7042e336adc1383c0eb8ef Convert sync meCard fetch to be an async fetch
+3c28bd302ebaa3eede67099498de98ed2d25ddc7 Convert sync calls in contactsChanged() to be async
+535583002b930f2851197fabcef2525d351ea6df Convert sync calls in dataReset() to be async
+fa37e2fc537429da56fda7ddac9331cc1aae2a7e Convert sync calls in contactsAdded() to be async
+
 Changes in 0.0.38
 
 b3e8 BMC#8426: Integrating build_against_new-qt-mobility.patch upstream Signed-off-by: Connie Berardi <connie.berardi@intel.com>

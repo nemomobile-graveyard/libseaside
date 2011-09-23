@@ -16,7 +16,6 @@
 #include <QContact>
 #include <QtDebug>
 
-class SeasidelListModel;
 class SeasideProxyModel;
 
 using namespace QtMobility;

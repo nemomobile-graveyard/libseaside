@@ -31,9 +31,9 @@ HEADERS += \
     src/seasidelist.h \
     src/seasidelistitem.h \
     src/seasidelistitembase.h \
-    src/seasidelistmodel.h \
     src/seasideproxymodel.h \
     src/seasidesyncmodel.h  \
+    src/seasidesyncmodel_p.h  \
     src/seasidedetailview.h \
     src/seasidecommspage.h \
     src/seasideeditview.h \
@@ -49,10 +49,10 @@ SOURCES += \
     src/seasidelist.cpp \
     src/seasidelistitem.cpp \
     src/seasidelistitembase.cpp \
-    src/seasidelistmodel.cpp \
     src/seasidepersonmodel.cpp \
     src/seasideproxymodel.cpp \
     src/seasidesyncmodel.cpp \
+    src/seasidesyncmodel_p.cpp \
     src/seasidedetailview.cpp \
     src/seasidecommspage.cpp \
     src/seasideeditview.cpp \
