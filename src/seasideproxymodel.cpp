@@ -1,40 +1,62 @@
 /*
- * libseaside - Library that provides an interface to the Contacts application
- * Copyright © 2010, Intel Corporation.
+ * Copyright 2011 Intel Corporation.
+ * Copyright 2011 Robin Burchell
  *
  * This program is licensed under the terms and conditions of the
- * Apache License, version 2.0.  The full text of the Apache License is at
+ * Apache License, version 2.0.  The full text of the Apache License is at 	
  * http://www.apache.org/licenses/LICENSE-2.0
- *
  */
 
 #include <QDebug>
 
 #include <QStringList>
+#include <QFileSystemWatcher>
 
 #include "seasideproxymodel.h"
-#include "seasidesyncmodel.h"
-#include "seaside.h"
+#include "settingsdatastore_p.h"
+#include "localeutils_p.h"
 
 class SeasideProxyModelPriv
 {
 public:
     SeasideProxyModel::FilterType filterType;
-    SeasideProxyModel::SortType sortType;
+    SeasidePeopleModel::PeopleRoles sortType;
+    SeasidePeopleModel::PeopleRoles displayType;
+    SettingsDataStore *settings;
+    LocaleUtils *localeHelper;
+    QFileSystemWatcher *settingsFileWatcher;
 };
 
-SeasideProxyModel::SeasideProxyModel()
+SeasideProxyModel::SeasideProxyModel(QObject *parent)
 {
+    Q_UNUSED(parent);
     priv = new SeasideProxyModelPriv;
     priv->filterType = FilterAll;
-    priv->sortType = SortName;
+    priv->settings = SettingsDataStore::self();
+    priv->localeHelper = LocaleUtils::self();
     setDynamicSortFilter(true);
     setFilterKeyColumn(-1);
+
+    priv->settingsFileWatcher = new QFileSystemWatcher(this);
+    priv->settingsFileWatcher->addPath(priv->settings->getSettingsStoreFileName());
+    connect(priv->settingsFileWatcher, SIGNAL(fileChanged(QString)),
+            this, SLOT(readSettings()));
+
+    readSettings();
 }
 
 SeasideProxyModel::~SeasideProxyModel()
 {
     delete priv;
+}
+
+void SeasideProxyModel::readSettings() 
+{
+    priv->settings->syncDataStore();
+    setSortType((SeasidePeopleModel::PeopleRoles) priv->settings->getSortOrder());
+
+    priv->settings->getDisplayOrder();
+    setDisplayType((SeasidePeopleModel::PeopleRoles) priv->settings->getDisplayOrder());
 }
 
 void SeasideProxyModel::setFilter(FilterType filter)
@@ -43,67 +65,143 @@ void SeasideProxyModel::setFilter(FilterType filter)
     invalidateFilter();
 }
 
-void SeasideProxyModel::setSortType(SortType sortType)
+void SeasideProxyModel::setSortType(SeasidePeopleModel::PeopleRoles sortType)
 {
     priv->sortType = sortType;
-    if (priv->sortType == SortRecent)
-        sort(Seaside::ColumnCommTimestamp, Qt::DescendingOrder);
-    else
-        sort(Seaside::ColumnFirstName, Qt::AscendingOrder);
+    setSortRole(sortType);
+
+    SeasidePeopleModel *model = dynamic_cast<SeasidePeopleModel *>(sourceModel());
+    if (model)
+        model->setSorting(sortType);
+
+    reset(); //Clear the current sort method and then re-sort
+    sort(0, Qt::AscendingOrder);
+}
+
+void SeasideProxyModel::setDisplayType(SeasidePeopleModel::PeopleRoles displayType)
+{
+    priv->displayType = displayType;
+}
+
+void SeasideProxyModel::setModel(SeasidePeopleModel *model)
+{
+    setSourceModel(model);
+    readSettings();
+}
+
+int SeasideProxyModel::getSourceRow(int row)
+{
+    return mapToSource(index(row, 0)).row();
 }
 
 bool SeasideProxyModel::filterAcceptsRow(int source_row,
-                                         const QModelIndex& source_parent) const
+                                  const QModelIndex& source_parent) const
 {
     // TODO: add communication history
-
-    if (!QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent))
-        return false;
+    //if (!QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent))
+    //    return false;
 
     if (priv->filterType == FilterAll)
         return true;
 
-    SeasideSyncModel *model = dynamic_cast<SeasideSyncModel *>(sourceModel());
+    SeasidePeopleModel *model = dynamic_cast<SeasidePeopleModel *>(sourceModel());
     if (!model)
         return true;
 
-    QContact *contact = model->contact(source_row);
-
-    if (priv->filterType == FilterRecent) {
-        QDateTime cutoff = QDateTime::currentDateTime();
-        cutoff = cutoff.addDays(-30);
-        const QDateTime& dt = Seaside::contactCommTimestamp(contact);
-        return dt.isValid() && (dt > cutoff);
-    }
-    else if (priv->filterType == FilterFavorites) {
-        SEASIDE_SHORTCUTS;
-        SEASIDE_SET_MODEL_AND_ROW(model, source_row);
-        return SEASIDE_FIELD(Favorite, Bool);
+    if (priv->filterType == FilterFavorites) {
+        QModelIndex modelIndex = sourceModel()->index(source_row, 0, source_parent);
+        //return model->index(source_row, SeasidePeopleModel::FavoriteRole).data(DataRole);
+        return (model->data(modelIndex, SeasidePeopleModel::FavoriteRole) == "Favorite");
     }
     else {
-        qWarning() << "[ProxyModel] invalid filter type";
+        qWarning() << "[SeasideProxyModel] invalid filter type";
         return true;
     }
 }
 
-bool SeasideProxyModel::lessThan(const QModelIndex& left,
-                                 const QModelIndex& right) const
-{
+QString SeasideProxyModel::findString(int row, SeasidePeopleModel *model,
+                               SeasideProxyModel::StringType strType = SeasideProxyModel::Primary) const {
+    QString lStr = QString("");
 
-    SeasideSyncModel *model = dynamic_cast<SeasideSyncModel *>(sourceModel());
+    if ((priv->sortType != SeasidePeopleModel::FirstNameRole)
+        && (priv->sortType != SeasidePeopleModel::LastNameRole))
+        return lStr;
+
+    int searchRole = SeasidePeopleModel::FirstNameRole;
+    int secondaryRole = SeasidePeopleModel::LastNameRole;
+
+    if (priv->sortType == SeasidePeopleModel::LastNameRole) {
+        if (priv->localeHelper->needPronounciationFields()) {
+            searchRole = SeasidePeopleModel::LastNameProRole;
+            secondaryRole = SeasidePeopleModel::FirstNameProRole;
+        } else {
+            searchRole = SeasidePeopleModel::LastNameRole;
+            secondaryRole = SeasidePeopleModel::FirstNameRole;
+        }
+    } else {
+        if (priv->localeHelper->needPronounciationFields()) {
+            searchRole = SeasidePeopleModel::FirstNameProRole;
+            secondaryRole = SeasidePeopleModel::LastNameProRole;
+        }
+    }
+
+    bool primaryFound = false;
+    QList<int> roleOrder;
+    roleOrder << searchRole << secondaryRole
+              << SeasidePeopleModel::CompanyNameRole
+              << SeasidePeopleModel::PhoneNumberRole
+              << SeasidePeopleModel::OnlineAccountUriRole
+              << SeasidePeopleModel::EmailAddressRole
+              << SeasidePeopleModel::WebUrlRole;
+
+    for (int i = 0; i < roleOrder.size(); ++i) {
+        lStr = model->data(row, roleOrder.at(i)).toString();
+
+        if (!lStr.isEmpty()) {
+            if ((strType == SeasideProxyModel::Secondary) && (!primaryFound))
+                primaryFound = true;
+            else
+                return lStr;
+        }
+
+        if (priv->localeHelper->needPronounciationFields()) {
+            if (roleOrder.at(i) == SeasidePeopleModel::FirstNameProRole)
+                lStr = model->data(row, SeasidePeopleModel::FirstNameRole).toString();
+            else if (roleOrder.at(i) == SeasidePeopleModel::LastNameProRole)
+                lStr = model->data(row, SeasidePeopleModel::LastNameRole).toString();
+
+            if (!lStr.isEmpty()) {
+                if ((strType == SeasideProxyModel::Secondary) && (!primaryFound))
+                    primaryFound = true;
+                else
+                    return lStr;
+            }
+        }
+
+    }
+
+    lStr = QString("");
+    return lStr;
+}
+
+bool SeasideProxyModel::lessThan(const QModelIndex& left,
+                          const QModelIndex& right) const
+{
+    SeasidePeopleModel *model = dynamic_cast<SeasidePeopleModel *>(sourceModel());
     if (!model)
         return true;
 
-    SEASIDE_SHORTCUTS;
-    SEASIDE_SET_MODEL_AND_ROW(model, left.row());
-    const QString& lStr = SEASIDE_FIELD(FirstName, String);
-    const bool isleftSelf = SEASIDE_FIELD(isSelf, Bool);
+    // TODO: this should not be here
+    qDebug("fastscroll: emitting countChanged");
+    emit const_cast<SeasideProxyModel*>(this)->countChanged();
 
-    SEASIDE_SET_MODEL_AND_ROW(model, right.row());
-    const QString& rStr = SEASIDE_FIELD(FirstName, String);
-    const bool isrightSelf = SEASIDE_FIELD(isSelf, Bool);
+    int leftRow = left.row();
+    int rightRow = right.row();
 
-    //qWarning() << "[ProxyModel] lessThan isSelf left" << isleftSelf << " right" << isrightSelf;
+    const bool isleftSelf = model->data(leftRow, SeasidePeopleModel::IsSelfRole).toBool();
+    const bool isrightSelf = model->data(rightRow, SeasidePeopleModel::IsSelfRole).toBool();
+
+    //qWarning() << "[SeasideProxyModel] lessThan isSelf left" << isleftSelf << " right" << isrightSelf;
 
     //MeCard should always be top of the list
     if(isleftSelf)
@@ -111,14 +209,50 @@ bool SeasideProxyModel::lessThan(const QModelIndex& left,
     if(isrightSelf)
         return false;
 
-    if (priv->sortType == SortName) {
-      //qWarning() << "[ProxyModel] lessThan " << lStr << "VS" << rStr;
-        return QString::localeAwareCompare(lStr, rStr) < 0;
+    QString lStr = findString(leftRow, model);
+    QString rStr = findString(rightRow, model);
+
+    //qWarning() << "[SeasideProxyModel] lessThan " << lStr << "VS" << rStr;
+
+    if (lStr.isEmpty())
+        return false;
+    else if (rStr.isEmpty())
+        return true;
+
+    if (!priv->localeHelper->checkForAlphaChar(lStr))
+        return false;
+    if (!priv->localeHelper->checkForAlphaChar(rStr))
+        return true;
+
+    if (priv->localeHelper->compare(lStr, rStr) == 0) {
+        lStr += findString(leftRow, model, SeasideProxyModel::Secondary);
+        rStr += findString(rightRow, model, SeasideProxyModel::Secondary);
+        return priv->localeHelper->isLessThan(lStr, rStr);
     }
-    else if (priv->sortType == SortRecent) {
-        const QDateTime& lDate = left.data(Seaside::DataRole).toDateTime();
-        const QDateTime& rDate = right.data(Seaside::DataRole).toDateTime();
-        return lDate < rDate;
-    }
-    return false;
+
+    return priv->localeHelper->isLessThan(lStr, rStr);
 }
+
+// needed for fastscroll
+int SeasideProxyModel::count() const
+{
+    return rowCount(QModelIndex());
+}
+
+// needed for fastscroll
+QVariantMap SeasideProxyModel::get(int row)
+{
+    QVariantMap listElement;
+    listElement["firstcharacter"] = "?";
+
+    if (row < 0 || row > count())
+        return listElement;
+
+    listElement["firstcharacter"] = data(index(row, 0),
+            SeasidePeopleModel::FirstCharacterRole).toString();
+    qDebug() << "fastscroll: " << listElement;
+//    listElement["section"] = QVariantMap(QString("firstcharacter"), data(index(row, 0)));
+    return listElement;
+}
+
+

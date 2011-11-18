@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef PEOPLEMODEL_P_H
-#define PEOPLEMODEL_P_H
+#ifndef SEASIDEPEOPLEMODEL_P_H
+#define SEASIDEPEOPLEMODEL_P_H
 
 #include <QObject>
 #include <QVector>
@@ -17,10 +17,10 @@
 #include <QSettings>
 #include <QContactGuid>
 
-#include "peoplemodel.h"
-#include "localeutils.h"
+#include "seasidepeoplemodel.h"
+#include "localeutils_p.h"
 
-class PeopleModelPriv : public QObject
+class SeasidePeopleModelPriv : public QObject
 {
     Q_OBJECT
 public:
@@ -44,9 +44,9 @@ public:
     LocaleUtils *localeHelper;
     QContactGuid currentGuid;
 
-    explicit PeopleModelPriv(PeopleModel* /*parent*/){}
+    explicit SeasidePeopleModelPriv(SeasidePeopleModel* /*parent*/){}
 
-    virtual ~PeopleModelPriv()
+    virtual ~SeasidePeopleModelPriv()
     {
         delete manager;
         delete settings;
@@ -55,7 +55,7 @@ public:
     QList<QContact> contactsPendingSave;
 
 private:
-    Q_DISABLE_COPY(PeopleModelPriv);
+    Q_DISABLE_COPY(SeasidePeopleModelPriv);
 };
 
-#endif // PEOPLEMODEL_P_H
+#endif // SEASIDEPEOPLEMODEL_P_H

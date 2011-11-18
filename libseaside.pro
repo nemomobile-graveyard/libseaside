@@ -13,7 +13,7 @@ MGEN_OUTDIR = .gen
 DEPENDPATH += .
 INCLUDEPATH += ./src
 CONFIG += mobility qt debug link_pkgconfig
-MOBILITY += contacts
+MOBILITY += contacts versit
 SUBDIRS += tests
 
 HEADERS += \
@@ -22,19 +22,25 @@ HEADERS += \
     src/seaside.h \
     src/seasidedetail.h \
     src/seasideproxymodel.h \
-    src/seasidesyncmodel.h  \
-    src/seasidesyncmodel_p.h
+    src/seasidepeoplemodel.h
+
 SOURCES += \
     src/seaside.cpp \
     src/seasidedetail.cpp \
     src/seasideproxymodel.cpp \
-    src/seasidesyncmodel.cpp \
-    src/seasidesyncmodel_p.cpp
+    src/seasidepeoplemodel.cpp \
+    src/settingsdatastore.cpp \
+    src/localeutils.cpp
 
 target.path=$$LIBDIR
 
 headers.files = $$HEADERS
 headers.path = $$INCLUDEDIR
+
+# private headers
+HEADERS += src/seasidepeoplemodel_p.h \
+           src/settingsdatastore_p.h \
+           src/localeutils_p.h
 
 INSTALLS += \
     target \
