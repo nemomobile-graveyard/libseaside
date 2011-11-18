@@ -35,9 +35,6 @@ public:
     QMap<QUuid, QContactLocalId> uuidToId;
     QMap<QContactLocalId, QUuid> idToUuid;
 
-    QVersitWriter writer;
-    QVersitReader reader;
-
     QVector<QStringList> data;
     QStringList headers;
     QSettings *settings;

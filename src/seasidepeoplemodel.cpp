@@ -28,8 +28,6 @@
 #include <QContactPresence>
 #include <QSettings>
 #include <QContactDetailFilter>
-#include <QVersitContactExporter>
-#include <QVersitReader>
 #include <QContactLocalIdFilter>
 #include <QContactManagerEngine>
 #include <QFile>
@@ -97,8 +95,6 @@ SeasidePeopleModel::SeasidePeopleModel(QObject *parent)
     connect(priv->manager, SIGNAL(contactsRemoved(QList<QContactLocalId>)),
             this, SLOT(contactsRemoved(QList<QContactLocalId>)));
     connect(priv->manager, SIGNAL(dataChanged()), this, SLOT(dataReset()));
-    connect(&priv->writer, SIGNAL(stateChanged(QVersitWriter::State)),
-            this, SLOT(vCardFinished(QVersitWriter::State)));
 
     dataReset();
 }
@@ -1106,6 +1102,9 @@ void SeasidePeopleModel::toggleFavorite(const QString& uuid)
     queueContactSave(contact);
 }
 
+#if 0
+// TODO: can't have the slot on public API, so disabled until we split to a
+// private class
 void SeasidePeopleModel::exportContact(QString uuid,  QString filename){
     QVersitContactExporter exporter;
     QList<QContact> contacts;
@@ -1132,12 +1131,14 @@ void SeasidePeopleModel::exportContact(QString uuid,  QString filename){
     }
 }
 
-void SeasidePeopleModel::vCardFinished(QVersitWriter::State state){
+void SeasidePeopleModel::vCardFinished(QVersitWriter::State state)
+{
     if(state == QVersitWriter::FinishedState || state == QVersitWriter::CanceledState){
         delete priv->writer.device();
         priv->writer.setDevice(0);
     }
 }
+#endif
 
 void SeasidePeopleModel::setSorting(int role){
     QContactSortOrder sort;

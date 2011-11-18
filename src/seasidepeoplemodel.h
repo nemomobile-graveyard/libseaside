@@ -9,8 +9,6 @@
 #ifndef SEASIDEPEOPLEMODEL_H
 #define SEASIDEPEOPLEMODEL_H
 
-#include <QVersitReader>
-#include <QVersitWriter>
 #include <QProcess>
 #include <QAbstractListModel>
 
@@ -104,8 +102,6 @@ public:
         QProcess::startDetached (cmd);
     }
 
-    Q_INVOKABLE void exportContact(QString uuid, QString filename);
-
     Q_INVOKABLE void setCurrentUuid(const QString& uuid);
     QString currentUuid();
 
@@ -138,7 +134,6 @@ private slots:
     void dataReset();
     void savePendingContacts();
     void createMeCard(QContact me = QContact());
-    void vCardFinished(QVersitWriter::State state);
 
 private:
     SeasidePeopleModelPriv *priv;
