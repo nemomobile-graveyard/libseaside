@@ -36,7 +36,7 @@ public:
     };
 
     enum PeopleRoles{
-        ContactRole = Qt::UserRole + 500,
+        ContactRole = Qt::UserRole + 400,
         FirstNameRole, //533
         FirstNameProRole,
         LastNameRole,
@@ -65,7 +65,8 @@ public:
         WebUrlRole,
         WebContextRole,
         NotesRole,
-        FirstCharacterRole
+        FirstCharacterRole,
+        DisplayLabelRole
     };
 
     //From QAbstractListModel

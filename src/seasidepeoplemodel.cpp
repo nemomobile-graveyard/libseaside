@@ -43,6 +43,7 @@ SeasidePeopleModel::SeasidePeopleModel(QObject *parent)
     roles.insert(FirstNameRole, "firstname");
     roles.insert(FirstCharacterRole, "firstcharacter");
     roles.insert(LastNameRole, "lastname");
+    roles.insert(DisplayLabelRole, "displaylabel");
     setRoleNames(roles);
 
     priv = new SeasidePeopleModelPriv(this);
@@ -476,21 +477,18 @@ QVariant SeasidePeopleModel::data(int row, int role) const
         if (isSelfContact(contact.id().localId()))
             return QString(tr("#"));
 
+        qDebug() << data(row, DisplayLabelRole);
+        return priv->localeHelper->getBinForString(data(row,
+                    DisplayLabelRole).toString());
+    }
+    case DisplayLabelRole: {
         //REVISIT: Move this or parts of this to localeutils.cpp
+        QString displayLabel;
         QContactName name = contact.detail<QContactName>();
         QString nameStr1;
         QString nameStr2;
         if ((priv->sortOrder.isEmpty()) ||
            (priv->sortOrder.at(0).detailFieldName() == QContactName::FieldFirstName)) {
-            if (priv->localeHelper->needPronounciationFields()) {
-                QContactNickname nickname = contact.detail<QContactNickname>();
-                QStringList list = nickname.nickname().split("\n");
-                if (list.size() > 1)
-                    nameStr1 = list.at(1);
-                if (list.size() > 0)
-                    nameStr2 = list.at(0);
-            }
-
             if (nameStr1 == "")
                 nameStr1 = name.firstName();
             if (nameStr2 == "")
@@ -498,15 +496,6 @@ QVariant SeasidePeopleModel::data(int row, int role) const
         }
 
         if (priv->sortOrder.at(0).detailFieldName() == QContactName::FieldLastName) {
-            if (priv->localeHelper->needPronounciationFields()) {
-                QContactNickname nickname = contact.detail<QContactNickname>();
-                QStringList list = nickname.nickname().split("\n");
-                if (list.size() > 0)
-                    nameStr1 = list.at(0);
-                if (list.size() > 1)
-                    nameStr2 = list.at(1);
-            }
-
             if (nameStr1 == "")
                 nameStr1 = name.lastName();
             if (nameStr2 == "")
@@ -514,39 +503,39 @@ QVariant SeasidePeopleModel::data(int row, int role) const
         }
 
         if (!nameStr1.isNull())
-            return priv->localeHelper->getBinForString(nameStr1);
+            displayLabel.append(nameStr1);
 
-        if (!nameStr2.isNull())
-            return priv->localeHelper->getBinForString(nameStr2);
+        if (!nameStr2.isNull()) {
+            if (!displayLabel.isEmpty())
+                displayLabel.append(" ");
+            displayLabel.append(nameStr2);
+        }
 
-        QContactOrganization company = contact.detail<QContactOrganization>();
-        if (!company.name().isNull())
-            return priv->localeHelper->getBinForString(company.name());
+        if (!displayLabel.isEmpty())
+            return displayLabel;
 
-        foreach (const QContactPhoneNumber& phone,
-                 contact.details<QContactPhoneNumber>()){
+        foreach (const QContactPhoneNumber& phone, contact.details<QContactPhoneNumber>()) {
             if(!phone.number().isNull())
-                return priv->localeHelper->getBinForString(phone.number());
+                return phone.number();
         }
 
         foreach (const QContactOnlineAccount& account,
                  contact.details<QContactOnlineAccount>()){
             if(!account.accountUri().isNull())
-                return priv->localeHelper->getBinForString(account.accountUri());
+                return account.accountUri();
         }
 
         foreach (const QContactEmailAddress& email,
                  contact.details<QContactEmailAddress>()){
             if(!email.emailAddress().isNull())
-                return priv->localeHelper->getBinForString(email.emailAddress());
+                return email.emailAddress();
         }
 
-        foreach (const QContactUrl &url, contact.details<QContactUrl>()){
-            if (!url.isEmpty())
-                return priv->localeHelper->getBinForString(url.url());
-        }
+        QContactOrganization company = contact.detail<QContactOrganization>();
+        if (!company.name().isNull())
+            return company.name();
 
-        return priv->localeHelper->getBinForString(QString(""));
+        return "(unnamed)"; // TODO: localisation
     }
 
     default:
