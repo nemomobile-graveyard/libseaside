@@ -477,7 +477,6 @@ QVariant SeasidePeopleModel::data(int row, int role) const
         if (isSelfContact(contact.id().localId()))
             return QString(tr("#"));
 
-        qDebug() << data(row, DisplayLabelRole);
         return priv->localeHelper->getBinForString(data(row,
                     DisplayLabelRole).toString());
     }
