@@ -22,7 +22,8 @@ HEADERS += \
     src/seaside.h \
     src/seasidedetail.h \
     src/seasideproxymodel.h \
-    src/seasidepeoplemodel.h
+    src/seasidepeoplemodel.h \
+    src/localeutils_p.h
 
 SOURCES += \
     src/seaside.cpp \
@@ -39,8 +40,7 @@ headers.path = $$INCLUDEDIR
 
 # private headers
 HEADERS += src/seasidepeoplemodel_p.h \
-           src/settingsdatastore_p.h \
-           src/localeutils_p.h
+           src/settingsdatastore_p.h
 
 INSTALLS += \
     target \
