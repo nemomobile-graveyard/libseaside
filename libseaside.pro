@@ -1,4 +1,4 @@
-VERSION = 0.0.42
+VERSION = 0.1.0
 
 unix{
     PREFIX=/usr
