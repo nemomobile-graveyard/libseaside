@@ -796,13 +796,15 @@ bool SeasidePeopleModel::createPersonModel(QString avatarUrl, QString thumbUrl, 
 {
     QContact contact;
 
-    QContactGuid guid;
-    guid.setGuid(QUuid::createUuid());
-    contact.saveDetail(&guid);
+//    QContactGuid guid;
+//    guid.setGuid(QUuid::createUuid());
+//    contact.saveDetail(&guid);
 
-    QContactAvatar avatar;
-    avatar.setImageUrl(avatarUrl);
-    contact.saveDetail(&avatar);
+    if (!avatarUrl.isEmpty()) {
+        QContactAvatar avatar;
+        avatar.setImageUrl(avatarUrl);
+        contact.saveDetail(&avatar);
+    }
 
     if (!QUrl(thumbUrl).path().isNull()) {
         QContactThumbnail thumb;
@@ -827,9 +829,11 @@ bool SeasidePeopleModel::createPersonModel(QString avatarUrl, QString thumbUrl, 
         contact.saveDetail(&nickname);
     }
 
-    QContactOrganization company;
-    company.setName(companyname);
-    contact.saveDetail(&company);
+    if (!companyname.isEmpty()) {
+        QContactOrganization company;
+        company.setName(companyname);
+        contact.saveDetail(&company);
+    }
 
     for(int i=0; i < phonenumbers.size(); i++){
         QContactPhoneNumber phone;
@@ -843,9 +847,11 @@ bool SeasidePeopleModel::createPersonModel(QString avatarUrl, QString thumbUrl, 
         contact.saveDetail(&phone);
     }
 
-    QContactFavorite fav;
-    fav.setFavorite(favorite);
-    contact.saveDetail(&fav);
+    if (favorite) {
+        QContactFavorite fav;
+        fav.setFavorite(favorite);
+        contact.saveDetail(&fav);
+    }
 
     for(int i =0; i < accounturis.size(); i++){
         QContactOnlineAccount account;
@@ -880,15 +886,17 @@ bool SeasidePeopleModel::createPersonModel(QString avatarUrl, QString thumbUrl, 
         contact.saveDetail(&url);
     }
 
-    QContactBirthday birthdate;
-    if(!birthday.isNull()){
+    if (!birthday.isNull()){
+        QContactBirthday birthdate;
         birthdate.setDate(birthday);
         contact.saveDetail(&birthdate);
     }
 
-    QContactNote note;
-    note.setNote(notetext);
-    contact.saveDetail(&note);
+    if (!notetext.isEmpty()) {
+        QContactNote note;
+        note.setNote(notetext);
+        contact.saveDetail(&note);
+    }
 
     queueContactSave(contact);
 
