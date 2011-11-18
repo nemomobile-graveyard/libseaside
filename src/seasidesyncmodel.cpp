@@ -29,13 +29,10 @@
 #include <QContactLocalIdFilter>
 #include <QContactManagerEngine>
 
-#include <MTheme>
-
 #include "seasidesyncmodel.h"
 #include "seasidesyncmodel_p.h"
 #include "seaside.h"
 #include "seasidedetail.h"
-#include "seasidepersonmodel.h"
 
 SeasideSyncModel *SeasideSyncModelPriv::theSyncModel = NULL;
 int SeasideSyncModelPriv::theRefCount = 0;
@@ -74,8 +71,6 @@ void SeasideSyncModel::releaseInstance()
 SeasideSyncModel::SeasideSyncModel()
     : priv(new SeasideSyncModelPriv(this))
 {
-    // FIXME: temporary hack to provide images to dialer and sms
-    MTheme::addPixmapDirectory(IMAGES_DIR);
 }
 
 QModelIndex SeasideSyncModel::getModelIndex(QContactLocalId id){
@@ -493,8 +488,10 @@ void SeasideSyncModel::addContacts(const QList<QContact> contactsList,
     }
 }
 
+// FIXME
 SeasidePersonModel *SeasideSyncModel::createPersonModel(const QModelIndex& index)
 {
+#if 0
     SeasidePersonModel *model = new SeasidePersonModel;
 
     if (!index.isValid())
@@ -591,6 +588,7 @@ SeasidePersonModel *SeasideSyncModel::createPersonModel(const QModelIndex& index
     model->setisSelf(SEASIDE_FIELD(isSelf, Bool));
 
     return model;
+#endif
 }
 
 SeasidePersonModel *SeasideSyncModel::createPersonModel(const QUuid& uuid)
@@ -626,8 +624,10 @@ void SeasideSyncModel::updatePerson(const QContact *contact)
     priv->queueContactSave(*contact);
 }
 
+// FIXME
 void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
 {
+#if 0
     QContactLocalId id = priv->uuidToId[newModel->uuid()];
     QContact contact = QContact();
 
@@ -808,6 +808,7 @@ void SeasideSyncModel::updatePerson(const SeasidePersonModel *newModel)
 
     priv->queueContactSave(contact);
     delete oldModel;
+#endif
 }
 
 void SeasideSyncModel::setAvatar(const QUuid& uuid, const QString& path)

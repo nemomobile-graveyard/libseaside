@@ -27,9 +27,6 @@
 #include "seaside.h"
 #include "seasidedetail.h"
 
-#include <mlibrary.h>
-M_LIBRARY
-
 QString Seaside::contactName(const QContact *contact)
 {
     QContactName name = contact->detail<QContactName>();
