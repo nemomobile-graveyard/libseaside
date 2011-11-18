@@ -23,6 +23,7 @@ HEADERS += \
     src/seasidedetail.h \
     src/seasideproxymodel.h \
     src/seasidepeoplemodel.h \
+    src/seasideperson.h \
     src/localeutils_p.h
 
 SOURCES += \
@@ -30,6 +31,8 @@ SOURCES += \
     src/seasidedetail.cpp \
     src/seasideproxymodel.cpp \
     src/seasidepeoplemodel.cpp \
+    src/seasidepeoplemodel_p.cpp \
+    src/seasideperson.cpp \
     src/settingsdatastore.cpp \
     src/localeutils.cpp
 

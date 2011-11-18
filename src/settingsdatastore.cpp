@@ -58,7 +58,7 @@ void SettingsDataStore::syncDataStore()
 
 int SettingsDataStore::getSortOrder() const
 {
-    return mSettings.value("SortOrder", SeasidePeopleModel::FirstNameRole).toInt();
+//    return mSettings.value("SortOrder", SeasidePeopleModel::FirstNameRole).toInt();
 }
 
 void SettingsDataStore::setSortOrder(int orderType)
@@ -69,7 +69,7 @@ void SettingsDataStore::setSortOrder(int orderType)
 
 int SettingsDataStore::getDisplayOrder() const
 {
-    return mSettings.value("DisplayOrder", SeasidePeopleModel::FirstNameRole).toInt();
+//   return mSettings.value("DisplayOrder", SeasidePeopleModel::FirstNameRole).toInt();
 }
 
 void SettingsDataStore::setDisplayOrder(int orderType)

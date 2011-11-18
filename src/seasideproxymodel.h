@@ -34,8 +34,6 @@ public:
     };
 
     Q_INVOKABLE virtual void setFilter(FilterType filter);
-    Q_INVOKABLE virtual void setSortType(SeasidePeopleModel::PeopleRoles sortType);
-    Q_INVOKABLE virtual void setDisplayType(SeasidePeopleModel::PeopleRoles displayType);
     Q_INVOKABLE void setModel(SeasidePeopleModel *model);
     Q_INVOKABLE int getSourceRow(int row);
 
@@ -53,7 +51,6 @@ protected:
 
 private slots:
     void readSettings();
-    QString findString(int row, SeasidePeopleModel *model, SeasideProxyModel::StringType) const;
 
 private:
     SeasideProxyModelPriv *priv;

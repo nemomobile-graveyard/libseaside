@@ -24,32 +24,48 @@ class SeasidePeopleModelPriv : public QObject
 {
     Q_OBJECT
 public:
-
-    QContactManager *manager;
-    QContactFetchHint currentFetchHint;
-    QList<QContactSortOrder> sortOrder;
-    QContactFilter currentFilter;
-    QList<QContactLocalId> contactIds;
-    QMap<QContactLocalId, int> idToIndex;
-    QMap<QContactLocalId, QContact> idToContact;
-    QMap<QUuid, QContactLocalId> uuidToId;
-    QMap<QContactLocalId, QUuid> idToUuid;
-
-    QVector<QStringList> data;
-    QStringList headers;
-    QSettings *settings;
-    LocaleUtils *localeHelper;
-    QContactGuid currentGuid;
-
-    explicit SeasidePeopleModelPriv(SeasidePeopleModel* /*parent*/){}
-
+    explicit SeasidePeopleModelPriv(SeasidePeopleModel *parent);
     virtual ~SeasidePeopleModelPriv()
     {
         delete manager;
         delete settings;
     }
 
+    SeasidePeopleModel *q;
+    QContactManager *manager;
+    QContactFetchHint currentFetchHint;
+    QList<QContactSortOrder> sortOrder;
+    QContactFilter currentFilter;
+    QList<QContactLocalId> contactIds;
+    QMap<QContactLocalId, int> idToIndex;
+    QMap<QContactLocalId, SeasidePerson *> idToContact;
+    QVector<QStringList> data;
+    QStringList headers;
+    QSettings *settings;
+    LocaleUtils *localeHelper;
+    QContactGuid currentGuid;
     QList<QContact> contactsPendingSave;
+
+
+    void addContacts(const QList<QContact> contactsList, int size);
+    void fixIndexMap();
+
+public slots:
+    void dataReset();
+    void savePendingContacts();
+
+private slots:
+    void onSaveStateChanged(QContactAbstractRequest::State requestState);
+    void onRemoveStateChanged(QContactAbstractRequest::State requestState);
+    void onDataResetFetchChanged(QContactAbstractRequest::State requestState);
+    void onAddedFetchChanged(QContactAbstractRequest::State requestState);
+    void onChangedFetchChanged(QContactAbstractRequest::State requestState);
+
+    void contactsAdded(const QList<QContactLocalId>& contactIds);
+    void contactsChanged(const QList<QContactLocalId>& contactIds);
+    void contactsRemoved(const QList<QContactLocalId>& contactIds);
+
+
 
 private:
     Q_DISABLE_COPY(SeasidePeopleModelPriv);

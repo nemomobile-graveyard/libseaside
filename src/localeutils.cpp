@@ -62,9 +62,10 @@ int LocaleUtils::defaultValues(QString type) const
         case QLocale::Norway:
         case QLocale::Hungary:
         case QLocale::France:
-            return SeasidePeopleModel::LastNameRole;
+//            return SeasidePeopleModel::LastNameRole;
         default:
-            return SeasidePeopleModel::FirstNameRole;
+//            return SeasidePeopleModel::FirstNameRole;
+            break;
     }
 }
 
