@@ -115,6 +115,7 @@ void SeasidePeopleModelPriv::onSaveStateChanged(QContactAbstractRequest::State r
         return;
 
     QList<QContact> contactList = saveRequest->contacts();
+    QList<QContact> newContacts;
 
     foreach (const QContact &new_contact, contactList) {
         qDebug() << Q_FUNC_INFO << "Successfully saved " << new_contact.id();
@@ -122,7 +123,19 @@ void SeasidePeopleModelPriv::onSaveStateChanged(QContactAbstractRequest::State r
         // make sure data shown to user matches what is
         // really in the database
         QContactLocalId id = new_contact.localId();
-       idToContact[id]->setContact(new_contact);
+        SeasidePerson *person = q->personById(id);
+        if (person)
+            person->setContact(new_contact);
+        else
+            newContacts.append(new_contact);
+    }
+
+    int size = contactIds.size();
+
+    if (newContacts.size()) {
+        q->beginInsertRows(QModelIndex(), size, size + newContacts.size() - 1);
+        addContacts(newContacts, size);
+        q->endInsertRows();
     }
 
     saveRequest->deleteLater();
