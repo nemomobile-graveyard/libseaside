@@ -435,6 +435,46 @@ void SeasidePerson::setBirthday(const QString &birthday)
     emit birthdayChanged();
 }
 
+QStringList SeasidePerson::phoneNumbers() const
+{
+    QStringList list;
+
+    foreach (const QContactPhoneNumber& phone, mContact.details<QContactPhoneNumber>()) {
+        if (!phone.number().isEmpty())
+            list << phone.number();
+    }
+
+    qDebug() << Q_FUNC_INFO << "Returning " << list;
+    return list;
+}
+
+void SeasidePerson::setPhoneNumbers(const QStringList &phoneNumbers)
+{
+    const QList<QContactPhoneNumber> &oldNumbers = mContact.details<QContactPhoneNumber>();
+
+    if (oldNumbers.count() != phoneNumbers.count()) {
+        // this could probably be optimised, but it's easiest: we just remove
+        // all the old phone number details, and add new ones
+        foreach (QContactPhoneNumber phone, oldNumbers)
+            mContact.removeDetail(&phone);
+
+        foreach (const QString &number, phoneNumbers) {
+            QContactPhoneNumber phone;
+            phone.setNumber(number);
+            mContact.saveDetail(&phone);
+        }
+    } else {
+        // assign new numbers to the existing details.
+        for (int i = 0; i != phoneNumbers.count(); ++i) {
+            QContactPhoneNumber phone = oldNumbers.at(i);
+            phone.setNumber(phoneNumbers.at(i));
+            mContact.saveDetail(&phone);
+        }
+    }
+
+    emit phoneNumbersChanged();
+}
+
 QContact SeasidePerson::contact() const
 {
     return mContact;

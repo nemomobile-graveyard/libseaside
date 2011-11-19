@@ -48,6 +48,10 @@ public:
     QString birthday() const;
     void setBirthday(const QString &birthday);
 
+    Q_PROPERTY(QStringList phoneNumbers READ phoneNumbers WRITE setPhoneNumbers NOTIFY phoneNumbersChanged)
+    QStringList phoneNumbers() const;
+    void setPhoneNumbers(const QStringList &phoneNumbers);
+
     QContact contact() const;
     void setContact(const QContact &contact);
 
@@ -62,6 +66,7 @@ signals:
     void favoriteChanged();
     void avatarPathChanged();
     void birthdayChanged();
+    void phoneNumbersChanged();
 
 private:
     // TODO: private class
