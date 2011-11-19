@@ -21,6 +21,9 @@ public:
     explicit SeasidePerson(QObject *parent = 0);
     ~SeasidePerson();
 
+    Q_PROPERTY(int id READ id)
+    int id() const;
+
     Q_PROPERTY(QString firstName READ firstName WRITE setFirstName NOTIFY firstNameChanged)
     QString firstName() const;
     void setFirstName(const QString &name);

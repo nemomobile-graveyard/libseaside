@@ -39,7 +39,8 @@ public:
 
     //QML API
     Q_INVOKABLE bool savePerson(SeasidePerson *person);
-    Q_INVOKABLE SeasidePerson *person(int row) const;
+    Q_INVOKABLE SeasidePerson *personByRow(int row) const;
+    Q_INVOKABLE SeasidePerson *personById(int id) const;
     Q_INVOKABLE void deletePerson(SeasidePerson *person);
 
 private:

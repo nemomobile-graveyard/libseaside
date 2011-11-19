@@ -287,6 +287,12 @@ SeasidePerson::~SeasidePerson()
     emit contactRemoved();
 }
 
+// QT5: this needs to change type
+int SeasidePerson::id() const
+{
+    return mContact.id().localId();
+}
+
 QString SeasidePerson::firstName() const
 {
     QContactName nameDetail = mContact.detail<QContactName>();

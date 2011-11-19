@@ -79,13 +79,20 @@ bool SeasidePeopleModel::savePerson(SeasidePerson *person)
     return true;
 }
 
-SeasidePerson *SeasidePeopleModel::person(int row) const
+SeasidePerson *SeasidePeopleModel::personByRow(int row) const
 {
     if (row < 0 || row >= priv->contactIds.count())
         return 0;
 
    QContactLocalId id = priv->contactIds[row];
    return priv->idToContact[id];
+}
+
+SeasidePerson *SeasidePeopleModel::personById(int id) const
+{
+    // TODO: can this crash? probably
+    SeasidePerson *person = priv->idToContact.value(id);
+    return person;
 }
 
 void SeasidePeopleModel::deletePerson(SeasidePerson *person)
@@ -107,7 +114,7 @@ void SeasidePeopleModel::deletePerson(SeasidePerson *person)
 
 QVariant SeasidePeopleModel::data(const QModelIndex& index, int role) const
 {
-    SeasidePerson *aperson = person(index.row());
+    SeasidePerson *aperson = personByRow(index.row());
     if (!aperson)
         return QVariant();
 

@@ -89,7 +89,7 @@ bool SeasideProxyModel::filterAcceptsRow(int source_row,
 
     if (priv->filterType == FilterFavorites) {
         QModelIndex modelIndex = sourceModel()->index(source_row, 0, source_parent);
-        return model->person(modelIndex.row()) ? model->person(modelIndex.row())->favorite() : false;
+        return model->personByRow(modelIndex.row()) ? model->personByRow(modelIndex.row())->favorite() : false;
     } else {
         qWarning() << "[SeasideProxyModel] invalid filter type";
         return true;
@@ -107,8 +107,8 @@ bool SeasideProxyModel::lessThan(const QModelIndex& left,
     qDebug("fastscroll: emitting countChanged");
     emit const_cast<SeasideProxyModel*>(this)->countChanged();
 
-    SeasidePerson *leftPerson = model->person(left.row());
-    SeasidePerson *rightPerson = model->person(right.row());
+    SeasidePerson *leftPerson = model->personByRow(left.row());
+    SeasidePerson *rightPerson = model->personByRow(right.row());
 
     if (!leftPerson)
         return false;
@@ -134,7 +134,7 @@ QVariantMap SeasideProxyModel::get(int row)
     if (!model)
         return listElement;
 
-    SeasidePerson *person = model->person(row);
+    SeasidePerson *person = model->personByRow(row);
 
     listElement["firstcharacter"] = person->displayLabel().at(0); // TODO: won't be correct for localisation, also, this may need to be in SeasidePerson
     return listElement;
