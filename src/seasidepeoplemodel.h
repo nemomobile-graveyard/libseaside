@@ -38,6 +38,7 @@ public:
     QVariant data(const QModelIndex& index, int role) const;
 
     //QML API
+    Q_INVOKABLE SeasidePerson *newPerson();
     Q_INVOKABLE bool savePerson(SeasidePerson *person);
     Q_INVOKABLE SeasidePerson *personByRow(int row) const;
     Q_INVOKABLE SeasidePerson *personById(int id) const;

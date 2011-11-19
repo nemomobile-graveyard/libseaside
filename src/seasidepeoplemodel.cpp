@@ -55,6 +55,12 @@ int SeasidePeopleModel::rowCount(const QModelIndex& parent) const
     return priv->contactIds.size();
 }
 
+SeasidePerson *SeasidePeopleModel::newPerson()
+{
+    // TODO: does QML clean this up properly?
+    return new SeasidePerson;
+}
+
 bool SeasidePeopleModel::savePerson(SeasidePerson *person)
 {
     QContact contact = person->contact();
