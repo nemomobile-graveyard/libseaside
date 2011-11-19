@@ -15,6 +15,7 @@ INCLUDEPATH += ./src
 CONFIG += mobility qt debug link_pkgconfig
 MOBILITY += contacts versit
 SUBDIRS += tests
+LIBS += -licuuc -licui18n -lseaside
 
 HEADERS += \
     $$MODEL_HEADERS \
