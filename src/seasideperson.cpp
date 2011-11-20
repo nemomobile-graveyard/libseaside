@@ -417,7 +417,8 @@ void SeasidePerson::setFavorite(bool favorite)
 QString SeasidePerson::avatarPath() const
 {
     qDebug() << Q_FUNC_INFO << "STUB";
-    return QString("image://theme/meegotouch-avatar-placeholder-background");
+
+    return QString("image://theme/icon-m-telephony-contact-avatar");
 }
 
 void SeasidePerson::setAvatarPath(QString avatarPath)
