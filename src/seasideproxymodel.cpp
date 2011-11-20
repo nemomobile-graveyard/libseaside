@@ -66,6 +66,7 @@ void SeasideProxyModel::setModel(SeasidePeopleModel *model)
 {
     setSourceModel(model);
     readSettings();
+    sort(0, Qt::AscendingOrder);
 }
 
 int SeasideProxyModel::getSourceRow(int row)
