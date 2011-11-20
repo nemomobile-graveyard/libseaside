@@ -137,7 +137,8 @@ QVariantMap SeasideProxyModel::get(int row)
 
     SeasidePerson *person = model->personByRow(row);
 
-    listElement["firstcharacter"] = person->displayLabel().at(0); // TODO: won't be correct for localisation, also, this may need to be in SeasidePerson
+    listElement["firstcharacter"] = QString(person->displayLabel().at(0)); // TODO: won't be correct for localisation, also, this may need to be in SeasidePerson
+
     return listElement;
 }
 
