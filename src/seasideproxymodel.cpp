@@ -116,7 +116,10 @@ bool SeasideProxyModel::lessThan(const QModelIndex& left,
     else if (!rightPerson)
         return true;
 
-    return priv->localeHelper->isLessThan(leftPerson->displayLabel(), rightPerson->displayLabel());
+    // TODO: QString::toUpper() ignores locale!
+    // TODO: string copies here are not a nice thing
+    return priv->localeHelper->isLessThan(leftPerson->displayLabel().toUpper(),
+                                          rightPerson->displayLabel().toUpper());
 }
 
 // needed for fastscroll
