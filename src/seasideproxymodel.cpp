@@ -137,7 +137,11 @@ QVariantMap SeasideProxyModel::get(int row)
 
     SeasidePerson *person = model->personByRow(getSourceRow(row));
 
-    listElement["firstcharacter"] = QString(person->displayLabel().at(0)); // TODO: won't be correct for localisation, also, this may need to be in SeasidePerson
+    // TODO: won't be at all correct for localisation, also, this may need to be in SeasidePerson
+    // for some locales (asian in particular), we may need multiple bytes - not
+    // just the first - also, we should use QLocale (or ICU) to uppercase, not
+    // QString, as QString uses C locale.
+    listElement["firstcharacter"] = QString(person->displayLabel().at(0).toUpper());
 
     return listElement;
 }
