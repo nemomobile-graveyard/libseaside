@@ -9,7 +9,11 @@
 #ifndef SEASIDEPERSON_H
 #define SEASIDEPERSON_H
 
+// Qt
 #include <QObject>
+#include <QUrl>
+
+// Mobility
 #include <QContact>
 
 QTM_USE_NAMESPACE
@@ -43,9 +47,9 @@ public:
     bool favorite() const;
     void setFavorite(bool favorite);
 
-    Q_PROPERTY(QString avatarPath READ avatarPath WRITE setAvatarPath NOTIFY avatarPathChanged)
-    QString avatarPath() const;
-    void setAvatarPath(QString avatarPath);
+    Q_PROPERTY(QUrl avatarPath READ avatarPath WRITE setAvatarPath NOTIFY avatarPathChanged)
+    QUrl avatarPath() const;
+    void setAvatarPath(QUrl avatarPath);
 
     Q_PROPERTY(QString birthday READ birthday WRITE setBirthday NOTIFY birthdayChanged)
     QString birthday() const;

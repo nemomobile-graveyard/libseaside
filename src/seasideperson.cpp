@@ -1,5 +1,6 @@
 #include <QDebug>
 
+#include <QContactAvatar>
 #include <QContactBirthday>
 #include <QContactName>
 #include <QContactFavorite>
@@ -414,15 +415,25 @@ void SeasidePerson::setFavorite(bool favorite)
     emit favoriteChanged();
 }
 
-QString SeasidePerson::avatarPath() const
+QUrl SeasidePerson::avatarPath() const
 {
-    qDebug() << Q_FUNC_INFO << "STUB";
+    QContactAvatar avatarDetail = mContact.detail<QContactAvatar>();
 
-    return QString("image://theme/icon-m-telephony-contact-avatar");
+    // TODO: a possible improvement would be a cache of thumbnails provided by
+    // libseaside based on the avatar path, i.e. a thumbnailPath(int width, int
+    // height) kind of getter. but that's for the future.
+
+    QUrl avatarUrl = avatarDetail.imageUrl();
+    if (avatarUrl.isEmpty())
+        return QUrl("image://theme/icon-m-telephony-contact-avatar");
+    return avatarUrl;
 }
 
-void SeasidePerson::setAvatarPath(QString avatarPath)
+void SeasidePerson::setAvatarPath(QUrl avatarPath)
 {
+    QContactAvatar avatarDetail = mContact.detail<QContactAvatar>();
+    avatarDetail.setImageUrl(QUrl(avatarPath));
+    mContact.saveDetail(&avatarDetail);
     emit avatarPathChanged();
 }
 
